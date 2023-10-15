@@ -1,0 +1,28 @@
+Coords Convention:
+    Right:  X
+    Left:  -X
+    Up:     Y
+    Down:  -Y
+    Front:  Z
+    Back:  -Z
+
+Chunk buffer layout:
+    u8: - [ Position: Inside Chunk Vertex X Coordinate ]
+    u8: - [ Position: Inside Chunk Vertex Y Coordinate ]
+    u8: - [ Position: Inside Chunk Vertex Z Coordinate ]
+    u8: - [ Texture: Block Face Sub-Texture Numbers [u4: x, u4: y] ]
+    u16: - [ Texture: Block Face Number [z] ]
+    u16: - [ Reserved for future use (and because 32-bit numbers are the minimum in passing data from CPU to GLSL) ]
+
+GUI buffer layout:
+    u16: - [ Position: On Screen X Coordinate ]
+    u16: - [ Position: On Screen Y Coordinate ]
+    u16: - [ Position: Texture X Coordinate ]
+    u16: - [ Position: Texture Y Coordinate ]
+
+Note:
+    There are 3 coordinate spaces in this game for chunks.
+    1) The world coordinates.
+    2) The offset from camera coordinates.
+    3) The in-chunk coordinates.
+    In order to get chunk rotations to apply properly, rotation must be applied with the type 2 coords accounted for.

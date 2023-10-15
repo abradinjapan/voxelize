@@ -1,0 +1,17 @@
+Chunks will be rendered as such:
+    Each Chunk will have it's own opengl buffer.
+        Having all chunk data stored in one partitioned buffer is deprecated because if every chunk has 8 bit detail for all 3 axis, the buffer is way to large and wasting space.
+    Chunks are always stored in the VBO as if they were placed at the center of the world.
+        When drawn however, a uniform containing one camera relative offset matrix will adjust the chunk to be rendered at it's proper distance from the player and other chunks.
+    The outermost faces of a chunk will be rendered separately from faces that do not touch the outside of a chunk.
+    There are no transparent blocks in voxelize.
+        All 'transparent' blocks are simply blocks with missing insides or zero alpha pixel values.
+
+
+
+Coordinates:
+    Voxelize game world coordinates will be 2^64 integers.
+        But one block will be 2^16 coords long for all axis (x, y, z).
+        Meaning that the world's block based coordinates are effectively ranged from 0 to ((2^48)-1) for x, y, & z axes.
+        Converting from player coords (2^64) to block coords (2^48) is just a bitshift towards lower bits by 16 (block_coord = player_coord >> 16).
+    The chunk positioning will be integer in world offset, and floating point in player offset.

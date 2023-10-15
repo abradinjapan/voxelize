@@ -1,0 +1,17 @@
+As of right now, the following features must be implemented into voxelize:
+    - Block placing and removing.
+        Which Requires:
+        - A world positioning system.
+            Which Requires:
+            - Global Coordinates.
+            - Chunk Coordinates.
+            - Block Coordinates.
+        - A player position.
+        - A player camera rotation & rotation based raycast.
+        - A system to redraw chunks and chunk sides when blocks are changed.
+
+There is one thing that I need to define in order to move forward.
+    The unit of rotation used in rotation calculations.
+        Let this be radians.
+
+Player camera rotation and individual entity rotations need to be separated.
