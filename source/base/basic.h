@@ -71,7 +71,7 @@ void BASIC__close__buffer(BASIC__buffer buffer) {
 }
 
 // create buffer with anything as internal data
-BASIC__buffer BASIC__create_custom__buffer(BASIC__address address, BASIC__length length) {
+BASIC__buffer BASIC__create__buffer(BASIC__address address, BASIC__length length) {
     BASIC__buffer output;
 
     // setup output
@@ -83,12 +83,12 @@ BASIC__buffer BASIC__create_custom__buffer(BASIC__address address, BASIC__length
 
 // create custom buffer as [ 0, 0 ]
 BASIC__buffer BASIC__create_null__buffer() {
-    return BASIC__create_custom__buffer(0, 0);
+    return BASIC__create__buffer(0, 0);
 }
 
 // allocate buffer with 'length' size in bytes
 BASIC__buffer BASIC__open__buffer(BASIC__length length) {
-    return BASIC__create_custom__buffer(BASIC__open__allocation(length), length);
+    return BASIC__create__buffer(BASIC__open__allocation(length), length);
 }
 
 // create buffer copy with null termination
@@ -136,7 +136,7 @@ BASIC__buffer BASIC__create__c_string_reference(const char* c_string, BASIC__bt 
     }
 
     // return buffer
-    return BASIC__create_custom__buffer((BASIC__address)c_string, length);
+    return BASIC__create__buffer((BASIC__address)c_string, length);
 }
 
 // create buffer from file
