@@ -3,6 +3,7 @@
 
 /* Include */
 // game internals
+#include "../base/essentials.h"
 #include "game_window.h"
 #include "shaders.h"
 #include "textures.h"
@@ -104,6 +105,25 @@ RENDER__transform RENDER__create_null__transform() {
     return RENDER__create__transform(RENDER__create_null__vertex(), RENDER__create_null__vertex());
 }
 
+// matrix wrapper struct
+typedef struct RENDER__matrix {
+    mat4 p_matrix;
+} RENDER__matrix;
+
+// create custom matrix
+RENDER__matrix RENDER__create__matrix(mat4 matrix) {
+    RENDER__matrix output;
+
+    // create matrix
+    for (u64 i = 0; i < 4; i++) {
+        for (u64 j = 0; j < 4; j++) {
+            output.p_matrix[i][j] = matrix[i][j];
+        }
+    }
+
+    return output;
+}
+
 /* Rendering Temporaries */
 // temporaries
 typedef struct RENDER__temporaries {
@@ -115,7 +135,7 @@ RENDER__temporaries RENDER__open__temporaries() {
     RENDER__temporaries output;
 
     // setup output
-    output.p_vertices = BASIC__create__buffer(RENDER__chunk_total_vertex_size);
+    output.p_vertices = BASIC__open__buffer(RENDER__chunk_total_vertex_size);
 
     return output;
 }
@@ -123,7 +143,7 @@ RENDER__temporaries RENDER__open__temporaries() {
 // destroy temporaries
 void RENDER__close__temporaries(RENDER__temporaries temporaries) {
     // free buffers
-    BASIC__destroy__buffer(temporaries.p_vertices);
+    BASIC__close__buffer(temporaries.p_vertices);
 
     return;
 }
@@ -195,7 +215,11 @@ RENDER__object_count RENDER__calculate__dimension_size_total_count(RENDER__dimen
 // everything rendered in the game
 typedef struct RENDER__world {
     // opengl vbo handles
-    BASIC__buffer p_handles;
+    BASIC__buffer p_handles; // the main allocation for all handles, the rest of the handles sub index into this array
+    BASIC__buffer p_chunk_body_handles;
+    BASIC__buffer p_chunk_XY_handles;
+    BASIC__buffer p_chunk_YZ_handles;
+    BASIC__buffer p_chunk_XZ_handles;
 
     // total count of handles
     RENDER__object_count p_handle_total_count;
@@ -222,7 +246,7 @@ void RENDER__close__world(RENDER__world world) {
     }
 
     // close buffers
-    BASIC__destroy__buffer(world.p_handles);
+    BASIC__close__buffer(world.p_handles);
 
     return;
 }
@@ -247,7 +271,10 @@ RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;
 
     // allocate chunk handles
-    output.p_handles = BASIC__create__buffer(output.p_handle_total_count * sizeof(RENDER__object_handle));
+    output.p_handles = BASIC__open__buffer(output.p_handle_total_count * sizeof(RENDER__object_handle));
+
+    // setup sub handles
+    /*output.p_chunk_body_handles = BASIC*/
 
     // setup chunk body handles
     for (RENDER__object_index i = 0; i < output.p_handle_total_count; i++) {
@@ -908,6 +935,14 @@ void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address 
 
     return;
 }
+
+/*RENDER__matrix RENDER__calculate__transform_matrix(WINDOW__window_configuration window, ESS__world_vertex player_position, ESS__world_vertex object_position) {
+    RENDER__matrix output; // final transform
+
+    // 
+
+    return output;
+}*/
 
 /*// update object transform and render to opengl
 void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform object_transform, RENDER__vertex camera_rotation) {

@@ -54,7 +54,7 @@ TEX__faces TEX__create_null__faces() {
 // destroy faces
 void TEX__destroy__faces(TEX__faces faces) {
     // deallocate
-    BASIC__destroy__buffer(faces.p_faces);
+    BASIC__close__buffer(faces.p_faces);
 
     return;
 }

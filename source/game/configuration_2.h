@@ -59,7 +59,7 @@ TEX__faces CONF2__open__block_faces() {
     color_intensity = 5;
 
     // create buffer
-    output.p_faces = BASIC__create__buffer(sizeof(TEX__pixel) * (output.p_height * output.p_width) * output.p_count);
+    output.p_faces = BASIC__open__buffer(sizeof(TEX__pixel) * (output.p_height * output.p_width) * output.p_count);
 
     // setup random
     srand(1234567890);
@@ -254,8 +254,8 @@ GAME__information CONF2__open__game() {
     SHADER__use__program(output.p_chunks_shader_program);
 
     // clean up shader source buffers
-    BASIC__destroy__buffer(vertex_shader);
-    BASIC__destroy__buffer(fragment_shader);
+    BASIC__close__buffer(vertex_shader);
+    BASIC__close__buffer(fragment_shader);
 
     // setup opengl basic settings
     glDisable(GL_BLEND);

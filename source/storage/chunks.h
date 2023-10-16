@@ -161,7 +161,7 @@ typedef struct CHUNK__chunks {
 // close chunks
 void CHUNK__close__chunks(CHUNK__chunks chunks) {
     // close buffer data
-    BASIC__destroy__buffer(chunks.p_chunk_block_data);
+    BASIC__close__buffer(chunks.p_chunk_block_data);
 
     return;
 }
@@ -236,7 +236,7 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height,
     output = CHUNK__create_null__chunks();
 
     // allocate chunk data
-    output.p_chunk_block_data = BASIC__create__buffer(sizeof(CHUNK__chunk) * width * height * depth);
+    output.p_chunk_block_data = BASIC__open__buffer(sizeof(CHUNK__chunk) * width * height * depth);
 
     // if allocation denied, return null result
     if (output.p_chunk_block_data.p_address == 0) {

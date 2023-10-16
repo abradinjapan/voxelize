@@ -82,7 +82,7 @@ SKIN__skins SKIN__open__block_skins(SKIN__skin_count skin_count) {
     SKIN__skins output;
 
     // setup allocation
-    output.p_block_skins = BASIC__create__buffer(sizeof(SKIN__block) * skin_count);
+    output.p_block_skins = BASIC__open__buffer(sizeof(SKIN__block) * skin_count);
 
     // setup skin count upon allocation success
     if (output.p_block_skins.p_address != 0) {
@@ -98,7 +98,7 @@ SKIN__skins SKIN__open__block_skins(SKIN__skin_count skin_count) {
 // destroy game skins
 void SKIN__close__skins(SKIN__skins skins) {
     // free memory
-    BASIC__destroy__buffer(skins.p_block_skins);
+    BASIC__close__buffer(skins.p_block_skins);
 
     return;
 }

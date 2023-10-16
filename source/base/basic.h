@@ -63,7 +63,7 @@ typedef struct BASIC__buffer {
 } BASIC__buffer;
 
 // deallocate buffer
-void BASIC__destroy__buffer(BASIC__buffer buffer) {
+void BASIC__close__buffer(BASIC__buffer buffer) {
     // close buffer allocation
     BASIC__close__allocation(buffer.p_address, buffer.p_length);
 
@@ -87,7 +87,7 @@ BASIC__buffer BASIC__create_null__buffer() {
 }
 
 // allocate buffer with 'length' size in bytes
-BASIC__buffer BASIC__create__buffer(BASIC__length length) {
+BASIC__buffer BASIC__open__buffer(BASIC__length length) {
     return BASIC__create_custom__buffer(BASIC__open__allocation(length), length);
 }
 
@@ -96,7 +96,7 @@ BASIC__buffer BASIC__create__null_terminated_copy(BASIC__buffer subject) {
     BASIC__buffer output;
 
     // setup output
-    output = BASIC__create__buffer(subject.p_length + sizeof(u8));
+    output = BASIC__open__buffer(subject.p_length + sizeof(u8));
 
     // check for allocation failure
     if (output.p_address == 0) {
@@ -150,7 +150,7 @@ BASIC__buffer BASIC__create__buffer_from_file(BASIC__bt* buffer_error_occured, B
     output = BASIC__create_null__buffer();
 
     // create temporary file name buffer with null termination
-    temp = BASIC__create__buffer(file_address.p_length + 1);
+    temp = BASIC__open__buffer(file_address.p_length + 1);
     if (temp.p_address == 0) {
         // set error type
         *buffer_error_occured = BASIC__bt__true;
@@ -186,7 +186,7 @@ BASIC__buffer BASIC__create__buffer_from_file(BASIC__bt* buffer_error_occured, B
     fseek(f, 0, SEEK_SET);
 
     // allocate output buffer
-    output = BASIC__create__buffer(output.p_length);
+    output = BASIC__open__buffer(output.p_length);
     if (output.p_address == 0) {
         // set error type
         *buffer_error_occured = BASIC__bt__true;
@@ -211,7 +211,7 @@ BASIC__buffer BASIC__create__buffer_from_file(BASIC__bt* buffer_error_occured, B
 
     // free temp file name
     BASIC__label__clean_up:
-    BASIC__destroy__buffer(temp);
+    BASIC__close__buffer(temp);
 
     return output;
 }
@@ -223,7 +223,7 @@ void BASIC__create__file_from_buffer(BASIC__bt* buffer_error_occured, BASIC__bt*
     FILE* f;
 
     // create temporary file name buffer with null termination
-    temp = BASIC__create__buffer(file_address.p_length + 1);
+    temp = BASIC__open__buffer(file_address.p_length + 1);
     if (temp.p_address == 0) {
         // set error type
         *buffer_error_occured = BASIC__bt__true;
@@ -266,7 +266,7 @@ void BASIC__create__file_from_buffer(BASIC__bt* buffer_error_occured, BASIC__bt*
 
     // free temp file name
     BASIC__label__clean_up:
-    BASIC__destroy__buffer(temp);
+    BASIC__close__buffer(temp);
 
     return;
 }
@@ -286,7 +286,7 @@ BASIC__buffer BASIC__open__buffer_from_file_as_c_string(BASIC__bt* file_error, B
     output = BASIC__create__null_terminated_copy(file_data);
 
     // free file data
-    BASIC__destroy__buffer(file_data);
+    BASIC__close__buffer(file_data);
 
     return output;
 }

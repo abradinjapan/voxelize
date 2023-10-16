@@ -9,6 +9,7 @@
 #include "../user_control/controls.h"
 #include "../storage/chunks.h"
 #include "../rendering/render.h"
+#include "../storage/positions.h"
 
 /* Game Information */
 // game state information
@@ -43,6 +44,8 @@ typedef struct GAME__information {
     // game simulation information
     CHUNK__chunks p_chunks;
     
+    // positional information
+    POS__world p_world_positioning;
 
     // game wide temporaries
     RENDER__temporaries p_temporaries;
