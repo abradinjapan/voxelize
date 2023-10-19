@@ -15,3 +15,6 @@ There is one thing that I need to define in order to move forward.
         Let this be radians.
 
 Player camera rotation and individual entity rotations need to be separated.
+
+Chunk rendering must be based on a chunks global position and camera offset, no longer it's camera offset alone.
+    This must be changed first before any other changes.

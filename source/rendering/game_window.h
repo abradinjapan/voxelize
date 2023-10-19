@@ -1,5 +1,5 @@
-#ifndef VOXELIZE__graphics
-#define VOXELIZE__graphics
+#ifndef VOXELIZE__game_window
+#define VOXELIZE__game_window
 
 /* Include */
 // base
