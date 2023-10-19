@@ -794,8 +794,6 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 
 // render everything in the world
 void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__world world, RENDER__temporaries temps) {
-    RENDER__object_index handle_index_temp;
-
     // render each chunk body
     for (RENDER__object_index chunks_x = 0; chunks_x < world.p_chunk_bodies_dimension_size.p_width; chunks_x++) {
         for (RENDER__object_index chunks_y = 0; chunks_y < world.p_chunk_bodies_dimension_size.p_height; chunks_y++) {

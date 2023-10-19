@@ -16,6 +16,7 @@ typedef u64 ESS__world_axis; // the global axis type
 #define ESS__define__bits_per_block 16 // The amount of bits that contain one block for an entities position axis
 #define ESS__define__bits_per_block__range__start 0
 #define ESS__define__bits_per_block__range__end ((1<<ESS__define__bits_per_block)-1)
+#define ESS__define__bits_per_block__total_count (ESS__define__bits_per_block__range__end+1)
 #define ESS__define__world_axis_middle ((ESS__world_axis)1<<((sizeof(ESS__world_axis)*ESS__define__bits_per_byte)-1)) // this is the value that is the middle of each axis (X Y Z)
 
 // the size of one chunk dimension in blocks
@@ -101,6 +102,17 @@ ESS__world_box ESS__create_null__world_box() {
 ESS__world_vertex ESS__calculate__world_center() {
     // return middle vertex
     return ESS__create__world_vertex(ESS__define__world_axis_middle, ESS__define__world_axis_middle, ESS__define__world_axis_middle);
+}
+
+// get the size of one block in world coordinates
+ESS__world_axis ESS__calculate__block_size_in_world_coordinates() {
+    // return value
+    return (ESS__world_axis)ESS__define__bits_per_block__total_count;
+}
+
+// get the side length of one chunk in world cooridinates
+ESS__world_axis ESS__calculate__chunk_size_in_world_coordinates() {
+    return ESS__calculate__block_size_in_world_coordinates() * ESS__define__chunk_side_block_count;
 }
 
 #endif

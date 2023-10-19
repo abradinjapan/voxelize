@@ -14,4 +14,4 @@ Coordinates:
         But one block will be 2^16 coords long for all axis (x, y, z).
         Meaning that the world's block based coordinates are effectively ranged from 0 to ((2^48)-1) for x, y, & z axes.
         Converting from player coords (2^64) to block coords (2^48) is just a bitshift towards lower bits by 16 (block_coord = player_coord >> 16).
-    The chunk positioning will be integer in world offset, and floating point in player offset.
+    The chunk positioning will be integer in world offset, and floating point in camera offset.
