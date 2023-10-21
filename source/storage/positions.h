@@ -43,6 +43,7 @@ POS__positions POS__create_null__positions() {
 // open positions
 POS__positions POS__open__positions(ESS__world_vertex camera_position, CHUNK__chunks_x chunks_width, CHUNK__chunks_y chunks_height, CHUNK__chunks_z chunks_depth) {
     POS__positions output;
+    
 
     // calculate dimensions
 

@@ -44,6 +44,8 @@ typedef RENDER__vertex_index RENDER__vertex_count; // vertex count
 typedef CHUNK__chunks_index RENDER__object_index;
 typedef RENDER__object_index RENDER__object_count;
 typedef RENDER__object_index RENDER__object_axis;
+
+// object sizes
 typedef ESS__dimension_x RENDER__object_x;
 typedef ESS__dimension_y RENDER__object_y;
 typedef ESS__dimension_z RENDER__object_z;
@@ -233,10 +235,10 @@ RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
     output.p_chunk_XZ_surfaces_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height - 1, chunks.p_depth);
 
     // setup counts
-    output.p_chunk_bodies_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_bodies_dimensions);
-    output.p_chunk_XY_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_XY_surfaces_dimensions);
-    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_YZ_surfaces_dimensions);
-    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_XZ_surfaces_dimensions);
+    output.p_chunk_bodies_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_bodies_dimensions);
+    output.p_chunk_XY_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_XY_surfaces_dimensions);
+    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_YZ_surfaces_dimensions);
+    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_XZ_surfaces_dimensions);
 
     // setup total count
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;

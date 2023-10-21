@@ -16,7 +16,7 @@ typedef u64 ESS__dimension_axis;
 typedef ESS__dimension_axis ESS__dimension_x;
 typedef ESS__dimension_axis ESS__dimension_y;
 typedef ESS__dimension_axis ESS__dimension_z;
-typedef ESS__dimension_axis ESS__dimensions_total_object_count;
+typedef ESS__dimension_axis ESS__dimensions_volume;
 
 // basics
 #define ESS__define__bits_per_byte 8
@@ -123,7 +123,7 @@ ESS__dimensions ESS__create__dimensions(ESS__dimension_x width, ESS__dimension_y
 }
 
 // calculate a dimension's array size
-ESS__dimensions_total_object_count ESS__calculate__dimensions_object_total_count(ESS__dimensions dimensions) {
+ESS__dimensions_volume ESS__calculate__dimensions_volume(ESS__dimensions dimensions) {
     return dimensions.p_width * dimensions.p_height * dimensions.p_depth;
 }
 
