@@ -34,9 +34,6 @@ typedef CHUNK__chunks_axis_index CHUNK__chunks_x;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_y;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_z;
 
-// the position of the chunk
-typedef ESS__world_vertex CHUNK__position;
-
 /* Block */
 // get block type from block data
 CHUNK__block_ID CHUNK__get__block_ID_from_block_data(CHUNK__block_data block_data) {
@@ -59,14 +56,13 @@ CHUNK__block_data CHUNK__create_null__block() {
 /* Chunk */
 typedef struct CHUNK__chunk {
     CHUNK__block_data p_blocks[ESS__define__chunk_total_block_count];
-    CHUNK__position p_position;
 } CHUNK__chunk;
 
 // chunk address
 typedef CHUNK__chunk* CHUNK__chunk_address;
 
 // create a chunk with one specific block data for every block
-CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data, CHUNK__position position) {
+CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data) {
     CHUNK__chunk output;
 
     // setup block data
@@ -74,30 +70,22 @@ CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data, CHUNK__position 
         // set block
         output.p_blocks[block_index] = block_data;
     }
-
-    // setup chunk position
-    output.p_position = position;
     
     return output;
-}
-
-// create null chunk position
-CHUNK__position CHUNK__create_null__chunk_position() {
-    return (CHUNK__position)ESS__create_null__world_vertex();
 }
 
 // create a blank chunk
 CHUNK__chunk CHUNK__create_null__chunk() {
     // create empty chunk
-    return CHUNK__create__chunk(CHUNK__create_null__block(), CHUNK__create_null__chunk_position());
+    return CHUNK__create__chunk(CHUNK__create_null__block());
 }
 
 // create chunk where every other block is air and one custom block type
-CHUNK__chunk CHUNK__create__chunk__alternating_block_pattern(CHUNK__block_ID first_block, CHUNK__block_ID second_block, CHUNK__position position) {
+CHUNK__chunk CHUNK__create__chunk__alternating_block_pattern(CHUNK__block_ID first_block, CHUNK__block_ID second_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_block), position);
+    output = CHUNK__create__chunk(CHUNK__create__block(first_block));
 
     // setup every even block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count; block_index += 2) {
@@ -109,11 +97,11 @@ CHUNK__chunk CHUNK__create__chunk__alternating_block_pattern(CHUNK__block_ID fir
 }
 
 // create chunk where every 3 blocks are a custom type
-CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__block_data first_block, CHUNK__block_data second_block, CHUNK__block_data third_block, CHUNK__position position) {
+CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__block_data first_block, CHUNK__block_data second_block, CHUNK__block_data third_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_block), position);
+    output = CHUNK__create__chunk(CHUNK__create__block(first_block));
 
     // setup every even block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count - 3; block_index += 3) {
@@ -127,11 +115,11 @@ CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__block_data fi
 }
 
 // create chunk with 6 of one type and another seventh in a rotating pattern
-CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data first_six_blocks, CHUNK__block_data seventh_block, CHUNK__position position) {
+CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data first_six_blocks, CHUNK__block_data seventh_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_six_blocks), position);
+    output = CHUNK__create__chunk(CHUNK__create__block(first_six_blocks));
 
     // setup every seventh block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count - 7; block_index += 7) {
@@ -203,7 +191,7 @@ CHUNK__chunks_index CHUNK__calculate__chunks_index(CHUNK__chunks chunks, CHUNK__
     return (chunks.p_height * chunks.p_width * z) + (chunks.p_width * y) + x;
 }
 
-// calculate the world position of a chunk in chunks
+/*// calculate the world position of a chunk in chunks
 CHUNK__position CHUNK__calculate__chunk_world_position(CHUNK__position initial_position, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
     CHUNK__position output;
 
@@ -213,7 +201,7 @@ CHUNK__position CHUNK__calculate__chunk_world_position(CHUNK__position initial_p
     output.p_z = initial_position.p_z + (z * ESS__calculate__chunk_size_in_world_coordinates());
 
     return output;
-}
+}*/
 
 // get chunk address
 CHUNK__chunk_address CHUNK__get__chunk_pointer_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunks_index) {
@@ -222,7 +210,7 @@ CHUNK__chunk_address CHUNK__get__chunk_pointer_in_chunks(CHUNK__chunks chunks, C
 }
 
 // set chunk by address
-void CHUNK__set__chunk_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunks_index, CHUNK__chunk_address new_chunk_address, CHUNK__position new_position) {
+void CHUNK__set__chunk_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunks_index, CHUNK__chunk_address new_chunk_address) {
     CHUNK__chunk_address setting_chunk_address;
 
     // get chunk
@@ -232,15 +220,11 @@ void CHUNK__set__chunk_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunk
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count; block_index++) {
         (*setting_chunk_address).p_blocks[block_index] = (*new_chunk_address).p_blocks[block_index];
     }
-
-    // change position
-    (*setting_chunk_address).p_position = new_position;
-
     return;
 }
 
 // allocate and fill chunks
-CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth, CHUNK__chunk_address default_chunk, CHUNK__position position) {
+CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth, CHUNK__chunk_address default_chunk) {
     CHUNK__chunks output;
 
     // allocate chunk data
@@ -265,7 +249,7 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height,
             // z
             for (CHUNK__chunks_z chunks_depth = 0; chunks_depth < depth; chunks_depth++) {
                 // setup chunk data
-                CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, chunks_width, chunks_height, chunks_depth), default_chunk, CHUNK__calculate__chunk_world_position(position, chunks_width, chunks_height, chunks_depth));
+                CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, chunks_width, chunks_height, chunks_depth), default_chunk);
             }
         }
     }

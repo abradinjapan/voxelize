@@ -41,7 +41,6 @@ typedef struct GAME__information {
     CONTROLS__controls p_controls;
 
     // game simulation information
-    ESS__world_vertex p_player_position;
     CHUNK__chunks p_chunks;
 
     // game wide temporaries

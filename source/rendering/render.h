@@ -106,13 +106,13 @@ RENDER__transform RENDER__create_null__transform() {
 }
 
 // matrix wrapper struct
-typedef struct RENDER__matrix {
+typedef struct RENDER__matrix_f32 {
     mat4 p_matrix;
-} RENDER__matrix;
+} RENDER__matrix_f32;
 
 // create custom matrix
-RENDER__matrix RENDER__create__matrix(mat4 matrix) {
-    RENDER__matrix output;
+RENDER__matrix_f32 RENDER__create__matrix_f32(mat4 matrix) {
+    RENDER__matrix_f32 output;
 
     // create matrix
     for (u64 i = 0; i < 4; i++) {
@@ -865,17 +865,36 @@ RENDER__transform RENDER__calculate__add_object_transforms(RENDER__transform a, 
     return output;
 }
 
+// calculate the floating point offset from the camera position and the object position
+RENDER__vertex RENDER__calculate__camera_position_offset(ESS__world_vertex camera_position, ESS__world_vertex object_position) {
+    RENDER__vertex output;
+
+    // setup output
+    output.p_vertices[0] = ((f32)(camera_position.p_x - object_position.p_x)) / ((f32)ESS__define__bits_per_block__total_count);
+    output.p_vertices[1] = ((f32)(camera_position.p_y - object_position.p_y)) / ((f32)ESS__define__bits_per_block__total_count);
+    output.p_vertices[2] = ((f32)(camera_position.p_z - object_position.p_z)) / ((f32)ESS__define__bits_per_block__total_count);
+
+    return output;
+}
+
 // send transform matrix to GPU
-void RENDER__send__transform_matrix(GLuint program_ID, mat4* transform) {
+void RENDER__send__transform_matrix__opengl(GLuint program_ID, mat4* transform) {
     // send data
     glUniformMatrix4fv(glGetUniformLocation(program_ID, "GLOBAL_transform"), 1, GL_FALSE, (RENDER__axis*)transform);
 
     return;
 }
 
-// update object transform and render to opengl
-void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform world_transform, RENDER__vertex camera_rotation) {
-    mat4 final_transform;
+// send transform matrix to opengl
+void RENDER__send__transform_matrix__voxelize(SHADER__program shader_program, RENDER__matrix_f32 transform) {
+    // send data
+    RENDER__send__transform_matrix__opengl(shader_program.p_program_ID, &(transform.p_matrix));
+
+    return;
+}
+
+RENDER__matrix_f32 RENDER__calculate__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, RENDER__transform world_transform) {
+    RENDER__matrix_f32 output; // final transform
     mat4 perspective;
     mat4 view;
     mat4 player_camera_rotation_matrix;
@@ -917,23 +936,12 @@ void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address 
     glm_translate(model, camera_movement);
 
     // create final transform
-    glm_mat4_mul(perspective, view, final_transform);
-    glm_mat4_mul(final_transform, player_camera_rotation_matrix, final_transform);
-    glm_mat4_mul(final_transform, model, final_transform);
-
-    // send final transform to opengl shaders
-    RENDER__send__transform_matrix(shader_program.p_program_ID, &final_transform);
-
-    return;
-}
-
-/*RENDER__matrix RENDER__calculate__transform_matrix(WINDOW__window_configuration window, ESS__world_vertex player_position, ESS__world_vertex object_position) {
-    RENDER__matrix output; // final transform
-
-    // 
+    glm_mat4_mul(perspective, view, output.p_matrix);
+    glm_mat4_mul(output.p_matrix, player_camera_rotation_matrix, output.p_matrix);
+    glm_mat4_mul(output.p_matrix, model, output.p_matrix);
 
     return output;
-}*/
+}
 
 /*// update object transform and render to opengl
 void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform object_transform, RENDER__vertex camera_rotation) {
@@ -989,14 +997,17 @@ void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address 
 }*/
 
 // draw everything
-void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform world_transform, RENDER__vertex player_camera_rotation) {
+void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform world_transform) {
+    RENDER__matrix_f32 final_transform;
+
     // bind proper textures
     TEX__bind__game_textures__specific(game_textures, TEX__gtt__block_faces, shader_program);
 
     // draw all block handles
     for (RENDER__object_index i = 0; i < world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + world.p_chunk_YZ_surfaces_count + world.p_chunk_XZ_surfaces_count; i++) {
         // create and send matrix to opengl
-        RENDER__calculate_and_send__transform_matrix(world.p_all_handles.p_address + (sizeof(RENDER__object_handle) * i), window, shader_program, world_transform, player_camera_rotation);
+        final_transform = RENDER__calculate__transform_matrix(world.p_all_handles.p_address + (sizeof(RENDER__object_handle) * i), window, world_transform);
+        RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
 
         // bind chunk
         glBindVertexArray(((RENDER__object_handle*)world.p_all_handles.p_address)[i].p_vao);
