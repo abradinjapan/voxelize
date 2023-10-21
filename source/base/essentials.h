@@ -5,8 +5,18 @@
 #include "basic.h"
 
 /* Defines */
-// game type defines
+// world axis defines
 typedef u64 ESS__world_axis; // the global axis type
+typedef ESS__world_axis ESS__world_x;
+typedef ESS__world_axis ESS__world_y;
+typedef ESS__world_axis ESS__world_z;
+
+// dimension defines
+typedef u64 ESS__dimension_axis;
+typedef ESS__dimension_axis ESS__dimension_x;
+typedef ESS__dimension_axis ESS__dimension_y;
+typedef ESS__dimension_axis ESS__dimension_z;
+typedef ESS__dimension_axis ESS__dimensions_total_object_count;
 
 // basics
 #define ESS__define__bits_per_byte 8
@@ -33,11 +43,6 @@ typedef u64 ESS__world_axis; // the global axis type
 #define ESS__define__far_plane 10000.0f
 
 /* World Vertices */
-// defines
-typedef ESS__world_axis ESS__world_x;
-typedef ESS__world_axis ESS__world_y;
-typedef ESS__world_axis ESS__world_z;
-
 // world vertices
 typedef struct ESS__world_vertex {
     ESS__world_x p_x;
@@ -95,6 +100,31 @@ ESS__world_box ESS__create__world_box(ESS__world_vertex right_up_front, ESS__wor
 ESS__world_box ESS__create_null__world_box() {
     // return empty world box
     return ESS__create__world_box(ESS__create_null__world_vertex(), ESS__create_null__world_vertex());
+}
+
+/* Dimensions */
+// integer dimensions of a 3d object
+typedef struct ESS__dimensions {
+    ESS__dimension_x p_width;
+    ESS__dimension_y p_height;
+    ESS__dimension_z p_depth;
+} ESS__dimensions;
+
+// create a dimension size
+ESS__dimensions ESS__create__dimensions(ESS__dimension_x width, ESS__dimension_y height, ESS__dimension_z depth) {
+    ESS__dimensions output;
+
+    // setup output
+    output.p_width = width;
+    output.p_height = height;
+    output.p_depth = depth;
+    
+    return output;
+}
+
+// calculate a dimension's array size
+ESS__dimensions_total_object_count ESS__calculate__dimensions_object_total_count(ESS__dimensions dimensions) {
+    return dimensions.p_width * dimensions.p_height * dimensions.p_depth;
 }
 
 /* Game Calculations */

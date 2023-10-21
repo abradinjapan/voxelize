@@ -44,12 +44,12 @@ typedef RENDER__vertex_index RENDER__vertex_count; // vertex count
 typedef CHUNK__chunks_index RENDER__object_index;
 typedef RENDER__object_index RENDER__object_count;
 typedef RENDER__object_index RENDER__object_axis;
-typedef RENDER__object_axis RENDER__object_x;
-typedef RENDER__object_axis RENDER__object_y;
-typedef RENDER__object_axis RENDER__object_z;
+typedef ESS__dimension_x RENDER__object_x;
+typedef ESS__dimension_y RENDER__object_y;
+typedef ESS__dimension_z RENDER__object_z;
 
 // chunk vertex statistics
-#define RENDER__chunk_side_vertex_count 129 // ((256 / 2) + 1) <- Because doing 0 - 256 would require 9 bits, the detail is cut in half to 0 - 128 || 129 || 0 - (16 * 8)
+#define RENDER__chunk_side_vertex_count 129 // ((256 / 2) + 1) <- Because doing 0 - 256 would require 9 bits, the detail is cut in half to 0 -> 128 || 129 || 0 -> (16 * 8)
 #define RENDER__chunk_slice_vertex_count (RENDER__chunk_side_vertex_count*RENDER__chunk_side_vertex_count)
 #define RENDER__chunk_total_vertex_count (RENDER__chunk_slice_vertex_count*RENDER__chunk_side_vertex_count)
 #define RENDER__chunk_total_vertex_size (RENDER__chunk_total_vertex_count*sizeof(RENDER__compact_vertex))
@@ -105,6 +105,7 @@ RENDER__transform RENDER__create_null__transform() {
     return RENDER__create__transform(RENDER__create_null__vertex(), RENDER__create_null__vertex());
 }
 
+/* Matrix */
 // matrix wrapper struct
 typedef struct RENDER__matrix_f32 {
     mat4 p_matrix;
@@ -188,30 +189,6 @@ RENDER__object_handle RENDER__create__object_handle(RENDER__transform transform,
     return output;
 }
 
-// integer dimensions of a 3d object
-typedef struct RENDER__dimension_size {
-    RENDER__object_x p_width;
-    RENDER__object_y p_height;
-    RENDER__object_z p_depth;
-} RENDER__dimension_size;
-
-// create a dimension size
-RENDER__dimension_size RENDER__create__dimension_size(RENDER__object_x width, RENDER__object_y height, RENDER__object_z depth) {
-    RENDER__dimension_size output;
-
-    // setup output
-    output.p_width = width;
-    output.p_height = height;
-    output.p_depth = depth;
-    
-    return output;
-}
-
-// calculate a dimension's array size
-RENDER__object_count RENDER__calculate__dimension_size_total_count(RENDER__dimension_size dimension_size) {
-    return dimension_size.p_width * dimension_size.p_height * dimension_size.p_depth;
-}
-
 // everything rendered in the game
 typedef struct RENDER__world {
     // opengl vbo handles
@@ -225,10 +202,10 @@ typedef struct RENDER__world {
     RENDER__object_count p_chunk_XZ_surfaces_count;
 
     // dimensions
-    RENDER__dimension_size p_chunk_bodies_dimension_size;
-    RENDER__dimension_size p_chunk_XY_surfaces_dimension_size;
-    RENDER__dimension_size p_chunk_YZ_surfaces_dimension_size;
-    RENDER__dimension_size p_chunk_XZ_surfaces_dimension_size;
+    ESS__dimensions p_chunk_bodies_dimensions;
+    ESS__dimensions p_chunk_XY_surfaces_dimensions;
+    ESS__dimensions p_chunk_YZ_surfaces_dimensions;
+    ESS__dimensions p_chunk_XZ_surfaces_dimensions;
 } RENDER__world;
 
 // close the visible world
@@ -250,16 +227,16 @@ RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
     RENDER__world output;
 
     // setup dimemsions
-    output.p_chunk_bodies_dimension_size = RENDER__create__dimension_size(chunks.p_width, chunks.p_height, chunks.p_depth);
-    output.p_chunk_XY_surfaces_dimension_size = RENDER__create__dimension_size(chunks.p_width, chunks.p_height, chunks.p_depth - 1);
-    output.p_chunk_YZ_surfaces_dimension_size = RENDER__create__dimension_size(chunks.p_width - 1, chunks.p_height, chunks.p_depth);
-    output.p_chunk_XZ_surfaces_dimension_size = RENDER__create__dimension_size(chunks.p_width, chunks.p_height - 1, chunks.p_depth);
+    output.p_chunk_bodies_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height, chunks.p_depth);
+    output.p_chunk_XY_surfaces_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height, chunks.p_depth - 1);
+    output.p_chunk_YZ_surfaces_dimensions = ESS__create__dimensions(chunks.p_width - 1, chunks.p_height, chunks.p_depth);
+    output.p_chunk_XZ_surfaces_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height - 1, chunks.p_depth);
 
     // setup counts
-    output.p_chunk_bodies_count = (RENDER__object_count)RENDER__calculate__dimension_size_total_count(output.p_chunk_bodies_dimension_size);
-    output.p_chunk_XY_surfaces_count = (RENDER__object_count)RENDER__calculate__dimension_size_total_count(output.p_chunk_XY_surfaces_dimension_size);
-    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)RENDER__calculate__dimension_size_total_count(output.p_chunk_YZ_surfaces_dimension_size);
-    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)RENDER__calculate__dimension_size_total_count(output.p_chunk_XZ_surfaces_dimension_size);
+    output.p_chunk_bodies_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_bodies_dimensions);
+    output.p_chunk_XY_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_XY_surfaces_dimensions);
+    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_YZ_surfaces_dimensions);
+    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_object_total_count(output.p_chunk_XZ_surfaces_dimensions);
 
     // setup total count
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;
@@ -281,13 +258,13 @@ RENDER__object_index RENDER__calculate__handle_index(RENDER__world world, RENDER
     // determing type & calculate offset accordingly
     switch (object_type) {
     case RENDER__ot__chunk_body:
-        return 0 + (world.p_chunk_bodies_dimension_size.p_height * world.p_chunk_bodies_dimension_size.p_width * object_z) + (world.p_chunk_bodies_dimension_size.p_width * object_y) + object_x;
+        return 0 + (world.p_chunk_bodies_dimensions.p_height * world.p_chunk_bodies_dimensions.p_width * object_z) + (world.p_chunk_bodies_dimensions.p_width * object_y) + object_x;
     case RENDER__ot__chunk_XY_surface:
-        return world.p_chunk_bodies_count + (world.p_chunk_XY_surfaces_dimension_size.p_height * world.p_chunk_XY_surfaces_dimension_size.p_width * object_z) + (world.p_chunk_XY_surfaces_dimension_size.p_width * object_y) + object_x;
+        return world.p_chunk_bodies_count + (world.p_chunk_XY_surfaces_dimensions.p_height * world.p_chunk_XY_surfaces_dimensions.p_width * object_z) + (world.p_chunk_XY_surfaces_dimensions.p_width * object_y) + object_x;
     case RENDER__ot__chunk_YZ_surface:
-        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + (world.p_chunk_YZ_surfaces_dimension_size.p_height * world.p_chunk_YZ_surfaces_dimension_size.p_width * object_z) + (world.p_chunk_YZ_surfaces_dimension_size.p_width * object_y) + object_x;
+        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + (world.p_chunk_YZ_surfaces_dimensions.p_height * world.p_chunk_YZ_surfaces_dimensions.p_width * object_z) + (world.p_chunk_YZ_surfaces_dimensions.p_width * object_y) + object_x;
     case RENDER__ot__chunk_XZ_surface:
-        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + world.p_chunk_YZ_surfaces_count + (world.p_chunk_XZ_surfaces_dimension_size.p_height * world.p_chunk_XZ_surfaces_dimension_size.p_width * object_z) + (world.p_chunk_XZ_surfaces_dimension_size.p_width * object_y) + object_x;
+        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + world.p_chunk_YZ_surfaces_count + (world.p_chunk_XZ_surfaces_dimensions.p_height * world.p_chunk_XZ_surfaces_dimensions.p_width * object_z) + (world.p_chunk_XZ_surfaces_dimensions.p_width * object_y) + object_x;
     default:
         return world.p_handle_total_count;
     }
@@ -795,9 +772,9 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 // render everything in the world
 void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__world world, RENDER__temporaries temps) {
     // render each chunk body
-    for (RENDER__object_index chunks_x = 0; chunks_x < world.p_chunk_bodies_dimension_size.p_width; chunks_x++) {
-        for (RENDER__object_index chunks_y = 0; chunks_y < world.p_chunk_bodies_dimension_size.p_height; chunks_y++) {
-            for (RENDER__object_index chunks_z = 0; chunks_z < world.p_chunk_bodies_dimension_size.p_depth; chunks_z++) {
+    for (RENDER__object_index chunks_x = 0; chunks_x < world.p_chunk_bodies_dimensions.p_width; chunks_x++) {
+        for (RENDER__object_index chunks_y = 0; chunks_y < world.p_chunk_bodies_dimensions.p_height; chunks_y++) {
+            for (RENDER__object_index chunks_z = 0; chunks_z < world.p_chunk_bodies_dimensions.p_depth; chunks_z++) {
                 // render one chunk
                 RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(chunks, CHUNK__calculate__chunks_index(chunks, chunks_x, chunks_y, chunks_z)), (RENDER__object_index)CHUNK__calculate__chunks_index(chunks, chunks_x, chunks_y, chunks_z), world, temps);
 
@@ -808,9 +785,9 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__worl
     }
 
     // render each XY surface
-    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_XY_surfaces_dimension_size.p_width; surfaces_x++) {
-        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_XY_surfaces_dimension_size.p_height; surfaces_y++) {
-            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_XY_surfaces_dimension_size.p_depth; surfaces_z++) {
+    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_XY_surfaces_dimensions.p_width; surfaces_x++) {
+        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_XY_surfaces_dimensions.p_height; surfaces_y++) {
+            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_XY_surfaces_dimensions.p_depth; surfaces_z++) {
                 // render one chunk
                 RENDER__render__chunk_XY_surface(skins, chunks, RENDER__calculate__handle_index(world, RENDER__ot__chunk_XY_surface, surfaces_x, surfaces_y, surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x, (CHUNK__chunks_y)surfaces_y, (CHUNK__chunks_z)surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x, (CHUNK__chunks_y)surfaces_y, (CHUNK__chunks_z)surfaces_z + 1), world, temps);
 
@@ -821,9 +798,9 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__worl
     }
 
     // render each YZ surface
-    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_YZ_surfaces_dimension_size.p_width; surfaces_x++) {
-        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_YZ_surfaces_dimension_size.p_height; surfaces_y++) {
-            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_YZ_surfaces_dimension_size.p_depth; surfaces_z++) {
+    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_YZ_surfaces_dimensions.p_width; surfaces_x++) {
+        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_YZ_surfaces_dimensions.p_height; surfaces_y++) {
+            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_YZ_surfaces_dimensions.p_depth; surfaces_z++) {
                 // render one chunk
                 RENDER__render__chunk_YZ_surface(skins, chunks, RENDER__calculate__handle_index(world, RENDER__ot__chunk_YZ_surface, surfaces_x, surfaces_y, surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x, (CHUNK__chunks_y)surfaces_y, (CHUNK__chunks_z)surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x + 1, (CHUNK__chunks_y)surfaces_y, (CHUNK__chunks_z)surfaces_z), world, temps);
 
@@ -834,9 +811,9 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__worl
     }
 
     // render each XZ surface
-    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_XZ_surfaces_dimension_size.p_width; surfaces_x++) {
-        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_XZ_surfaces_dimension_size.p_height; surfaces_y++) {
-            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_XZ_surfaces_dimension_size.p_depth; surfaces_z++) {
+    for (RENDER__object_index surfaces_x = 0; surfaces_x < world.p_chunk_XZ_surfaces_dimensions.p_width; surfaces_x++) {
+        for (RENDER__object_index surfaces_y = 0; surfaces_y < world.p_chunk_XZ_surfaces_dimensions.p_height; surfaces_y++) {
+            for (RENDER__object_index surfaces_z = 0; surfaces_z < world.p_chunk_XZ_surfaces_dimensions.p_depth; surfaces_z++) {
                 // render one chunk
                 RENDER__render__chunk_XZ_surface(skins, chunks, RENDER__calculate__handle_index(world, RENDER__ot__chunk_XZ_surface, surfaces_x, surfaces_y, surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x, (CHUNK__chunks_y)surfaces_y, (CHUNK__chunks_z)surfaces_z), CHUNK__calculate__chunks_index(chunks, (CHUNK__chunks_x)surfaces_x, (CHUNK__chunks_y)surfaces_y + 1, (CHUNK__chunks_z)surfaces_z), world, temps);
 
