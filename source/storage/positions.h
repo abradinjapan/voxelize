@@ -83,9 +83,9 @@ ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chu
     ESS__world_vertex output;
 
     // calculate position
-    output.p_x = chunks_position.p_x - (ESS__calculate__chunk_size_in_world_coordinates() * x * 8);
-    output.p_y = chunks_position.p_y - (ESS__calculate__chunk_size_in_world_coordinates() * y * 8);
-    output.p_z = chunks_position.p_z - (ESS__calculate__chunk_size_in_world_coordinates() * z * 8);
+    output.p_x = chunks_position.p_x - (ESS__calculate__chunk_size_in_world_coordinates() * x);
+    output.p_y = chunks_position.p_y - (ESS__calculate__chunk_size_in_world_coordinates() * y);
+    output.p_z = chunks_position.p_z - (ESS__calculate__chunk_size_in_world_coordinates() * z);
 
     return output;
 }

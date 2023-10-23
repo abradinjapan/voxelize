@@ -57,7 +57,7 @@ typedef ESS__dimension_z RENDER__object_z;
 #define RENDER__chunk_slice_vertex_count (RENDER__chunk_side_vertex_count*RENDER__chunk_side_vertex_count)
 #define RENDER__chunk_total_vertex_count (RENDER__chunk_slice_vertex_count*RENDER__chunk_side_vertex_count)
 #define RENDER__chunk_total_vertex_size (RENDER__chunk_total_vertex_count*sizeof(RENDER__compact_vertex))
-#define RENDER__vertices_per_block_strip ((RENDER__chunk_side_vertex_count-1)/ESS__define__chunk_side_block_count) // the distance from one block to the next
+#define RENDER__vertices_per_block ((RENDER__chunk_side_vertex_count-1)/ESS__define__chunk_side_block_count) // the distance from one block to the next
 
 // chunk draw type information
 #define RENDER__chunk_draw_type GL_ARRAY_BUFFER
@@ -319,7 +319,7 @@ void RENDER__render_and_next__compact_vertex(RENDER__vertex_index* index, RENDER
 RENDER__vertex_index RENDER__render__X_face(RENDER__temporaries temps, RENDER__vertex_index vertex_index, RENDER__x x, RENDER__y y, RENDER__z z, RENDER__compact_texture_z texture_z) {
     RENDER__compact_texture_xy texture_min = 0;
     RENDER__compact_texture_xy texture_max = 15;
-    RENDER__compact_axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__compact_axis offset_size = RENDER__vertices_per_block;
 
     // render first triangle
     RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z, texture_min, texture_min, texture_z));
@@ -338,7 +338,7 @@ RENDER__vertex_index RENDER__render__X_face(RENDER__temporaries temps, RENDER__v
 RENDER__vertex_index RENDER__render__Y_face(RENDER__temporaries temps, RENDER__vertex_index vertex_index, RENDER__x x, RENDER__y y, RENDER__z z, RENDER__compact_texture_z texture_z) {
     RENDER__compact_texture_xy texture_min = 0;
     RENDER__compact_texture_xy texture_max = 15;
-    RENDER__compact_axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__compact_axis offset_size = RENDER__vertices_per_block;
 
     // render first triangle
     RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z, texture_min, texture_min, texture_z));
@@ -357,7 +357,7 @@ RENDER__vertex_index RENDER__render__Y_face(RENDER__temporaries temps, RENDER__v
 RENDER__vertex_index RENDER__render__Z_face(RENDER__temporaries temps, RENDER__vertex_index vertex_index, RENDER__x x, RENDER__y y, RENDER__z z, RENDER__compact_texture_z texture_z) {
     RENDER__compact_texture_xy texture_min = 0;
     RENDER__compact_texture_xy texture_max = 15;
-    RENDER__compact_axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__compact_axis offset_size = RENDER__vertices_per_block;
 
     // render first triangle
     RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z, texture_min, texture_min, texture_z));
@@ -380,7 +380,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
     RENDER__x chunk_x;
     RENDER__y chunk_y;
     RENDER__z chunk_z;
-    RENDER__axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__axis offset_size = RENDER__vertices_per_block;
 
     // setup chunk data index
     vertex_index = 0;
@@ -547,7 +547,7 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     RENDER__y vertex_y;
     RENDER__z vertex_z;
     RENDER__vertex_index vertex_index;
-    RENDER__axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__axis offset_size = RENDER__vertices_per_block;
 
     // setup chunk pointer
     center_chunk_address = CHUNK__get__chunk_pointer_in_chunks(chunks, center_chunks_index);
@@ -625,7 +625,7 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     RENDER__y vertex_y;
     RENDER__z vertex_z;
     RENDER__vertex_index vertex_index;
-    RENDER__axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__axis offset_size = RENDER__vertices_per_block;
 
     // setup chunk pointer
     center_chunk_address = CHUNK__get__chunk_pointer_in_chunks(chunks, center_chunks_index);
@@ -703,7 +703,7 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     RENDER__y vertex_y;
     RENDER__z vertex_z;
     RENDER__vertex_index vertex_index;
-    RENDER__axis offset_size = RENDER__vertices_per_block_strip;
+    RENDER__axis offset_size = RENDER__vertices_per_block;
 
     // setup chunk pointer
     center_chunk_address = CHUNK__get__chunk_pointer_in_chunks(chunks, center_chunks_index);
@@ -816,11 +816,20 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, POS__positio
 // calculate the difference between the two positions
 RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {
     if (camera_axis >= object_axis) {
-        return ((f32)(camera_axis - object_axis)) / ((f32)ESS__define__bits_per_block__total_count);
+        return ((f32)(camera_axis - object_axis)) / (f32)ESS__define__bits_per_block__total_count * (f32)RENDER__vertices_per_block;
     } else {
-        return (((f32)(object_axis - camera_axis)) / ((f32)ESS__define__bits_per_block__total_count)) * -1.0f;
+        return ((f32)(object_axis - camera_axis)) / (f32)ESS__define__bits_per_block__total_count * (f32)RENDER__vertices_per_block * -1.0f;
     }
 }
+
+/*// calculate the difference between the two positions
+RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {
+    if (camera_axis >= object_axis) {
+        return ((f32)(camera_axis - object_axis)) / ((f32)ESS__define__bits_per_block__total_count / (f32)RENDER__vertices_per_block);
+    } else {
+        return (((f32)(object_axis - camera_axis)) / ((f32)ESS__define__bits_per_block__total_count / (f32)RENDER__vertices_per_block)) * -1.0f;
+    }
+}*/
 
 // calculate the floating point offset from the camera position and the object position
 RENDER__vertex RENDER__calculate__camera_position_offset(ESS__world_vertex camera_position, ESS__world_vertex object_position) {
