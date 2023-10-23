@@ -362,8 +362,6 @@ void CONF2__close__game(GAME__information game_information) {
 
 // displays the next frame
 void CONF2__display__frame(GAME__information* game_information) {
-    RENDER__vertex player_camera_rotation;
-    float movement_speed = 1.0f;
     float rotation_speed = 0.5f;
 
     // update mouse movement
