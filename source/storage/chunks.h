@@ -34,6 +34,9 @@ typedef CHUNK__chunks_axis_index CHUNK__chunks_x;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_y;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_z;
 
+// the total count of chunks
+typedef ESS__dimensions_volume CHUNK__chunk_count;
+
 /* Block */
 // get block type from block data
 CHUNK__block_ID CHUNK__get__block_ID_from_block_data(CHUNK__block_data block_data) {
@@ -153,9 +156,7 @@ CHUNK__block_data CHUNK__get__block_data_from_chunk_address(CHUNK__chunk_address
 /* Chunks */
 typedef struct CHUNK__chunks {
     BASIC__buffer p_chunk_block_data;
-    CHUNK__chunks_x p_width;
-    CHUNK__chunks_y p_height;
-    CHUNK__chunks_z p_depth;
+    ESS__dimensions p_dimensions;
 } CHUNK__chunks;
 
 // close chunks
@@ -172,9 +173,9 @@ CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data, CHUNK__chunk
 
     // setup output
     output.p_chunk_block_data = chunk_block_data;
-    output.p_width = width;
-    output.p_height = height;
-    output.p_depth = depth;
+    output.p_dimensions.p_width = width;
+    output.p_dimensions.p_height = height;
+    output.p_dimensions.p_depth = depth;
 
     return output;
 }
@@ -188,20 +189,14 @@ CHUNK__chunks CHUNK__create_null__chunks() {
 // calculate chunk index from coords
 CHUNK__chunks_index CHUNK__calculate__chunks_index(CHUNK__chunks chunks, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
     // return chunk index
-    return (chunks.p_height * chunks.p_width * z) + (chunks.p_width * y) + x;
+    return (chunks.p_dimensions.p_height * chunks.p_dimensions.p_width * z) + (chunks.p_dimensions.p_width * y) + x;
 }
 
-/*// calculate the world position of a chunk in chunks
-CHUNK__position CHUNK__calculate__chunk_world_position(CHUNK__position initial_position, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
-    CHUNK__position output;
-
-    // setup output
-    output.p_x = initial_position.p_x + (x * ESS__calculate__chunk_size_in_world_coordinates());
-    output.p_y = initial_position.p_y + (y * ESS__calculate__chunk_size_in_world_coordinates());
-    output.p_z = initial_position.p_z + (z * ESS__calculate__chunk_size_in_world_coordinates());
-
-    return output;
-}*/
+// calculate chunk dimensions
+CHUNK__chunk_count CHUNK__calculate__chunks_count(ESS__dimensions dimensions) {
+    // return calculation
+    return (CHUNK__chunk_count)ESS__calculate__dimensions_volume(dimensions);
+}
 
 // get chunk address
 CHUNK__chunk_address CHUNK__get__chunk_pointer_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunks_index) {
@@ -237,9 +232,9 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height,
     }
 
     // setup size data
-    output.p_width = width;
-    output.p_height = height;
-    output.p_depth = depth;
+    output.p_dimensions.p_width = width;
+    output.p_dimensions.p_height = height;
+    output.p_dimensions.p_depth = depth;
 
     // setup chunks
     // x

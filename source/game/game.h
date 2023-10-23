@@ -7,6 +7,7 @@
 #include "../rendering/textures.h"
 #include "../rendering/shaders.h"
 #include "../user_control/controls.h"
+#include "../storage/positions.h"
 #include "../storage/chunks.h"
 #include "../rendering/render.h"
 
@@ -41,7 +42,9 @@ typedef struct GAME__information {
     CONTROLS__controls p_controls;
 
     // game simulation information
+    POS__positions p_positions;
     CHUNK__chunks p_chunks;
+    RENDER__vertex p_camera_rotation;
 
     // game wide temporaries
     RENDER__temporaries p_temporaries;

@@ -16,5 +16,5 @@ There is one thing that I need to define in order to move forward.
 
 Player camera rotation and individual entity rotations need to be separated.
 
-Chunk rendering must be based on a chunks global position and camera offset, no longer it's camera offset alone.
+Chunk rendering must be based on a chunks global position and camera position, producing an offset between the two, no longer it's f32 camera offset.
     This must be changed first before any other changes.

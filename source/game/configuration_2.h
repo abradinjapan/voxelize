@@ -274,8 +274,7 @@ GAME__information CONF2__open__game() {
 }
 
 // create small world
-CHUNK__chunks CONF2__create__test_world_2() {
-    CHUNK__chunks output;
+void CONF2__create__test_world_2(GAME__information* game_information, ESS__world_vertex camera_position) {
     CHUNK__chunks_index chunks_size = 3;
     CHUNK__chunk chunk;
     CHUNK__chunk_address temp_chunk = 0;
@@ -284,13 +283,13 @@ CHUNK__chunks CONF2__create__test_world_2() {
     chunk = CHUNK__create__chunk(CHUNK__create__block(CONF2__block__air));
 
     // setup chunks
-    output = CHUNK__open__chunks(chunks_size, chunks_size, chunks_size, &chunk);
+    (*game_information).p_chunks = CHUNK__open__chunks(chunks_size, chunks_size, chunks_size, &chunk);
 
     // build ground
     for (u64 chunks_x = 0; chunks_x < chunks_size; chunks_x++) {
         for (u64 chunks_z = 0; chunks_z < chunks_size; chunks_z++) {
             // get chunk
-            temp_chunk = CHUNK__get__chunk_pointer_in_chunks(output, CHUNK__calculate__chunks_index(output, chunks_x, 0, chunks_z));
+            temp_chunk = CHUNK__get__chunk_pointer_in_chunks((*game_information).p_chunks, CHUNK__calculate__chunks_index((*game_information).p_chunks, chunks_x, 0, chunks_z));
 
             // draw in one chunk
             for (u64 block_x = 0; block_x < ESS__define__chunk_side_block_count; block_x++) {
@@ -307,13 +306,16 @@ CHUNK__chunks CONF2__create__test_world_2() {
 
     // create middle chunk
     chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__block__sand), CHUNK__create__block(CONF2__block__stone), CHUNK__create__block(CONF2__block__grass));
-    CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, 1, 0, 1), &chunk);
+    CHUNK__set__chunk_in_chunks((*game_information).p_chunks, CHUNK__calculate__chunks_index((*game_information).p_chunks, 1, 0, 1), &chunk);
 
     // create corner chunk
     chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__block__green_leaves), CHUNK__create__block(CONF2__block__air), CHUNK__create__block(CONF2__block__air));
-    CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, 2, 2, 2), &chunk);
+    CHUNK__set__chunk_in_chunks((*game_information).p_chunks, CHUNK__calculate__chunks_index((*game_information).p_chunks, 2, 2, 2), &chunk);
 
-    return output;
+    // setup world positions
+    (*game_information).p_positions = POS__open__positions(camera_position, camera_position, (*game_information).p_chunks);
+
+    return;
 }
 
 // setup game
@@ -325,13 +327,16 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // setup chunks
-    (*game_information).p_chunks = CONF2__create__test_world_2();
+    CONF2__create__test_world_2(game_information, ESS__calculate__world_center());
 
     // setup world
     (*game_information).p_world = RENDER__open__world((*game_information).p_chunks);
 
     // setup drawing information
-    RENDER__render__world((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_world, (*game_information).p_temporaries);
+    RENDER__render__world((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positions, (*game_information).p_world, (*game_information).p_temporaries);
+
+    // setup camera rotation
+    (*game_information).p_camera_rotation = RENDER__create__vertex(0.0f, 0.0f, 0.0f);
 
     // fixate mouse
     CONTROLS__update__mouse_lock(BASIC__bt__true);
@@ -347,6 +352,7 @@ void CONF2__close__game(GAME__information game_information) {
     SKIN__close__skins(game_information.p_skins);
     SHADER__close__program(game_information.p_chunks_shader_program);
     WINDOW__close__window(game_information.p_graphics);
+    POS__close__positions(game_information.p_positions);
     CHUNK__close__chunks(game_information.p_chunks);
     RENDER__close__world(game_information.p_world);
     RENDER__close__temporaries(game_information.p_temporaries);
@@ -356,45 +362,39 @@ void CONF2__close__game(GAME__information game_information) {
 
 // displays the next frame
 void CONF2__display__frame(GAME__information* game_information) {
-    RENDER__transform transform_change;
     RENDER__vertex player_camera_rotation;
     float movement_speed = 1.0f;
     float rotation_speed = 0.5f;
-
-    // setup null change
-    transform_change = RENDER__create__transform(RENDER__create_null__vertex(), RENDER__create_null__vertex());
 
     // update mouse movement
     CONTROLS__update__mouse_position_change(&((*game_information).p_controls));
 
     // update rotations
-    //player_camera_rotation.p_vertices[0] = glm_rad((*game_information).p_controls.p_mouse_position_change.p_mouse_change_y * -1.0f * rotation_speed);
-    //player_camera_rotation.p_vertices[1] = glm_rad((*game_information).p_controls.p_mouse_position_change.p_mouse_change_x * rotation_speed);
-    transform_change.p_rotation.p_vertices[0] = (*game_information).p_controls.p_mouse_position_change.p_mouse_change_y * -1.0f * rotation_speed;
-    transform_change.p_rotation.p_vertices[1] = (*game_information).p_controls.p_mouse_position_change.p_mouse_change_x * rotation_speed;
+    (*game_information).p_camera_rotation.p_vertices[0] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_y * -1.0f * rotation_speed;
+    (*game_information).p_camera_rotation.p_vertices[1] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_x * rotation_speed;
 
     // update player position movement (x)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_A)) {
-        transform_change.p_position_offset.p_vertices[0] += movement_speed * -1.0f;
+        (*game_information).p_positions.p_camera_position.p_x -= ESS__define__bits_per_block__total_count;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_D)) {
-        transform_change.p_position_offset.p_vertices[0] += movement_speed;
+        (*game_information).p_positions.p_camera_position.p_x += ESS__define__bits_per_block__total_count;
     }
 
     // update player position movement (y)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_LSHIFT)) {
-        transform_change.p_position_offset.p_vertices[1] += movement_speed;
+        (*game_information).p_positions.p_camera_position.p_y += ESS__define__bits_per_block__total_count;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_SPACE)) {
-        transform_change.p_position_offset.p_vertices[1] += movement_speed * -1.0f;
+        (*game_information).p_positions.p_camera_position.p_y -= ESS__define__bits_per_block__total_count;
     }
 
     // update player position movement (z)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_W)) {
-        transform_change.p_position_offset.p_vertices[2] += movement_speed * -1.0f;
+        (*game_information).p_positions.p_camera_position.p_z -= ESS__define__bits_per_block__total_count;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_S)) {
-        transform_change.p_position_offset.p_vertices[2] += movement_speed;
+        (*game_information).p_positions.p_camera_position.p_z += ESS__define__bits_per_block__total_count;
     }
 
     // check if player requested quit
@@ -406,7 +406,7 @@ void CONF2__display__frame(GAME__information* game_information) {
     WINDOW__update__current_window_size(&((*game_information).p_graphics));
 
     // draw everything
-    RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, transform_change);
+    RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_positions, (*game_information).p_camera_rotation);
 
     // display window
     SDL_GL_SwapWindow((*game_information).p_graphics.p_window_context);

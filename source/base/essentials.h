@@ -16,6 +16,7 @@ typedef u64 ESS__dimension_axis;
 typedef ESS__dimension_axis ESS__dimension_x;
 typedef ESS__dimension_axis ESS__dimension_y;
 typedef ESS__dimension_axis ESS__dimension_z;
+typedef ESS__dimension_axis ESS__dimensions_index;
 typedef ESS__dimension_axis ESS__dimensions_volume;
 
 // basics
@@ -122,9 +123,19 @@ ESS__dimensions ESS__create__dimensions(ESS__dimension_x width, ESS__dimension_y
     return output;
 }
 
+// create a null dimension
+ESS__dimensions ESS__create_null__dimensions() {
+    // return empty
+    return ESS__create__dimensions(0, 0, 0);
+}
+
 // calculate a dimension's array size
 ESS__dimensions_volume ESS__calculate__dimensions_volume(ESS__dimensions dimensions) {
     return dimensions.p_width * dimensions.p_height * dimensions.p_depth;
+}
+
+ESS__dimensions_index ESS__calculate__dimensions_index(ESS__dimensions dimensions, ESS__dimension_x x, ESS__dimension_y y, ESS__dimension_z z) {
+    return (dimensions.p_height * dimensions.p_width * z) + (dimensions.p_width * y) + x;
 }
 
 /* Game Calculations */

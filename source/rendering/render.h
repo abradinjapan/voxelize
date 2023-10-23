@@ -9,6 +9,8 @@
 #include "textures.h"
 #include "skin.h"
 #include "../storage/chunks.h"
+#include "../storage/chunk_surfaces.h"
+#include "../storage/positions.h"
 
 // drawing dependencies
 #include <GL/glew.h>
@@ -191,10 +193,22 @@ RENDER__object_handle RENDER__create__object_handle(RENDER__transform transform,
     return output;
 }
 
+// create null handle
+RENDER__object_handle RENDER__create_null__handle() {
+    // return empty
+    return RENDER__create__object_handle(RENDER__create_null__transform(), 0, 0, 0);
+}
+
 // everything rendered in the game
 typedef struct RENDER__world {
     // opengl vbo handles
     BASIC__buffer p_all_handles; // the main allocation for all handles
+
+    // sub allocations for vbo handles
+    BASIC__buffer p_chunk_body_handles;
+    BASIC__buffer p_chunk_XY_surface_handles;
+    BASIC__buffer p_chunk_YZ_surface_handles;
+    BASIC__buffer p_chunk_XZ_surface_handles;
 
     // counts
     RENDER__object_count p_handle_total_count;
@@ -202,12 +216,6 @@ typedef struct RENDER__world {
     RENDER__object_count p_chunk_XY_surfaces_count;
     RENDER__object_count p_chunk_YZ_surfaces_count;
     RENDER__object_count p_chunk_XZ_surfaces_count;
-
-    // dimensions
-    ESS__dimensions p_chunk_bodies_dimensions;
-    ESS__dimensions p_chunk_XY_surfaces_dimensions;
-    ESS__dimensions p_chunk_YZ_surfaces_dimensions;
-    ESS__dimensions p_chunk_XZ_surfaces_dimensions;
 } RENDER__world;
 
 // close the visible world
@@ -224,21 +232,26 @@ void RENDER__close__world(RENDER__world world) {
     return;
 }
 
+// setup a sub allocation
+BASIC__buffer RENDER__calculate__allocation_sub_handle(BASIC__buffer original_allocation, u64 handle_offset, u64 handle_count) {
+    BASIC__buffer output;
+
+    // setup output
+    output.p_address = original_allocation.p_address + (sizeof(RENDER__object_handle) * handle_offset);
+    output.p_length = sizeof(RENDER__object_handle) * handle_count;
+
+    return output;
+}
+
 // open visible world
 RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
     RENDER__world output;
 
-    // setup dimemsions
-    output.p_chunk_bodies_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height, chunks.p_depth);
-    output.p_chunk_XY_surfaces_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height, chunks.p_depth - 1);
-    output.p_chunk_YZ_surfaces_dimensions = ESS__create__dimensions(chunks.p_width - 1, chunks.p_height, chunks.p_depth);
-    output.p_chunk_XZ_surfaces_dimensions = ESS__create__dimensions(chunks.p_width, chunks.p_height - 1, chunks.p_depth);
-
     // setup counts
-    output.p_chunk_bodies_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_bodies_dimensions);
-    output.p_chunk_XY_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_XY_surfaces_dimensions);
-    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_YZ_surfaces_dimensions);
-    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)ESS__calculate__dimensions_volume(output.p_chunk_XZ_surfaces_dimensions);
+    output.p_chunk_bodies_count = (RENDER__object_count)CHUNK__calculate__chunks_count(chunks.p_dimensions);
+    output.p_chunk_XY_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XY_surfaces_volume(chunks.p_dimensions);
+    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__YZ_surfaces_volume(chunks.p_dimensions);
+    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XZ_surfaces_volume(chunks.p_dimensions);
 
     // setup total count
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;
@@ -246,30 +259,19 @@ RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
     // allocate chunk handles
     output.p_all_handles = BASIC__open__buffer(output.p_handle_total_count * sizeof(RENDER__object_handle));
 
-    // setup chunk body handles
+    // setup sub allocated handles
+    output.p_chunk_body_handles = RENDER__calculate__allocation_sub_handle(output.p_all_handles, 0, output.p_chunk_bodies_count);
+    output.p_chunk_XY_surface_handles = RENDER__calculate__allocation_sub_handle(output.p_all_handles, output.p_chunk_bodies_count, output.p_chunk_XY_surfaces_count);
+    output.p_chunk_YZ_surface_handles = RENDER__calculate__allocation_sub_handle(output.p_all_handles, output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count, output.p_chunk_YZ_surfaces_count);
+    output.p_chunk_XZ_surface_handles = RENDER__calculate__allocation_sub_handle(output.p_all_handles, output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count, output.p_chunk_XZ_surfaces_count);
+
+    // setup blank handles
     for (RENDER__object_index i = 0; i < output.p_handle_total_count; i++) {
         // create blank handle
-        ((RENDER__object_handle*)output.p_all_handles.p_address)[i] = RENDER__create__object_handle(RENDER__create__transform(RENDER__create_null__vertex(), RENDER__create_null__vertex()), 0, 0, 0);
+        ((RENDER__object_handle*)output.p_all_handles.p_address)[i] = RENDER__create_null__handle();
     }
 
     return output;
-}
-
-// calculate the offset of handle types in the handles array
-RENDER__object_index RENDER__calculate__handle_index(RENDER__world world, RENDER__ot object_type, RENDER__object_x object_x, RENDER__object_y object_y, RENDER__object_z object_z) {
-    // determing type & calculate offset accordingly
-    switch (object_type) {
-    case RENDER__ot__chunk_body:
-        return 0 + (world.p_chunk_bodies_dimensions.p_height * world.p_chunk_bodies_dimensions.p_width * object_z) + (world.p_chunk_bodies_dimensions.p_width * object_y) + object_x;
-    case RENDER__ot__chunk_XY_surface:
-        return world.p_chunk_bodies_count + (world.p_chunk_XY_surfaces_dimensions.p_height * world.p_chunk_XY_surfaces_dimensions.p_width * object_z) + (world.p_chunk_XY_surfaces_dimensions.p_width * object_y) + object_x;
-    case RENDER__ot__chunk_YZ_surface:
-        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + (world.p_chunk_YZ_surfaces_dimensions.p_height * world.p_chunk_YZ_surfaces_dimensions.p_width * object_z) + (world.p_chunk_YZ_surfaces_dimensions.p_width * object_y) + object_x;
-    case RENDER__ot__chunk_XZ_surface:
-        return world.p_chunk_bodies_count + world.p_chunk_XY_surfaces_count + world.p_chunk_YZ_surfaces_count + (world.p_chunk_XZ_surfaces_dimensions.p_height * world.p_chunk_XZ_surfaces_dimensions.p_width * object_z) + (world.p_chunk_XZ_surfaces_dimensions.p_width * object_y) + object_x;
-    default:
-        return world.p_handle_total_count;
-    }
 }
 
 /* Render The World */
@@ -506,19 +508,19 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
     }
 
     // update handle
-    ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vertex_count = vertex_index;
+    ((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vertex_count = vertex_index;
 
     // delete if necessary
-    if (((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao != 0) {
-        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
+    if (((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vao != 0) {
+        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vbo));
+        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vao));
     }
 
     // initialize handle
-    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
-    glBindVertexArray(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao);
-    glGenBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo);
+    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vao));
+    glBindVertexArray(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vao);
+    glGenBuffers(1, &(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vbo));
+    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[handle_index].p_vbo);
 
     // setup vertex attribute array configuration
     glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(RENDER__compact_vertex), (void*)0);
@@ -589,19 +591,19 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     }
 
     // update handle
-    ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vertex_count = vertex_index;
+    ((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vertex_count = vertex_index;
 
     // delete if necessary
-    if (((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao != 0) {
-        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
+    if (((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vao != 0) {
+        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vbo));
+        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vao));
     }
 
     // initialize handle
-    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
-    glBindVertexArray(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao);
-    glGenBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo);
+    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vao));
+    glBindVertexArray(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vao);
+    glGenBuffers(1, &(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vbo));
+    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[handle_index].p_vbo);
 
     // setup vertex attribute array configuration
     glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(RENDER__compact_vertex), (void*)0);
@@ -634,9 +636,9 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     // setup chunk data index
     vertex_index = 0;
 
-    // for each x axis
+    // for each y axis
     for (RENDER__object_index block_y = 0; block_y < ESS__define__chunk_side_block_count; block_y++) {
-        // for each y axis
+        // for each z axis
         for (RENDER__object_index block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
             // get block data
             center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(ESS__define__chunk_side_block_count - 1, block_y, block_z)));
@@ -667,19 +669,19 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     }
 
     // update handle
-    ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vertex_count = vertex_index;
+    ((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vertex_count = vertex_index;
 
     // delete if necessary
-    if (((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao != 0) {
-        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
+    if (((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vao != 0) {
+        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vbo));
+        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vao));
     }
 
     // initialize handle
-    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
-    glBindVertexArray(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao);
-    glGenBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo);
+    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vao));
+    glBindVertexArray(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vao);
+    glGenBuffers(1, &(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vbo));
+    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[handle_index].p_vbo);
 
     // setup vertex attribute array configuration
     glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(RENDER__compact_vertex), (void*)0);
@@ -745,19 +747,19 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     }
 
     // update handle
-    ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vertex_count = vertex_index;
+    ((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vertex_count = vertex_index;
 
     // delete if necessary
-    if (((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao != 0) {
-        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
+    if (((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vao != 0) {
+        glDeleteBuffers(1, &(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vbo));
+        glDeleteVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vao));
     }
 
     // initialize handle
-    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao));
-    glBindVertexArray(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vao);
-    glGenBuffers(1, &(((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo));
-    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_all_handles.p_address)[handle_index].p_vbo);
+    glGenVertexArrays(1, &(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vao));
+    glBindVertexArray(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vao);
+    glGenBuffers(1, &(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vbo));
+    glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[handle_index].p_vbo);
 
     // setup vertex attribute array configuration
     glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(RENDER__compact_vertex), (void*)0);
@@ -771,7 +773,7 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     return;
 }
 
-// render everything in the world
+/*// render everything in the world
 void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__world world, RENDER__temporaries temps) {
     // render each chunk body
     for (RENDER__object_index chunks_x = 0; chunks_x < world.p_chunk_bodies_dimensions.p_width; chunks_x++) {
@@ -826,10 +828,51 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, RENDER__worl
     }
 
     return;
+}*/
+
+// render everything in the world
+void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, POS__positions positions, RENDER__world world, RENDER__temporaries temps) {
+    // render each chunk body
+    for (RENDER__object_index handle_ID = 0; handle_ID < world.p_chunk_bodies_count; handle_ID++) {
+        // render one chunk
+        RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(chunks, handle_ID), handle_ID, world, temps);
+    }
+
+    // render each chunk XY surface
+    for (RENDER__object_index x = 0; x < positions.p_chunk_XY_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positions.p_chunk_XY_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positions.p_chunk_XY_surface_dimensions.p_depth; z++) {
+                // render one surface
+                RENDER__render__chunk_XY_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z + 1), world, temps);
+            }
+        }
+    }
+
+    // render each chunk YZ surface
+    for (RENDER__object_index x = 0; x < positions.p_chunk_YZ_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positions.p_chunk_YZ_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positions.p_chunk_YZ_surface_dimensions.p_depth; z++) {
+                // render one surface
+                RENDER__render__chunk_YZ_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_YZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x + 1, y, z), world, temps);
+            }
+        }
+    }
+
+    // render each chunk YZ surface
+    for (RENDER__object_index x = 0; x < positions.p_chunk_XZ_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positions.p_chunk_XZ_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positions.p_chunk_XZ_surface_dimensions.p_depth; z++) {
+                // render one surface
+                RENDER__render__chunk_XZ_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y + 1, z), world, temps);
+            }
+        }
+    }
+
+    return;
 }
 
 /* Draw World */
-// add position offsets and rotations
+/*// add position offsets and rotations
 RENDER__transform RENDER__calculate__add_object_transforms(RENDER__transform a, RENDER__transform b) {
     RENDER__transform output;
 
@@ -842,6 +885,15 @@ RENDER__transform RENDER__calculate__add_object_transforms(RENDER__transform a, 
     output.p_rotation.p_vertices[2] = a.p_rotation.p_vertices[2] + b.p_rotation.p_vertices[2];
 
     return output;
+}*/
+
+// calculate the difference between the two positions
+RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {
+    if (camera_axis >= object_axis) {
+        return ((f32)(camera_axis - object_axis)) / ((f32)ESS__define__bits_per_block__total_count);
+    } else {
+        return (((f32)(object_axis - camera_axis)) / ((f32)ESS__define__bits_per_block__total_count)) * -1.0f;
+    }
 }
 
 // calculate the floating point offset from the camera position and the object position
@@ -849,9 +901,9 @@ RENDER__vertex RENDER__calculate__camera_position_offset(ESS__world_vertex camer
     RENDER__vertex output;
 
     // setup output
-    output.p_vertices[0] = ((f32)(camera_position.p_x - object_position.p_x)) / ((f32)ESS__define__bits_per_block__total_count);
-    output.p_vertices[1] = ((f32)(camera_position.p_y - object_position.p_y)) / ((f32)ESS__define__bits_per_block__total_count);
-    output.p_vertices[2] = ((f32)(camera_position.p_z - object_position.p_z)) / ((f32)ESS__define__bits_per_block__total_count);
+    output.p_vertices[0] = RENDER__calculate__render_axis(camera_position.p_x, object_position.p_x);
+    output.p_vertices[1] = RENDER__calculate__render_axis(camera_position.p_y, object_position.p_y);
+    output.p_vertices[2] = RENDER__calculate__render_axis(camera_position.p_z, object_position.p_z);
 
     return output;
 }
@@ -872,7 +924,7 @@ void RENDER__send__transform_matrix__voxelize(SHADER__program shader_program, RE
     return;
 }
 
-RENDER__matrix_f32 RENDER__calculate__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, RENDER__transform world_transform) {
+/*RENDER__matrix_f32 RENDER__calculate__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, RENDER__transform world_transform) {
     RENDER__matrix_f32 output; // final transform
     mat4 perspective;
     mat4 view;
@@ -920,7 +972,7 @@ RENDER__matrix_f32 RENDER__calculate__transform_matrix(RENDER__object_handle_add
     glm_mat4_mul(output.p_matrix, model, output.p_matrix);
 
     return output;
-}
+}*/
 
 /*// update object transform and render to opengl
 void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address handle_address, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform object_transform, RENDER__vertex camera_rotation) {
@@ -975,7 +1027,7 @@ void RENDER__calculate_and_send__transform_matrix(RENDER__object_handle_address 
     return;
 }*/
 
-// draw everything
+/*// draw everything
 void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, RENDER__transform world_transform) {
     RENDER__matrix_f32 final_transform;
 
@@ -994,6 +1046,119 @@ void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, 
 
         // draw chunk
         glDrawArrays(GL_TRIANGLES, 0, ((RENDER__object_handle*)world.p_all_handles.p_address)[i].p_vertex_count);
+    }
+
+    return;
+}*/
+
+RENDER__matrix_f32 RENDER__calculate__transform_matrix(WINDOW__window_configuration window, RENDER__vertex camera_rotation, ESS__world_vertex camera_world_position, ESS__world_vertex object_world_position) {
+    RENDER__matrix_f32 output; // final transform
+    mat4 perspective;
+    mat4 view;
+    mat4 player_camera_rotation_matrix;
+    mat4 model;
+
+    // calculation values
+    vec3 camera_position = {0.0f, 0.0f, 0.0f};
+    vec3 camera_target = {0.0f, 0.0f, 2.0f};
+    vec3 camera_up = {0.0f, 1.0f, 0.0f};
+    vec3 rotate_x = {1.0f, 0.0f, 0.0f};
+    vec3 rotate_y = {0.0f, 1.0f, 0.0f};
+    RENDER__vertex camera_movement;
+    RENDER__axis camera_yaw;
+    RENDER__axis camera_pitch;
+
+    // setup camera rotation
+    camera_yaw = glm_rad(camera_rotation.p_vertices[0]);
+    camera_pitch = glm_rad(camera_rotation.p_vertices[1]);
+
+    // setup camera offset
+    camera_movement = RENDER__calculate__camera_position_offset(camera_world_position, object_world_position);
+
+    // setup perspective
+    glm_perspective(glm_rad(45.0f), ((float)window.p_width) / ((float)window.p_height), ESS__define__near_plane, ESS__define__far_plane, perspective);
+
+    // setup view
+    glm_lookat(camera_position, camera_target, camera_up, view);
+
+    // setup player rotation
+    glm_mat4_identity(player_camera_rotation_matrix);
+    glm_rotate_at(player_camera_rotation_matrix, camera_position, camera_yaw, rotate_x);
+    glm_rotate_at(player_camera_rotation_matrix, camera_position, camera_pitch, rotate_y);
+
+    // setup model
+    glm_mat4_identity(model);
+    glm_translate(model, camera_movement.p_vertices);
+
+    // create final transform
+    glm_mat4_mul(perspective, view, output.p_matrix);
+    glm_mat4_mul(output.p_matrix, player_camera_rotation_matrix, output.p_matrix);
+    glm_mat4_mul(output.p_matrix, model, output.p_matrix);
+
+    return output;
+}
+
+// draw everything
+void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, POS__positions positions, RENDER__vertex camera_rotation) {
+    RENDER__matrix_f32 final_transform;
+
+    // bind proper textures
+    TEX__bind__game_textures__specific(game_textures, TEX__gtt__block_faces, shader_program);
+
+    // draw all block handles
+    for (RENDER__object_index i = 0; i < world.p_chunk_bodies_count; i++) {
+        // create and send matrix to opengl
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_body_positions.p_address)[i]);
+        RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
+
+        // bind chunk
+        glBindVertexArray(((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[i].p_vao);
+        glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[i].p_vbo);
+
+        // draw chunk
+        glDrawArrays(GL_TRIANGLES, 0, ((RENDER__object_handle*)world.p_chunk_body_handles.p_address)[i].p_vertex_count);
+    }
+
+    // render all chunk XY surfaces
+    for (RENDER__object_index i = 0; i < world.p_chunk_XY_surfaces_count; i++) {
+        // create and send matrix to opengl
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_XY_surface_positions.p_address)[i]);
+        RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
+
+        // bind chunk
+        glBindVertexArray(((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[i].p_vao);
+        glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[i].p_vbo);
+
+        // draw chunk
+        glDrawArrays(GL_TRIANGLES, 0, ((RENDER__object_handle*)world.p_chunk_XY_surface_handles.p_address)[i].p_vertex_count);
+    }
+
+    // render all chunk YZ surfaces
+    for (RENDER__object_index i = 0; i < world.p_chunk_YZ_surfaces_count; i++) {
+        // create and send matrix to opengl
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_YZ_surface_positions.p_address)[i]);
+        RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
+
+        // bind chunk
+        glBindVertexArray(((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[i].p_vao);
+        glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[i].p_vbo);
+
+        // draw chunk
+        glDrawArrays(GL_TRIANGLES, 0, ((RENDER__object_handle*)world.p_chunk_YZ_surface_handles.p_address)[i].p_vertex_count);
+    }
+
+    // render all chunk XZ surfaces
+    for (RENDER__object_index i = 0; i < world.p_chunk_XZ_surfaces_count; i++) {
+        // create and send matrix to opengl
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_XZ_surface_positions.p_address)[i]);
+        RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
+
+        // bind chunk
+        glBindVertexArray(((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[i].p_vao);
+        glBindBuffer(RENDER__chunk_draw_type, ((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[i].p_vbo);
+
+        // draw chunk
+        glDrawArrays(GL_TRIANGLES, 0, ((RENDER__object_handle*)world.p_chunk_XZ_surface_handles.p_address)[i].p_vertex_count);
     }
 
     return;
