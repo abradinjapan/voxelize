@@ -171,4 +171,10 @@ void POS__close__positions(POS__positions positions) {
     return;
 }
 
+/* Indexing */
+/*// the type that manages chunk indexes and chunk block indexes
+typedef struct POS__block_index {
+    CHUNK__chunks_x p_chunk_x;
+}*/
+
 #endif

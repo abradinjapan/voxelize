@@ -29,7 +29,7 @@ typedef CHUNK__chunk_axis_index CHUNK__chunk_z;
 typedef u32 CHUNK__chunks_index;
 
 // the sides of the chunks
-typedef u8 CHUNK__chunks_axis_index;
+typedef u16 CHUNK__chunks_axis_index;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_x;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_y;
 typedef CHUNK__chunks_axis_index CHUNK__chunks_z;
@@ -54,6 +54,32 @@ CHUNK__block_data CHUNK__create__block(CHUNK__block_ID block_ID) {
 CHUNK__block_data CHUNK__create_null__block() {
     // return empty
     return CHUNK__create__block(0);
+}
+
+/* Block Position */
+// the type that stores one block position
+typedef struct CHUNK__block_position {
+    CHUNK__chunk_x p_x;
+    CHUNK__chunk_y p_y;
+    CHUNK__chunk_z p_z;
+} CHUNK__block_position;
+
+// create a block position
+CHUNK__block_position CHUNK__create__block_position(CHUNK__chunk_x x, CHUNK__chunk_y y, CHUNK__chunk_z z) {
+    CHUNK__block_position output;
+
+    // setup output
+    output.p_x = x;
+    output.p_y = y;
+    output.p_z = z;
+
+    return output;
+}
+
+// create null position
+CHUNK__block_position CHUNK__create_null__block_position() {
+    // return empty
+    return CHUNK__create__block_position(0, 0, 0);
 }
 
 /* Chunk */
@@ -134,9 +160,9 @@ CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data fi
 }
 
 // calculate block index from the block's chunk internal coords
-CHUNK__block_index CHUNK__calculate__block_index(CHUNK__chunk_x block_x, CHUNK__chunk_y block_y, CHUNK__chunk_z block_z) {
+CHUNK__block_index CHUNK__calculate__block_index(CHUNK__block_position block_position) {
     // calculate (z is forward and back, y is up and down, x is left and right)
-    return (block_z * ESS__define__chunk_slice_block_count) + (block_y * ESS__define__chunk_side_block_count) + block_x;
+    return (block_position.p_z * ESS__define__chunk_slice_block_count) + (block_position.p_y * ESS__define__chunk_side_block_count) + block_position.p_x;
 }
 
 // set block

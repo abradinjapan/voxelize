@@ -392,13 +392,13 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
             // for each block
             for (CHUNK__chunk_axis_index chunk_block = 0; chunk_block < ESS__define__chunk_side_block_count; chunk_block++) { // X
                 // get center block type
-                block_center_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block, chunk_strip, chunk_slice)));
+                block_center_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice))));
 
                 // try draw left face
                 // check if face is on outside (if so, do not draw)
                 if (chunk_block > 0) {
                     // get block on left side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block - 1, chunk_strip, chunk_slice)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block - 1, chunk_strip, chunk_slice))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -416,7 +416,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_block < ESS__define__chunk_side_block_count - 1) {
                     // get block on right side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block + 1, chunk_strip, chunk_slice)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block + 1, chunk_strip, chunk_slice))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -434,7 +434,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_strip < ESS__define__chunk_side_block_count - 1) {
                     // get block on top side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block, chunk_strip + 1, chunk_slice)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip + 1, chunk_slice))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -452,7 +452,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_strip > 0) {
                     // get block on bottom side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block, chunk_strip - 1, chunk_slice)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip - 1, chunk_slice))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -470,7 +470,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_slice < ESS__define__chunk_side_block_count - 1) {
                     // get block on back side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block, chunk_strip, chunk_slice + 1)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice + 1))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -488,7 +488,7 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_slice > 0) {
                     // get block on front side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(chunk_block, chunk_strip, chunk_slice - 1)));
+                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice - 1))));
 
                     // check if face would be hidden (if so, do not draw)
                     if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
@@ -561,8 +561,8 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each y axis
         for (RENDER__object_index block_y = 0; block_y < ESS__define__chunk_side_block_count; block_y++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(block_x, block_y, ESS__define__chunk_side_block_count - 1)));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(block_x, block_y, 0)));
+            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, ESS__define__chunk_side_block_count - 1))));
+            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, 0))));
             
             // if the first side should be drawn
             if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
@@ -639,8 +639,8 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each z axis
         for (RENDER__object_index block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(ESS__define__chunk_side_block_count - 1, block_y, block_z)));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(0, block_y, block_z)));
+            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(ESS__define__chunk_side_block_count - 1, block_y, block_z))));
+            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(0, block_y, block_z))));
         
             // if the first side should be drawn
             if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
@@ -717,8 +717,8 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each y axis
         for (RENDER__object_index block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(block_x, ESS__define__chunk_side_block_count - 1, block_z)));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(block_x, 0, block_z)));
+            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, ESS__define__chunk_side_block_count - 1, block_z))));
+            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z))));
         
             // if the first side should be drawn
             if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
@@ -812,6 +812,14 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, POS__positio
     return;
 }
 
+/*// rerender a chunk and possibly it's surrounding surfaces
+void RENDER__rerender__chunk_and_surfaces(SKIN__skins skins, CHUNK__chunks chunks, POS__positions positions, RENDER__world world, RENDER__temporaries temps, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
+    // re render chunk body
+    RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(chunks, CHUNK__calculate__chunks_index(chunks, x, y, z)), CHUNK__calculate__chunks_index(chunks, x, y, z), world, temps);
+
+    return;
+}*/
+
 /* Draw World */
 // calculate the difference between the two positions
 RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {
@@ -821,15 +829,6 @@ RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__wo
         return ((f32)(object_axis - camera_axis)) / (f32)ESS__define__bits_per_block__total_count * (f32)RENDER__vertices_per_block * -1.0f;
     }
 }
-
-/*// calculate the difference between the two positions
-RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {
-    if (camera_axis >= object_axis) {
-        return ((f32)(camera_axis - object_axis)) / ((f32)ESS__define__bits_per_block__total_count / (f32)RENDER__vertices_per_block);
-    } else {
-        return (((f32)(object_axis - camera_axis)) / ((f32)ESS__define__bits_per_block__total_count / (f32)RENDER__vertices_per_block)) * -1.0f;
-    }
-}*/
 
 // calculate the floating point offset from the camera position and the object position
 RENDER__vertex RENDER__calculate__camera_position_offset(ESS__world_vertex camera_position, ESS__world_vertex object_position) {

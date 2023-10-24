@@ -295,10 +295,10 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
             for (u64 block_x = 0; block_x < ESS__define__chunk_side_block_count; block_x++) {
                 for (u64 block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
                     // setup stone
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(block_x, 0, block_z), CHUNK__create__block(CONF2__block__glass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)), CHUNK__create__block(CONF2__block__glass));
 
                     // setup topsoil
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(block_x, 1, block_z), CHUNK__create__block(CONF2__block__grass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 1, block_z)), CHUNK__create__block(CONF2__block__grass));
                 }
             }
         }
@@ -394,6 +394,17 @@ void CONF2__display__frame(GAME__information* game_information) {
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_S)) {
         (*game_information).p_positions.p_camera_position.p_z += ESS__define__bits_per_block__total_count;
     }
+
+    /*// block placing
+    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
+        // get block position
+        
+
+        // change block
+
+        // update rendering
+        RENDER__rerender__chunk_and_surfaces((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positions, (*game_information).p_world, (*game_information).p_temporaries, 0, 0, 0);
+    }*/
 
     // check if player requested quit
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_ESCAPE)) {
