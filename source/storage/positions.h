@@ -179,9 +179,9 @@ CHUNK__block_index POS__calculate__block_index_from_world_position(ESS__world_ve
     CHUNK__block_position block_position;
 
     // calculate block position
-    block_position.p_x = 255 - (subject_position.p_x - chunk_position.p_x) / (ESS__define__bits_per_block__total_count);
-    block_position.p_y = 255 -(subject_position.p_y - chunk_position.p_y) / (ESS__define__bits_per_block__total_count);
-    block_position.p_z = 255 -(subject_position.p_z - chunk_position.p_z) / (ESS__define__bits_per_block__total_count);
+    block_position.p_x = (chunk_position.p_x - subject_position.p_x) / (ESS__define__bits_per_block__total_count);
+    block_position.p_y = (chunk_position.p_y - subject_position.p_y) / (ESS__define__bits_per_block__total_count);
+    block_position.p_z = (chunk_position.p_z - subject_position.p_z) / (ESS__define__bits_per_block__total_count);
 
     // setup output
     output = CHUNK__calculate__block_index(block_position);
