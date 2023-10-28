@@ -42,8 +42,10 @@ typedef struct POS__positions {
 POS__positions POS__create__positions(ESS__world_vertex camera_position, BASIC__buffer allocation, BASIC__buffer chunk_body_positions, BASIC__buffer chunk_XY_surface_positions, BASIC__buffer chunk_YZ_surface_positions, BASIC__buffer chunk_XZ_surface_positions, ESS__dimensions chunk_body_dimensions, ESS__dimensions chunk_XY_surface_dimensions, ESS__dimensions chunk_YZ_surface_dimensions, ESS__dimensions chunk_XZ_surface_dimensions) {
     POS__positions output;
 
-    // setup output
+    // setup camera position
     output.p_camera_position = camera_position;
+
+    // setup positions
     output.p_allocation = allocation;
     output.p_chunk_body_positions = chunk_body_positions;
     output.p_chunk_XY_surface_positions = chunk_XY_surface_positions;
@@ -83,9 +85,9 @@ ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chu
     ESS__world_vertex output;
 
     // calculate position
-    output.p_x = chunks_position.p_x - (ESS__calculate__chunk_size_in_world_coordinates() * x);
-    output.p_y = chunks_position.p_y - (ESS__calculate__chunk_size_in_world_coordinates() * y);
-    output.p_z = chunks_position.p_z - (ESS__calculate__chunk_size_in_world_coordinates() * z);
+    output.p_x = chunks_position.p_x - (ESS__calculate__chunk_side_size_in_world_coordinates() * x);
+    output.p_y = chunks_position.p_y - (ESS__calculate__chunk_side_size_in_world_coordinates() * y);
+    output.p_z = chunks_position.p_z - (ESS__calculate__chunk_side_size_in_world_coordinates() * z);
 
     return output;
 }
@@ -171,10 +173,20 @@ void POS__close__positions(POS__positions positions) {
     return;
 }
 
-/* Indexing */
-/*// the type that manages chunk indexes and chunk block indexes
-typedef struct POS__block_index {
-    CHUNK__chunks_x p_chunk_x;
-}*/
+// calculate the block position inside of a chunk from world coordinates
+CHUNK__block_index POS__calculate__block_index_from_world_position(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
+    CHUNK__block_index output;
+    CHUNK__block_position block_position;
+
+    // calculate block position
+    block_position.p_x = 255 - (subject_position.p_x - chunk_position.p_x) / (ESS__define__bits_per_block__total_count);
+    block_position.p_y = 255 -(subject_position.p_y - chunk_position.p_y) / (ESS__define__bits_per_block__total_count);
+    block_position.p_z = 255 -(subject_position.p_z - chunk_position.p_z) / (ESS__define__bits_per_block__total_count);
+
+    // setup output
+    output = CHUNK__calculate__block_index(block_position);
+
+    return output;
+}
 
 #endif

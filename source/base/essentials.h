@@ -103,6 +103,12 @@ ESS__world_box ESS__create_null__world_box() {
     return ESS__create__world_box(ESS__create_null__world_vertex(), ESS__create_null__world_vertex());
 }
 
+// check to see if a coordinate is within a box
+BASIC__bt ESS__calculate__position_is_in_box(ESS__world_box box, ESS__world_vertex position) {
+    // return calculation
+    return (box.p_left_down_back.p_x <= position.p_x && box.p_right_up_front.p_x >= position.p_x) && (box.p_left_down_back.p_y <= position.p_y && box.p_right_up_front.p_y >= position.p_y) && (box.p_left_down_back.p_z <= position.p_z && box.p_right_up_front.p_z >= position.p_z);
+}
+
 /* Dimensions */
 // integer dimensions of a 3d object
 typedef struct ESS__dimensions {
@@ -134,6 +140,7 @@ ESS__dimensions_volume ESS__calculate__dimensions_volume(ESS__dimensions dimensi
     return dimensions.p_width * dimensions.p_height * dimensions.p_depth;
 }
 
+// calculate a dimension's index
 ESS__dimensions_index ESS__calculate__dimensions_index(ESS__dimensions dimensions, ESS__dimension_x x, ESS__dimension_y y, ESS__dimension_z z) {
     return (dimensions.p_height * dimensions.p_width * z) + (dimensions.p_width * y) + x;
 }
@@ -152,8 +159,24 @@ ESS__world_axis ESS__calculate__block_size_in_world_coordinates() {
 }
 
 // get the side length of one chunk in world cooridinates
-ESS__world_axis ESS__calculate__chunk_size_in_world_coordinates() {
+ESS__world_axis ESS__calculate__chunk_side_size_in_world_coordinates() {
     return ESS__calculate__block_size_in_world_coordinates() * ESS__define__chunk_side_block_count;
+}
+
+// calculate the world vertex size of a chunk
+ESS__world_vertex ESS__calculate__chunk_box_size_in_world_coordinates() {
+    return ESS__create__world_vertex(ESS__calculate__chunk_side_size_in_world_coordinates(), ESS__calculate__chunk_side_size_in_world_coordinates(), ESS__calculate__chunk_side_size_in_world_coordinates());
+}
+
+// check to see if a coordinate is within a chunk
+BASIC__bt ESS__calculate__coords_are_in_chunk(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
+    ESS__world_box chunk_box;
+
+    // create box
+    chunk_box = ESS__create__world_box(chunk_position, ESS__calculate__subtract_world_vertices(chunk_position, ESS__calculate__chunk_box_size_in_world_coordinates()));
+
+    // return calculation
+    return ESS__calculate__position_is_in_box(chunk_box, subject_position);
 }
 
 #endif

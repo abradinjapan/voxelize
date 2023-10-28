@@ -360,9 +360,48 @@ void CONF2__close__game(GAME__information game_information) {
     return;
 }
 
+// performs block placing and rerendering
+void CONF2__do__block_placement(GAME__information* game_information, CHUNK__block_data block) {
+    CHUNK__chunks_index chunks_index = -1;
+    CHUNK__block_index block_index = -1;
+    BASIC__bt in_chunk = BASIC__bt__false;
+
+    // find chunk
+    for (CHUNK__chunks_index i = 0; i < (*game_information).p_positions.p_chunk_body_count; i++) {
+        // check range
+        if (ESS__calculate__coords_are_in_chunk(((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[i], (*game_information).p_positions.p_camera_position)) {
+            // found chunk
+            in_chunk = BASIC__bt__true;
+
+            // mark index
+            chunks_index = i;
+
+            break;
+        }
+    }
+
+    // if chunk was found
+    if (in_chunk == BASIC__bt__true) {
+        // get block position
+        block_index = POS__calculate__block_index_from_world_position(((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index], (*game_information).p_positions.p_camera_position);
+
+        // DEBUG
+        printf("Placing Block!\n\tCamera Position: [ %lu, %lu, %lu ]\n\tChunk Position: [ %lu, %lu, %lu ]\n\tDifference: [ %li, %li, %li ]\n", (*game_information).p_positions.p_camera_position.p_x, (*game_information).p_positions.p_camera_position.p_y, (*game_information).p_positions.p_camera_position.p_z, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z, (*game_information).p_positions.p_camera_position.p_x - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, (*game_information).p_positions.p_camera_position.p_y - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, (*game_information).p_positions.p_camera_position.p_z - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z);
+
+        // update block
+        ((CHUNK__chunk*)(*game_information).p_chunks.p_chunk_block_data.p_address)[chunks_index].p_blocks[block_index] = block;
+
+        // rerender world
+        RENDER__render__world((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positions, (*game_information).p_world, (*game_information).p_temporaries);
+    }
+
+    return;
+}
+
 // displays the next frame
 void CONF2__display__frame(GAME__information* game_information) {
     float rotation_speed = 0.5f;
+    ESS__world_axis shift = 2;
 
     // update mouse movement
     CONTROLS__update__mouse_position_change(&((*game_information).p_controls));
@@ -373,38 +412,37 @@ void CONF2__display__frame(GAME__information* game_information) {
 
     // update player position movement (x)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_A)) {
-        (*game_information).p_positions.p_camera_position.p_x -= ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_x -= ESS__define__bits_per_block__total_count >> shift;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_D)) {
-        (*game_information).p_positions.p_camera_position.p_x += ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_x += ESS__define__bits_per_block__total_count >> shift;
     }
 
     // update player position movement (y)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_LSHIFT)) {
-        (*game_information).p_positions.p_camera_position.p_y += ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_y += ESS__define__bits_per_block__total_count >> shift;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_SPACE)) {
-        (*game_information).p_positions.p_camera_position.p_y -= ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_y -= ESS__define__bits_per_block__total_count >> shift;
     }
 
     // update player position movement (z)
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_W)) {
-        (*game_information).p_positions.p_camera_position.p_z -= ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_z -= ESS__define__bits_per_block__total_count >> shift;
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_S)) {
-        (*game_information).p_positions.p_camera_position.p_z += ESS__define__bits_per_block__total_count;
+        (*game_information).p_positions.p_camera_position.p_z += ESS__define__bits_per_block__total_count >> shift;
     }
 
-    /*// block placing
+    // block placing
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
-        // get block position
-        
-
-        // change block
-
-        // update rendering
-        RENDER__rerender__chunk_and_surfaces((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positions, (*game_information).p_world, (*game_information).p_temporaries, 0, 0, 0);
-    }*/
+        // do block placement
+        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__block__red_leaves));
+    }
+    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_Q)) {
+        // do block placement
+        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__block__air));
+    }
 
     // check if player requested quit
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_ESCAPE)) {
