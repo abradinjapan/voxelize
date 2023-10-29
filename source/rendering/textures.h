@@ -165,4 +165,26 @@ void TEX__close__game_textures(TEX__game_textures game_textures) {
     return;
 }
 
+/* Generating Textures */
+// write one pixel
+BASIC__address TEX__write__pixel(BASIC__address output_faces_pointer, TEX__pixel_color red, TEX__pixel_color green, TEX__pixel_color blue, TEX__pixel_color alpha) {
+    // write red pixel
+    *((TEX__pixel_color*)output_faces_pointer) = red;
+    output_faces_pointer += sizeof(TEX__pixel_color);
+
+    // write green pixel
+    *((TEX__pixel_color*)output_faces_pointer) = green;
+    output_faces_pointer += sizeof(TEX__pixel_color);
+    
+    // write blue pixel
+    *((TEX__pixel_color*)output_faces_pointer) = blue;
+    output_faces_pointer += sizeof(TEX__pixel_color);
+    
+    // write alpha pixel
+    *((TEX__pixel_color*)output_faces_pointer) = alpha;
+    output_faces_pointer += sizeof(TEX__pixel_color);
+
+    return output_faces_pointer;
+}
+
 #endif

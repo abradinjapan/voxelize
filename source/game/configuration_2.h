@@ -25,27 +25,6 @@
 #define CONF2__block__green_leaves 9
 
 /* Setup Game Data */
-// write one pixel
-BASIC__address CONF2__write__pixel(BASIC__address output_faces_pointer, TEX__pixel_color red, TEX__pixel_color green, TEX__pixel_color blue, TEX__pixel_color alpha) {
-    // write red pixel
-    *((TEX__pixel_color*)output_faces_pointer) = red;
-    output_faces_pointer += sizeof(TEX__pixel_color);
-
-    // write green pixel
-    *((TEX__pixel_color*)output_faces_pointer) = green;
-    output_faces_pointer += sizeof(TEX__pixel_color);
-    
-    // write blue pixel
-    *((TEX__pixel_color*)output_faces_pointer) = blue;
-    output_faces_pointer += sizeof(TEX__pixel_color);
-    
-    // write alpha pixel
-    *((TEX__pixel_color*)output_faces_pointer) = alpha;
-    output_faces_pointer += sizeof(TEX__pixel_color);
-
-    return output_faces_pointer;
-}
-
 // create game block faces
 TEX__faces CONF2__open__block_faces() {
     TEX__faces output;
@@ -82,59 +61,59 @@ TEX__faces CONF2__open__block_faces() {
     // create air face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 0, 0, 0, 0);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
     }
 
     // create stone face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 255);
     }
 
     // create grass face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 50 + (rand() % color_intensity), 240 + (rand() % color_intensity), 50 + (rand() % color_intensity), 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 50 + (rand() % color_intensity), 240 + (rand() % color_intensity), 50 + (rand() % color_intensity), 255);
     }
 
     // create sand face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 242 + (rand() % color_intensity), 214 + (rand() % color_intensity), 136 + (rand() % color_intensity), 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 242 + (rand() % color_intensity), 214 + (rand() % color_intensity), 136 + (rand() % color_intensity), 255);
     }
 
     // create dirt face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 100 + (rand() % color_intensity), 50 + (rand() % color_intensity), 0 + (rand() % color_intensity), 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 100 + (rand() % color_intensity), 50 + (rand() % color_intensity), 0 + (rand() % color_intensity), 255);
     }
 
     // create glass face
     for (u64 pixel = 0; pixel < output.p_width; pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 245, 245, 245, 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
     }
     for (u64 pixel = 0; pixel < (u64)(output.p_height - 2); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 245, 245, 245, 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
 
         for (u64 row = 0; row < (u64)(output.p_width - 2); row++) {
             // write pixel
-            output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 255, 255, 255, 0);
+            output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 255, 255, 0);
         }
         
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 245, 245, 245, 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
     }
     for (u64 pixel = 0; pixel < output.p_width; pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 245, 245, 245, 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
     }
 
     // create tar face
     for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
         // write pixel
-        output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 255);
+        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 255);
     }
 
     // create red leaves face
@@ -142,17 +121,17 @@ TEX__faces CONF2__open__block_faces() {
         // write first row
         for (u64 pixel = 0; pixel < output.p_width; pixel++) {
             if (pixel % 2 == 0) {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 255, 0, 0, 0);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 0);
             } else {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 255, 0, 0, 255);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 255);
             }
         }
         // write second row
         for (u64 pixel = 0; pixel < output.p_width; pixel++) {
             if (pixel % 2 == 1) {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 255, 0, 0, 0);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 0);
             } else {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 255, 0, 0, 255);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 255);
             }
         }
     }
@@ -162,17 +141,17 @@ TEX__faces CONF2__open__block_faces() {
         // write first row
         for (u64 pixel = 0; pixel < output.p_width; pixel++) {
             if (pixel % 2 == 0) {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 0, 0, 0, 0);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
             } else {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 0, 225, 0, 255);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 225, 0, 255);
             }
         }
         // write second row
         for (u64 pixel = 0; pixel < output.p_width; pixel++) {
             if (pixel % 2 == 1) {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 0, 0, 0, 0);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
             } else {
-                output_faces_pointer = CONF2__write__pixel(output_faces_pointer, 0, 225, 0, 255);
+                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 225, 0, 255);
             }
         }
     }
@@ -320,6 +299,15 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 
 // setup game
 void CONF2__setup__game(GAME__information* game_information) {
+    // setup randoms
+    (*game_information).p_random_test_context = RANDOM__create__context(1234567, 1);
+
+    // test random number generator
+    for (RANDOM__iteration i = 0; i < 100; i++) {
+        // print random number
+        printf("Random Number: %lu\n", RANDOM__generate_number__mark_1(&((*game_information).p_random_test_context)));
+    }
+    
     // setup textures
     (*game_information).p_game_textures = TEX__open__game_textures(CONF2__open__block_faces(), (*game_information).p_chunks_shader_program);
 
@@ -386,7 +374,7 @@ void CONF2__do__block_placement(GAME__information* game_information, CHUNK__bloc
         block_index = POS__calculate__block_index_from_world_position(((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index], (*game_information).p_positions.p_camera_position);
 
         // DEBUG
-        printf("Placing Block!\n\tCamera Position: [ %lu, %lu, %lu ]\n\tChunk Position: [ %lu, %lu, %lu ]\n\tDifference: [ %li, %li, %li ]\n", (*game_information).p_positions.p_camera_position.p_x, (*game_information).p_positions.p_camera_position.p_y, (*game_information).p_positions.p_camera_position.p_z, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z, (*game_information).p_positions.p_camera_position.p_x - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, (*game_information).p_positions.p_camera_position.p_y - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, (*game_information).p_positions.p_camera_position.p_z - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z);
+        //printf("Placing Block!\n\tCamera Position: [ %lu, %lu, %lu ]\n\tChunk Position: [ %lu, %lu, %lu ]\n\tDifference: [ %li, %li, %li ]\n", (*game_information).p_positions.p_camera_position.p_x, (*game_information).p_positions.p_camera_position.p_y, (*game_information).p_positions.p_camera_position.p_z, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z, (*game_information).p_positions.p_camera_position.p_x - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_x, (*game_information).p_positions.p_camera_position.p_y - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_y, (*game_information).p_positions.p_camera_position.p_z - ((ESS__world_vertex*)(*game_information).p_positions.p_chunk_body_positions.p_address)[chunks_index].p_z);
 
         // update block
         ((CHUNK__chunk*)(*game_information).p_chunks.p_chunk_block_data.p_address)[chunks_index].p_blocks[block_index] = block;

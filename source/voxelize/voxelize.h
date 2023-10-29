@@ -24,9 +24,6 @@ void VOX__run__game() {
 
     // run game
     while (SDL_QuitRequested() == SDL_FALSE && game_information.p_game_state != GAME__gsi__game_quitting && CONF2__check__error(&game_information) == BASIC__bt__false) {
-        // simulate world
-        //CONF2__simulate__game();
-        
         // display frame
         CONF2__display__frame(&game_information);
     }

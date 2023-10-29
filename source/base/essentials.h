@@ -3,6 +3,7 @@
 
 /* Include */
 #include "basic.h"
+#include "random.h"
 
 /* Defines */
 // world axis defines
