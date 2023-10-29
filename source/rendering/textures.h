@@ -293,12 +293,12 @@ void TEX__generate_face__box_texture(TEX__faces faces, TEX__face_index face_inde
     }
 
     // write body
-    for (TEX__pixel_index height = 1; height < faces.p_height - 1; height++) {
+    for (TEX__pixel_index height = 1; height < (u64)faces.p_height - 1; height++) {
         // write left wall
         write_to = TEX__write__pixel(write_to, border);
 
         // write center
-        for (TEX__pixel_index width = 1; width < faces.p_width - 1; width++) {
+        for (TEX__pixel_index width = 1; width < (u64)faces.p_width - 1; width++) {
             // write center
             write_to = TEX__write__pixel(write_to, center);
         }
