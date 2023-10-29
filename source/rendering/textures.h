@@ -11,9 +11,9 @@
 /* Define */
 // types
 typedef u8 TEX__pixel_color;
-typedef u32 TEX__pixel;
 typedef u16 TEX__dimension_length;
 typedef u16 TEX__face_count;
+typedef TEX__face_count TEX__face_index;
 typedef u64 TEX__pixel_index;
 typedef u64 TEX__block_face_ID;
 
@@ -23,6 +23,34 @@ typedef u64 TEX__block_face_ID;
 #define TEX__block_faces__texture_ID (GL_TEXTURE0 + TEX__block_faces__texture_unit_ID)
 #define TEX__block_faces__texture_type GL_TEXTURE_2D_ARRAY
 #define TEX__block_faces__faces_per_block 6
+
+/* Pixel */
+// one pixel
+typedef struct TEX__pixel {
+    TEX__pixel_color p_red;
+    TEX__pixel_color p_green;
+    TEX__pixel_color p_blue;
+    TEX__pixel_color p_alpha;
+} TEX__pixel;
+
+// create custom pixel
+TEX__pixel TEX__create__pixel(TEX__pixel_color red, TEX__pixel_color green, TEX__pixel_color blue, TEX__pixel_color alpha) {
+    TEX__pixel output;
+
+    // setup output
+    output.p_red = red;
+    output.p_green = green;
+    output.p_blue = blue;
+    output.p_alpha = alpha;
+
+    return output;
+}
+
+// create null pixel
+TEX__pixel TEX__create_null__pixel() {
+    // return null pixel
+    return TEX__create__pixel(0, 0, 0, 0);
+}
 
 /* Texture Faces */
 typedef struct TEX__faces {
@@ -57,6 +85,19 @@ void TEX__destroy__faces(TEX__faces faces) {
     BASIC__close__buffer(faces.p_faces);
 
     return;
+}
+
+// open faces
+TEX__faces TEX__open__faces(TEX__dimension_length width, TEX__dimension_length height, TEX__face_count face_count) {
+    TEX__faces output;
+
+    // setup output
+    output.p_faces = BASIC__open__buffer(sizeof(TEX__pixel) * width * height * face_count);
+    output.p_width = width;
+    output.p_height = height;
+    output.p_count = face_count;
+
+    return output;
 }
 
 /* All Game Textures */
@@ -166,25 +207,143 @@ void TEX__close__game_textures(TEX__game_textures game_textures) {
 }
 
 /* Generating Textures */
+// calculate write to pointer in faces
+BASIC__address TEX__calculate__faces_pointer(TEX__faces faces, TEX__face_index face_index) {
+    // return calculation
+    return faces.p_faces.p_address + (sizeof(TEX__pixel) * faces.p_width * faces.p_height * face_index);
+}
+
 // write one pixel
-BASIC__address TEX__write__pixel(BASIC__address output_faces_pointer, TEX__pixel_color red, TEX__pixel_color green, TEX__pixel_color blue, TEX__pixel_color alpha) {
+BASIC__address TEX__write__pixel(BASIC__address output_faces_pointer, TEX__pixel pixel) {
     // write red pixel
-    *((TEX__pixel_color*)output_faces_pointer) = red;
+    *((TEX__pixel_color*)output_faces_pointer) = pixel.p_red;
     output_faces_pointer += sizeof(TEX__pixel_color);
 
     // write green pixel
-    *((TEX__pixel_color*)output_faces_pointer) = green;
+    *((TEX__pixel_color*)output_faces_pointer) = pixel.p_green;
     output_faces_pointer += sizeof(TEX__pixel_color);
     
     // write blue pixel
-    *((TEX__pixel_color*)output_faces_pointer) = blue;
+    *((TEX__pixel_color*)output_faces_pointer) = pixel.p_blue;
     output_faces_pointer += sizeof(TEX__pixel_color);
     
     // write alpha pixel
-    *((TEX__pixel_color*)output_faces_pointer) = alpha;
+    *((TEX__pixel_color*)output_faces_pointer) = pixel.p_alpha;
     output_faces_pointer += sizeof(TEX__pixel_color);
 
     return output_faces_pointer;
+}
+
+// create a solid colored face
+void TEX__generate_face__one_color(TEX__faces faces, TEX__face_index face_index, TEX__pixel pixel) {
+    BASIC__address write_to;
+
+    // get write to pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // write data
+    for (TEX__face_index width = 0; width < faces.p_width; width++) {
+        for (TEX__face_index height = 0; height < faces.p_height; height++) {
+            // write pixel
+            write_to = TEX__write__pixel(write_to, pixel);
+        }
+    }
+
+    return;
+}
+
+// create a semi randomly colored face
+void TEX__generate_face__one_color_range(TEX__faces faces, TEX__face_index face_index, TEX__pixel initial_pixel, RANDOM__context* random_context, TEX__pixel_color color_intensity) {
+    BASIC__address write_to;
+    TEX__pixel temp_pixel;
+
+    // get write to pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // write pixels
+    for (TEX__face_index width = 0; width < faces.p_width; width++) {
+        for (TEX__face_index height = 0; height < faces.p_height; height++) {
+            // create pixel
+            temp_pixel = initial_pixel;
+
+            // randomize colors
+            temp_pixel.p_red += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
+            temp_pixel.p_green += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
+            temp_pixel.p_blue += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
+
+            // write pixel
+            write_to = TEX__write__pixel(write_to, temp_pixel);
+        }
+    }
+
+    return;
+}
+
+// create a box shaped texture
+void TEX__generate_face__box_texture(TEX__faces faces, TEX__face_index face_index, TEX__pixel border, TEX__pixel center) {
+    BASIC__address write_to;
+
+    // get write to pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // write top row
+    for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
+        // write pixel
+        write_to = TEX__write__pixel(write_to, border);
+    }
+
+    // write body
+    for (TEX__pixel_index height = 1; height < faces.p_height - 1; height++) {
+        // write left wall
+        write_to = TEX__write__pixel(write_to, border);
+
+        // write center
+        for (TEX__pixel_index width = 1; width < faces.p_width - 1; width++) {
+            // write center
+            write_to = TEX__write__pixel(write_to, center);
+        }
+
+        // write right wall
+        write_to = TEX__write__pixel(write_to, border);
+    }
+
+    // write bottom row
+    for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
+        // write pixel
+        write_to = TEX__write__pixel(write_to, border);
+    }
+
+    return;
+}
+
+// create a checkerboard styled texture
+void TEX__generate_face__checkerboard(TEX__faces faces, TEX__face_index face_index, TEX__pixel a, TEX__pixel b) {
+    BASIC__address write_to;
+
+    // get write to pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // draw each double row
+    for (TEX__pixel_index row = 0; row < faces.p_width; row += 2) {
+        // draw the first row
+        for (u64 pixel = 0; pixel < faces.p_width; pixel++) {
+            if (pixel % 2 == 0) {
+                write_to = TEX__write__pixel(write_to, a);
+            } else {
+                write_to = TEX__write__pixel(write_to, b);
+            }
+        }
+        // draw the second row
+        for (u64 pixel = 0; pixel < faces.p_width; pixel++) {
+            if (pixel % 2 == 1) {
+                write_to = TEX__write__pixel(write_to, a);
+            } else {
+                write_to = TEX__write__pixel(write_to, b);
+            }
+        }
+    }
+
+    return;
 }
 
 #endif

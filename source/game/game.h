@@ -47,7 +47,7 @@ typedef struct GAME__information {
     RENDER__vertex p_camera_rotation;
 
     // game wide random contexts
-    RANDOM__context p_random_test_context;
+    RANDOM__context p_random_pixel_context;
 
     // game wide temporaries
     RENDER__temporaries p_temporaries;
@@ -68,7 +68,7 @@ GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHAD
     output.p_game_textures = game_textures;
     output.p_controls = CONTROLS__create_null__controls();
     output.p_chunks = CHUNK__create_null__chunks();
-    output.p_random_test_context = RANDOM__create_null__context();
+    output.p_random_pixel_context = RANDOM__create_null__context();
 
     return output;
 }

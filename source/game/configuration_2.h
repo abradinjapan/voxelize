@@ -26,135 +26,24 @@
 
 /* Setup Game Data */
 // create game block faces
-TEX__faces CONF2__open__block_faces() {
+TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__faces output;
-    BASIC__address output_faces_pointer;
-    TEX__pixel_color color_intensity;
+    TEX__pixel_color color_intensity = 5;
 
-    // setup basic information
-    output.p_width = 16;
-    output.p_height = 16;
-    output.p_count = CONF2__block_count;
-    color_intensity = 5;
+    // open faces
+    output = TEX__open__faces(16, 16, CONF2__block_count);
 
-    // create buffer
-    output.p_faces = BASIC__open__buffer(sizeof(TEX__pixel) * (output.p_height * output.p_width) * output.p_count);
-
-    // setup random
-    srand(1234567890);
-
-    // setup face pointer
-    output_faces_pointer = output.p_faces.p_address;
-
-    // create no face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        for (u64 color = 0; color < TEX__pixel_colors_count; color++) {
-            // write data
-            *((TEX__pixel_color*)output_faces_pointer) = 0;
-
-            // next color
-            output_faces_pointer += sizeof(TEX__pixel_color);
-        }
-    }
-
-    // create air face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
-    }
-
-    // create stone face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 120 + (rand() % color_intensity), 255);
-    }
-
-    // create grass face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 50 + (rand() % color_intensity), 240 + (rand() % color_intensity), 50 + (rand() % color_intensity), 255);
-    }
-
-    // create sand face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 242 + (rand() % color_intensity), 214 + (rand() % color_intensity), 136 + (rand() % color_intensity), 255);
-    }
-
-    // create dirt face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 100 + (rand() % color_intensity), 50 + (rand() % color_intensity), 0 + (rand() % color_intensity), 255);
-    }
-
-    // create glass face
-    for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
-    }
-    for (u64 pixel = 0; pixel < (u64)(output.p_height - 2); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
-
-        for (u64 row = 0; row < (u64)(output.p_width - 2); row++) {
-            // write pixel
-            output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 255, 255, 0);
-        }
-        
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
-    }
-    for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 245, 245, 245, 255);
-    }
-
-    // create tar face
-    for (u64 pixel = 0; pixel < (output.p_height * output.p_width); pixel++) {
-        // write pixel
-        output_faces_pointer = TEX__write__pixel(output_faces_pointer, 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 20 + (rand() % color_intensity), 255);
-    }
-
-    // create red leaves face
-    for (u64 section = 0; section < output.p_height / 2; section++) {
-        // write first row
-        for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-            if (pixel % 2 == 0) {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 0);
-            } else {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 255);
-            }
-        }
-        // write second row
-        for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-            if (pixel % 2 == 1) {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 0);
-            } else {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 255, 0, 0, 255);
-            }
-        }
-    }
-
-    // create green leaves face
-    for (u64 section = 0; section < output.p_height / 2; section++) {
-        // write first row
-        for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-            if (pixel % 2 == 0) {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
-            } else {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 225, 0, 255);
-            }
-        }
-        // write second row
-        for (u64 pixel = 0; pixel < output.p_width; pixel++) {
-            if (pixel % 2 == 1) {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 0, 0, 0);
-            } else {
-                output_faces_pointer = TEX__write__pixel(output_faces_pointer, 0, 225, 0, 255);
-            }
-        }
-    }
+    // generate faces
+    TEX__generate_face__one_color(output, CONF2__block__no_block, TEX__create__pixel(0, 0, 0, 0)); // no face
+    TEX__generate_face__one_color(output, CONF2__block__air, TEX__create__pixel(0, 0, 0, 0)); // air face
+    TEX__generate_face__one_color_range(output, CONF2__block__stone, TEX__create__pixel(120, 120, 120, 255), random_context, color_intensity); // stone face
+    TEX__generate_face__one_color_range(output, CONF2__block__grass, TEX__create__pixel(50, 240, 50, 255), random_context, color_intensity); // grass face
+    TEX__generate_face__one_color_range(output, CONF2__block__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
+    TEX__generate_face__one_color_range(output, CONF2__block__dirt, TEX__create__pixel(100, 50, 0, 255), random_context, color_intensity); // dirt face
+    TEX__generate_face__box_texture(output, CONF2__block__glass, TEX__create__pixel(245, 245, 245, 255), TEX__create__pixel(0, 0, 0, 0)); // glass face
+    TEX__generate_face__one_color_range(output, CONF2__block__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
+    TEX__generate_face__checkerboard(output, CONF2__block__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
+    TEX__generate_face__checkerboard(output, CONF2__block__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
 
     return output;
 }
@@ -300,16 +189,10 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 // setup game
 void CONF2__setup__game(GAME__information* game_information) {
     // setup randoms
-    (*game_information).p_random_test_context = RANDOM__create__context(1234567, 1);
-
-    // test random number generator
-    for (RANDOM__iteration i = 0; i < 100; i++) {
-        // print random number
-        printf("Random Number: %lu\n", RANDOM__generate_number__mark_1(&((*game_information).p_random_test_context)));
-    }
+    (*game_information).p_random_pixel_context = RANDOM__create__context(1234567, 1);
     
     // setup textures
-    (*game_information).p_game_textures = TEX__open__game_textures(CONF2__open__block_faces(), (*game_information).p_chunks_shader_program);
+    (*game_information).p_game_textures = TEX__open__game_textures(CONF2__open__block_faces(&((*game_information).p_random_pixel_context)), (*game_information).p_chunks_shader_program);
 
     // setup skins
     (*game_information).p_skins = CONF2__open__skins();
