@@ -90,6 +90,26 @@ typedef struct CHUNK__chunk {
 // chunk address
 typedef CHUNK__chunk* CHUNK__chunk_address;
 
+// calculate block index from the block's chunk internal coords
+CHUNK__block_index CHUNK__calculate__block_index(CHUNK__block_position block_position) {
+    // calculate (z is forward and back, y is up and down, x is left and right)
+    return (block_position.p_z * ESS__define__chunk_slice_block_count) + (block_position.p_y * ESS__define__chunk_side_block_count) + block_position.p_x;
+}
+
+// set block
+void CHUNK__set__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index, CHUNK__block_data block_data) {
+    // set data
+    (*chunk_address).p_blocks[block_index] = block_data;
+
+    return;
+}
+
+// get block
+CHUNK__block_data CHUNK__get__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index) {
+    // return data
+    return (*chunk_address).p_blocks[block_index];
+}
+
 // create a chunk with one specific block data for every block
 CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data) {
     CHUNK__chunk output;
@@ -159,24 +179,32 @@ CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data fi
     return output;
 }
 
-// calculate block index from the block's chunk internal coords
-CHUNK__block_index CHUNK__calculate__block_index(CHUNK__block_position block_position) {
-    // calculate (z is forward and back, y is up and down, x is left and right)
-    return (block_position.p_z * ESS__define__chunk_slice_block_count) + (block_position.p_y * ESS__define__chunk_side_block_count) + block_position.p_x;
-}
+// generate a chunk with a bar on all three axes
+CHUNK__chunk CHUNK__create__chunk__bars(CHUNK__block_data air, CHUNK__block_data bar) {
+    CHUNK__chunk output;
 
-// set block
-void CHUNK__set__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index, CHUNK__block_data block_data) {
-    // set data
-    (*chunk_address).p_blocks[block_index] = block_data;
+    // initialize blank chunk
+    output = CHUNK__create__chunk(air);
 
-    return;
-}
+    // create x bar
+    for (CHUNK__block_index x = 0; x < ESS__define__chunk_side_block_count; x++) {
+        // set block
+        output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, 8, 8))] = bar;
+    }
 
-// get block
-CHUNK__block_data CHUNK__get__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index) {
-    // return data
-    return (*chunk_address).p_blocks[block_index];
+    // create y bar
+    for (CHUNK__block_index y = 0; y < ESS__define__chunk_side_block_count; y++) {
+        // set block
+        output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(8, y, 7))] = bar;
+    }
+
+    // create z bar
+    for (CHUNK__block_index z = 0; z < ESS__define__chunk_side_block_count; z++) {
+        // set block
+        output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(7, 7, z))] = bar;
+    }
+
+    return output;
 }
 
 /* Chunks */

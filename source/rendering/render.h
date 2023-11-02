@@ -8,9 +8,9 @@
 #include "shaders.h"
 #include "textures.h"
 #include "skin.h"
-#include "../storage/chunks.h"
-#include "../storage/chunk_surfaces.h"
-#include "../storage/positions.h"
+#include "../world/chunks.h"
+#include "../world/chunk_surfaces.h"
+#include "../world/positions.h"
 
 // drawing dependencies
 #include <GL/glew.h>

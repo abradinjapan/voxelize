@@ -146,6 +146,23 @@ GAME__information CONF2__open__game() {
     return output;
 }
 
+// create test world
+void CONF2__create__test_world(GAME__information* game_information, ESS__world_vertex camera_position) {
+    CHUNK__chunks_index chunks_size = 5;
+    CHUNK__chunk chunk;
+
+    // open chunk
+    chunk = CHUNK__create__chunk__bars(CHUNK__create__block(CONF2__block__air), CHUNK__create__block(CONF2__block__stone));
+    
+    // setup chunks
+    (*game_information).p_chunks = CHUNK__open__chunks(chunks_size, chunks_size, chunks_size, &chunk);
+
+    // setup world positions
+    (*game_information).p_positions = POS__open__positions(camera_position, camera_position, (*game_information).p_chunks);
+
+    return;
+}
+
 // create small world
 void CONF2__create__test_world_2(GAME__information* game_information, ESS__world_vertex camera_position) {
     CHUNK__chunks_index chunks_size = 3;
@@ -200,7 +217,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // setup chunks
-    CONF2__create__test_world_2(game_information, ESS__calculate__world_center());
+    CONF2__create__test_world(game_information, ESS__calculate__world_center());
 
     // setup world
     (*game_information).p_world = RENDER__open__world((*game_information).p_chunks);

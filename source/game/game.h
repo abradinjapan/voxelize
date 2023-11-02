@@ -7,8 +7,9 @@
 #include "../rendering/textures.h"
 #include "../rendering/shaders.h"
 #include "../user_control/controls.h"
-#include "../storage/positions.h"
-#include "../storage/chunks.h"
+#include "../world/chunks.h"
+#include "../world/positions.h"
+#include "../world/generate.h"
 #include "../rendering/render.h"
 
 /* Game Information */
