@@ -90,7 +90,12 @@ GAME__information CONF2__open__game() {
 
     // setup variables
     output = GAME__create_null__game_information();
+
+    // setup temporaries
     output.p_temporaries = RENDER__open__temporaries();
+
+    // setup randoms
+    output.p_random_pixel_context = RANDOM__create__context(1234567, 1);
 
     // setup shader buffers
     vertex_shader = BASIC__open__buffer_from_file_as_c_string(&file_error, BASIC__create__c_string_reference("./shaders/chunks/vertex.glsl", BASIC__bt__true));
@@ -188,9 +193,6 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 
 // setup game
 void CONF2__setup__game(GAME__information* game_information) {
-    // setup randoms
-    (*game_information).p_random_pixel_context = RANDOM__create__context(1234567, 1);
-    
     // setup textures
     (*game_information).p_game_textures = TEX__open__game_textures(CONF2__open__block_faces(&((*game_information).p_random_pixel_context)), (*game_information).p_chunks_shader_program);
 
