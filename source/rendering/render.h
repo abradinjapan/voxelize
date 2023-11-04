@@ -10,7 +10,7 @@
 #include "skin.h"
 #include "../world/chunks.h"
 #include "../world/chunk_surfaces.h"
-#include "../world/positions.h"
+#include "../world/positioning.h"
 
 // drawing dependencies
 #include <GL/glew.h>
@@ -242,17 +242,20 @@ BASIC__buffer RENDER__calculate__allocation_sub_handle(BASIC__buffer original_al
 }
 
 // open visible world
-RENDER__world RENDER__open__world(CHUNK__chunks chunks) {
+RENDER__world RENDER__open__world(POS__positioning positioning) {
     RENDER__world output;
 
     // setup counts
-    output.p_chunk_bodies_count = (RENDER__object_count)CHUNK__calculate__chunks_count(chunks.p_dimensions);
-    output.p_chunk_XY_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XY_surfaces_volume(chunks.p_dimensions);
-    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__YZ_surfaces_volume(chunks.p_dimensions);
-    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XZ_surfaces_volume(chunks.p_dimensions);
+    output.p_chunk_bodies_count = (RENDER__object_count)CHUNK__calculate__chunks_count(positioning.p_chunk_body_dimensions);
+    output.p_chunk_XY_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XY_surfaces_volume(positioning.p_chunk_body_dimensions);
+    output.p_chunk_YZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__YZ_surfaces_volume(positioning.p_chunk_body_dimensions);
+    output.p_chunk_XZ_surfaces_count = (RENDER__object_count)CHUNKSURFACE__calculate__XZ_surfaces_volume(positioning.p_chunk_body_dimensions);
 
     // setup total count
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;
+
+    // DEBUG
+    printf("Total handle count: %lu + %lu + %lu + %lu = %lu\n", (u64)output.p_chunk_bodies_count, (u64)output.p_chunk_XY_surfaces_count, (u64)output.p_chunk_YZ_surfaces_count, (u64)output.p_chunk_XZ_surfaces_count, (u64)output.p_handle_total_count);
 
     // allocate chunk handles
     output.p_all_handles = BASIC__open__buffer(output.p_handle_total_count * sizeof(RENDER__object_handle));
@@ -772,7 +775,7 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 }
 
 // render everything in the world
-void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, POS__positions positions, RENDER__world world, RENDER__temporaries temps) {
+void RENDER__render__entire_world(SKIN__skins skins, CHUNK__chunks chunks, POS__positioning positioning, RENDER__world world, RENDER__temporaries temps) {
     // render each chunk body
     for (RENDER__object_index handle_ID = 0; handle_ID < world.p_chunk_bodies_count; handle_ID++) {
         // render one chunk
@@ -780,45 +783,40 @@ void RENDER__render__world(SKIN__skins skins, CHUNK__chunks chunks, POS__positio
     }
 
     // render each chunk XY surface
-    for (RENDER__object_index x = 0; x < positions.p_chunk_XY_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positions.p_chunk_XY_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positions.p_chunk_XY_surface_dimensions.p_depth; z++) {
+    for (RENDER__object_index x = 0; x < positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
                 // render one surface
-                RENDER__render__chunk_XY_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z + 1), world, temps);
+                RENDER__render__chunk_XY_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z + 1), world, temps);
             }
         }
     }
 
     // render each chunk YZ surface
-    for (RENDER__object_index x = 0; x < positions.p_chunk_YZ_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positions.p_chunk_YZ_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positions.p_chunk_YZ_surface_dimensions.p_depth; z++) {
+    for (RENDER__object_index x = 0; x < positioning.p_chunk_YZ_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positioning.p_chunk_YZ_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positioning.p_chunk_YZ_surface_dimensions.p_depth; z++) {
                 // render one surface
-                RENDER__render__chunk_YZ_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_YZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x + 1, y, z), world, temps);
+                RENDER__render__chunk_YZ_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_YZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x + 1, y, z), world, temps);
             }
         }
     }
 
-    // render each chunk YZ surface
-    for (RENDER__object_index x = 0; x < positions.p_chunk_XZ_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positions.p_chunk_XZ_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positions.p_chunk_XZ_surface_dimensions.p_depth; z++) {
+    // render each chunk XZ surface
+    for (RENDER__object_index x = 0; x < positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
+        for (RENDER__object_index y = 0; y < positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
+            for (RENDER__object_index z = 0; z < positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
+                // DEBUG
+                printf("Rendering surface XZ: [ %lu, %lu, %lu ]\n", (u64)x, (u64)y, (u64)z);
+
                 // render one surface
-                RENDER__render__chunk_XZ_surface(skins, chunks, ESS__calculate__dimensions_index(positions.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positions.p_chunk_body_dimensions, x, y + 1, z), world, temps);
+                RENDER__render__chunk_XZ_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y + 1, z), world, temps);
             }
         }
     }
 
     return;
 }
-
-/*// rerender a chunk and possibly it's surrounding surfaces
-void RENDER__rerender__chunk_and_surfaces(SKIN__skins skins, CHUNK__chunks chunks, POS__positions positions, RENDER__world world, RENDER__temporaries temps, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
-    // re render chunk body
-    RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(chunks, CHUNK__calculate__chunks_index(chunks, x, y, z)), CHUNK__calculate__chunks_index(chunks, x, y, z), world, temps);
-
-    return;
-}*/
 
 /* Draw World */
 // calculate the difference between the two positions
@@ -959,7 +957,7 @@ RENDER__matrix_f32 RENDER__calculate__transform_matrix(WINDOW__window_configurat
 }
 
 // draw everything
-void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, POS__positions positions, RENDER__vertex camera_rotation) {
+void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, WINDOW__window_configuration window, SHADER__program shader_program, POS__positioning positioning, RENDER__vertex camera_rotation) {
     RENDER__matrix_f32 final_transform;
 
     // bind proper textures
@@ -968,7 +966,7 @@ void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, 
     // draw all block handles
     for (RENDER__object_index i = 0; i < world.p_chunk_bodies_count; i++) {
         // create and send matrix to opengl
-        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_body_positions.p_address)[i]);
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positioning.p_camera_position, ((ESS__world_vertex*)positioning.p_chunk_body_positions.p_address)[i]);
         RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
 
         // bind chunk
@@ -982,7 +980,7 @@ void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, 
     // render all chunk XY surfaces
     for (RENDER__object_index i = 0; i < world.p_chunk_XY_surfaces_count; i++) {
         // create and send matrix to opengl
-        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_XY_surface_positions.p_address)[i]);
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positioning.p_camera_position, ((ESS__world_vertex*)positioning.p_chunk_XY_surface_positions.p_address)[i]);
         RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
 
         // bind chunk
@@ -996,7 +994,7 @@ void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, 
     // render all chunk YZ surfaces
     for (RENDER__object_index i = 0; i < world.p_chunk_YZ_surfaces_count; i++) {
         // create and send matrix to opengl
-        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_YZ_surface_positions.p_address)[i]);
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positioning.p_camera_position, ((ESS__world_vertex*)positioning.p_chunk_YZ_surface_positions.p_address)[i]);
         RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
 
         // bind chunk
@@ -1010,7 +1008,7 @@ void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world, 
     // render all chunk XZ surfaces
     for (RENDER__object_index i = 0; i < world.p_chunk_XZ_surfaces_count; i++) {
         // create and send matrix to opengl
-        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positions.p_camera_position, ((ESS__world_vertex*)positions.p_chunk_XZ_surface_positions.p_address)[i]);
+        final_transform = RENDER__calculate__transform_matrix(window, camera_rotation, positioning.p_camera_position, ((ESS__world_vertex*)positioning.p_chunk_XZ_surface_positions.p_address)[i]);
         RENDER__send__transform_matrix__voxelize(shader_program, final_transform);
 
         // bind chunk

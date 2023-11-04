@@ -210,7 +210,7 @@ CHUNK__chunk CHUNK__create__chunk__bars(CHUNK__block_data air, CHUNK__block_data
 /* Chunks */
 typedef struct CHUNK__chunks {
     BASIC__buffer p_chunk_block_data;
-    ESS__dimensions p_dimensions;
+    //ESS__dimensions p_dimensions;
 } CHUNK__chunks;
 
 // close chunks
@@ -222,14 +222,14 @@ void CHUNK__close__chunks(CHUNK__chunks chunks) {
 }
 
 // setup chunks
-CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data, CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth) {
+CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data/*, CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth*/) {
     CHUNK__chunks output;
 
     // setup output
     output.p_chunk_block_data = chunk_block_data;
-    output.p_dimensions.p_width = width;
-    output.p_dimensions.p_height = height;
-    output.p_dimensions.p_depth = depth;
+    //output.p_dimensions.p_width = width;
+    //output.p_dimensions.p_height = height;
+    //output.p_dimensions.p_depth = depth;
 
     return output;
 }
@@ -237,14 +237,14 @@ CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data, CHUNK__chunk
 // setup null chunks
 CHUNK__chunks CHUNK__create_null__chunks() {
     // setup empty chunks
-    return CHUNK__create__chunks(BASIC__create_null__buffer(), 0, 0, 0);
+    return CHUNK__create__chunks(BASIC__create_null__buffer()/*, 0, 0, 0*/);
 }
 
-// calculate chunk index from coords
+/*// calculate chunk index from coords
 CHUNK__chunks_index CHUNK__calculate__chunks_index(CHUNK__chunks chunks, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
     // return chunk index
     return (chunks.p_dimensions.p_height * chunks.p_dimensions.p_width * z) + (chunks.p_dimensions.p_width * y) + x;
-}
+}*/
 
 // calculate chunk dimensions
 CHUNK__chunk_count CHUNK__calculate__chunks_count(ESS__dimensions dimensions) {
@@ -269,15 +269,16 @@ void CHUNK__set__chunk_in_chunks(CHUNK__chunks chunks, CHUNK__chunks_index chunk
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count; block_index++) {
         (*setting_chunk_address).p_blocks[block_index] = (*new_chunk_address).p_blocks[block_index];
     }
+
     return;
 }
 
 // allocate and fill chunks
-CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth, CHUNK__chunk_address default_chunk) {
+CHUNK__chunks CHUNK__open__chunks(CHUNK__chunk_count chunk_count, CHUNK__chunk_address default_chunk) {
     CHUNK__chunks output;
 
     // allocate chunk data
-    output.p_chunk_block_data = BASIC__open__buffer(sizeof(CHUNK__chunk) * width * height * depth);
+    output.p_chunk_block_data = BASIC__open__buffer(sizeof(CHUNK__chunk) * chunk_count);
 
     // if allocation denied, return null result
     if (output.p_chunk_block_data.p_address == 0) {
@@ -285,7 +286,13 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height,
         return CHUNK__create_null__chunks();
     }
 
-    // setup size data
+    // setup chunks
+    for (CHUNK__chunk_count chunk_index = 0; chunk_index < chunk_count; chunk_index++) {
+        // set one chunk
+        CHUNK__set__chunk_in_chunks(output, chunk_index, default_chunk);
+    }
+
+    /*// setup size data
     output.p_dimensions.p_width = width;
     output.p_dimensions.p_height = height;
     output.p_dimensions.p_depth = depth;
@@ -301,7 +308,7 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunks_x width, CHUNK__chunks_y height,
                 CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, chunks_width, chunks_height, chunks_depth), default_chunk);
             }
         }
-    }
+    }*/
 
     return output;
 }

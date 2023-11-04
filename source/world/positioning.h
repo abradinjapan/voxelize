@@ -1,5 +1,5 @@
-#ifndef VOXELIZE__positions
-#define VOXELIZE__positions
+#ifndef VOXELIZE__positioning
+#define VOXELIZE__positioning
 
 /* Include */
 #include "../base/essentials.h"
@@ -11,9 +11,9 @@
 typedef u64 POS__position_index;
 typedef POS__position_index POS__position_count;
 
-/* Position Manager */
-// all game positions
-typedef struct POS__positions {
+/* Positioning Manager */
+// all game positions & related data
+typedef struct POS__positioning {
     // the position of the camera
     ESS__world_vertex p_camera_position;
 
@@ -36,11 +36,11 @@ typedef struct POS__positions {
     ESS__dimensions p_chunk_XY_surface_dimensions;
     ESS__dimensions p_chunk_YZ_surface_dimensions;
     ESS__dimensions p_chunk_XZ_surface_dimensions;
-} POS__positions;
+} POS__positioning;
 
 // create custom positions
-POS__positions POS__create__positions(ESS__world_vertex camera_position, BASIC__buffer allocation, BASIC__buffer chunk_body_positions, BASIC__buffer chunk_XY_surface_positions, BASIC__buffer chunk_YZ_surface_positions, BASIC__buffer chunk_XZ_surface_positions, ESS__dimensions chunk_body_dimensions, ESS__dimensions chunk_XY_surface_dimensions, ESS__dimensions chunk_YZ_surface_dimensions, ESS__dimensions chunk_XZ_surface_dimensions) {
-    POS__positions output;
+POS__positioning POS__create__positioning(ESS__world_vertex camera_position, BASIC__buffer allocation, BASIC__buffer chunk_body_positions, BASIC__buffer chunk_XY_surface_positions, BASIC__buffer chunk_YZ_surface_positions, BASIC__buffer chunk_XZ_surface_positions, ESS__dimensions chunk_body_dimensions, ESS__dimensions chunk_XY_surface_dimensions, ESS__dimensions chunk_YZ_surface_dimensions, ESS__dimensions chunk_XZ_surface_dimensions) {
+    POS__positioning output;
 
     // setup camera position
     output.p_camera_position = camera_position;
@@ -69,9 +69,9 @@ POS__positions POS__create__positions(ESS__world_vertex camera_position, BASIC__
 }
 
 // create null positions
-POS__positions POS__create_null__positions() {
+POS__positioning POS__create_null__positioning() {
     // return null
-    return POS__create__positions(ESS__create_null__world_vertex(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), ESS__create_null__dimensions(), ESS__create_null__dimensions(), ESS__create_null__dimensions(), ESS__create_null__dimensions());
+    return POS__create__positioning(ESS__create_null__world_vertex(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), BASIC__create_null__buffer(), ESS__create_null__dimensions(), ESS__create_null__dimensions(), ESS__create_null__dimensions(), ESS__create_null__dimensions());
 }
 
 // create a sub allocation
@@ -93,8 +93,8 @@ ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chu
 }
 
 // open positions
-POS__positions POS__open__positions(ESS__world_vertex camera_position, ESS__world_vertex chunks_position, CHUNK__chunks chunks) {
-    POS__positions output;
+POS__positioning POS__open__positioning(ESS__world_vertex camera_position, ESS__world_vertex chunks_position, ESS__dimensions chunks_dimensions) {
+    POS__positioning output;
     ESS__dimensions_volume chunk_bodies_volume;
     ESS__dimensions_volume chunk_XY_surfaces_volume;
     ESS__dimensions_volume chunk_YZ_surfaces_volume;
@@ -105,29 +105,29 @@ POS__positions POS__open__positions(ESS__world_vertex camera_position, ESS__worl
     output.p_camera_position = camera_position;
 
     // calculate dimensions
-    output.p_chunk_body_dimensions = chunks.p_dimensions;
-    output.p_chunk_XY_surface_dimensions = CHUNKSURFACE__calculate__XY_surface_dimensions_from_chunks_dimensions(chunks.p_dimensions);
-    output.p_chunk_YZ_surface_dimensions = CHUNKSURFACE__calculate__YZ_surface_dimensions_from_chunks_dimensions(chunks.p_dimensions);
-    output.p_chunk_XZ_surface_dimensions = CHUNKSURFACE__calculate__XZ_surface_dimensions_from_chunks_dimensions(chunks.p_dimensions);
+    output.p_chunk_body_dimensions = chunks_dimensions;
+    output.p_chunk_XY_surface_dimensions = CHUNKSURFACE__calculate__XY_surface_dimensions_from_chunks_dimensions(chunks_dimensions);
+    output.p_chunk_YZ_surface_dimensions = CHUNKSURFACE__calculate__YZ_surface_dimensions_from_chunks_dimensions(chunks_dimensions);
+    output.p_chunk_XZ_surface_dimensions = CHUNKSURFACE__calculate__XZ_surface_dimensions_from_chunks_dimensions(chunks_dimensions);
 
     // calculate volumes
-    chunk_bodies_volume = CHUNK__calculate__chunks_count(chunks.p_dimensions);
-    chunk_XY_surfaces_volume = CHUNKSURFACE__calculate__XY_surfaces_volume(chunks.p_dimensions);
-    chunk_YZ_surfaces_volume = CHUNKSURFACE__calculate__YZ_surfaces_volume(chunks.p_dimensions);
-    chunk_XZ_surfaces_volume = CHUNKSURFACE__calculate__XZ_surfaces_volume(chunks.p_dimensions);
+    chunk_bodies_volume = CHUNK__calculate__chunks_count(chunks_dimensions);
+    chunk_XY_surfaces_volume = CHUNKSURFACE__calculate__XY_surfaces_volume(chunks_dimensions);
+    chunk_YZ_surfaces_volume = CHUNKSURFACE__calculate__YZ_surfaces_volume(chunks_dimensions);
+    chunk_XZ_surfaces_volume = CHUNKSURFACE__calculate__XZ_surfaces_volume(chunks_dimensions);
 
     // allocate positions
     allocation = BASIC__open__buffer(sizeof(ESS__world_vertex) * (chunk_bodies_volume + chunk_XY_surfaces_volume + chunk_YZ_surfaces_volume + chunk_XZ_surfaces_volume));
 
     // create positions
-    output = POS__create__positions(camera_position, allocation, POS__calculate__sub_allocation(allocation, 0, chunk_bodies_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume, chunk_XY_surfaces_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume + chunk_XY_surfaces_volume, chunk_YZ_surfaces_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume + chunk_XY_surfaces_volume + chunk_YZ_surfaces_volume, chunk_XZ_surfaces_volume), output.p_chunk_body_dimensions, output.p_chunk_XY_surface_dimensions, output.p_chunk_YZ_surface_dimensions, output.p_chunk_XZ_surface_dimensions);
+    output = POS__create__positioning(camera_position, allocation, POS__calculate__sub_allocation(allocation, 0, chunk_bodies_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume, chunk_XY_surfaces_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume + chunk_XY_surfaces_volume, chunk_YZ_surfaces_volume), POS__calculate__sub_allocation(allocation, chunk_bodies_volume + chunk_XY_surfaces_volume + chunk_YZ_surfaces_volume, chunk_XZ_surfaces_volume), output.p_chunk_body_dimensions, output.p_chunk_XY_surface_dimensions, output.p_chunk_YZ_surface_dimensions, output.p_chunk_XZ_surface_dimensions);
 
     // initialize all chunk body positions to be relative to their chunk offset
     for (CHUNK__chunks_x x = 0; x < output.p_chunk_body_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < output.p_chunk_body_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < output.p_chunk_body_dimensions.p_depth; z++) {
                 // initialize chunk position
-                ((ESS__world_vertex*)output.p_chunk_body_positions.p_address)[CHUNK__calculate__chunks_index(chunks, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z);
+                ((ESS__world_vertex*)output.p_chunk_body_positions.p_address)[ESS__calculate__dimensions_index(output.p_chunk_body_dimensions, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z);
             }
         }
     }
@@ -166,9 +166,9 @@ POS__positions POS__open__positions(ESS__world_vertex camera_position, ESS__worl
 }
 
 // close positions
-void POS__close__positions(POS__positions positions) {
+void POS__close__positioning(POS__positioning positioning) {
     // close positions
-    BASIC__close__buffer(positions.p_allocation);
+    BASIC__close__buffer(positioning.p_allocation);
 
     return;
 }

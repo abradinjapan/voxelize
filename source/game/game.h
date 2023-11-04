@@ -8,8 +8,7 @@
 #include "../rendering/shaders.h"
 #include "../user_control/controls.h"
 #include "../world/chunks.h"
-#include "../world/positions.h"
-#include "../world/generate.h"
+#include "../world/positioning.h"
 #include "../rendering/render.h"
 
 /* Game Information */
@@ -43,7 +42,7 @@ typedef struct GAME__information {
     CONTROLS__controls p_controls;
 
     // game simulation information
-    POS__positions p_positions;
+    POS__positioning p_positioning;
     CHUNK__chunks p_chunks;
     RENDER__vertex p_camera_rotation;
 
