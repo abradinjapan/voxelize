@@ -254,9 +254,6 @@ RENDER__world RENDER__open__world(POS__positioning positioning) {
     // setup total count
     output.p_handle_total_count = output.p_chunk_bodies_count + output.p_chunk_XY_surfaces_count + output.p_chunk_YZ_surfaces_count + output.p_chunk_XZ_surfaces_count;
 
-    // DEBUG
-    printf("Total handle count: %lu + %lu + %lu + %lu = %lu\n", (u64)output.p_chunk_bodies_count, (u64)output.p_chunk_XY_surfaces_count, (u64)output.p_chunk_YZ_surfaces_count, (u64)output.p_chunk_XZ_surfaces_count, (u64)output.p_handle_total_count);
-
     // allocate chunk handles
     output.p_all_handles = BASIC__open__buffer(output.p_handle_total_count * sizeof(RENDER__object_handle));
 
@@ -806,9 +803,6 @@ void RENDER__render__entire_world(SKIN__skins skins, CHUNK__chunks chunks, POS__
     for (RENDER__object_index x = 0; x < positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
         for (RENDER__object_index y = 0; y < positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
             for (RENDER__object_index z = 0; z < positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
-                // DEBUG
-                printf("Rendering surface XZ: [ %lu, %lu, %lu ]\n", (u64)x, (u64)y, (u64)z);
-
                 // render one surface
                 RENDER__render__chunk_XZ_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y + 1, z), world, temps);
             }
