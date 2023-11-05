@@ -25,7 +25,6 @@ typedef struct POS__positioning {
     BASIC__buffer p_chunk_XZ_surface_positions;
 
     // the counts of the positions
-    POS__position_count p_allocation_count;
     POS__position_count p_chunk_body_count;
     POS__position_count p_chunk_XY_surface_count;
     POS__position_count p_chunk_YZ_surface_count;
@@ -59,7 +58,6 @@ ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chu
 // open positions
 POS__positioning POS__open__positioning(ESS__world_vertex camera_position, ESS__world_vertex chunks_position, ESS__dimensions chunks_dimensions) {
     POS__positioning output;
-    BASIC__buffer allocation;
 
     // setup camera position
     output.p_camera_position = camera_position;
@@ -77,13 +75,13 @@ POS__positioning POS__open__positioning(ESS__world_vertex camera_position, ESS__
     output.p_chunk_XZ_surface_count = CHUNKSURFACE__calculate__XZ_surfaces_volume(chunks_dimensions);
 
     // allocate positions
-    allocation = BASIC__open__buffer(sizeof(ESS__world_vertex) * (output.p_chunk_body_count + output.p_chunk_XY_surface_count + output.p_chunk_YZ_surface_count + output.p_chunk_XZ_surface_count));
+    output.p_allocation = BASIC__open__buffer(sizeof(ESS__world_vertex) * (output.p_chunk_body_count + output.p_chunk_XY_surface_count + output.p_chunk_YZ_surface_count + output.p_chunk_XZ_surface_count));
 
     // create sub allocations
-    output.p_chunk_body_positions = POS__calculate__sub_allocation(allocation, 0, output.p_chunk_body_count);
-    output.p_chunk_XY_surface_positions = POS__calculate__sub_allocation(allocation, output.p_chunk_body_count, output.p_chunk_XY_surface_count);
-    output.p_chunk_YZ_surface_positions = POS__calculate__sub_allocation(allocation, output.p_chunk_body_count + output.p_chunk_XY_surface_count, output.p_chunk_YZ_surface_count);
-    output.p_chunk_XZ_surface_positions = POS__calculate__sub_allocation(allocation, output.p_chunk_body_count + output.p_chunk_XY_surface_count + output.p_chunk_YZ_surface_count, output.p_chunk_XZ_surface_count);
+    output.p_chunk_body_positions = POS__calculate__sub_allocation(output.p_allocation, 0, output.p_chunk_body_count);
+    output.p_chunk_XY_surface_positions = POS__calculate__sub_allocation(output.p_allocation, output.p_chunk_body_count, output.p_chunk_XY_surface_count);
+    output.p_chunk_YZ_surface_positions = POS__calculate__sub_allocation(output.p_allocation, output.p_chunk_body_count + output.p_chunk_XY_surface_count, output.p_chunk_YZ_surface_count);
+    output.p_chunk_XZ_surface_positions = POS__calculate__sub_allocation(output.p_allocation, output.p_chunk_body_count + output.p_chunk_XY_surface_count + output.p_chunk_YZ_surface_count, output.p_chunk_XZ_surface_count);
 
     // initialize all chunk body positions to be relative to their chunk offset
     for (CHUNK__chunks_x x = 0; x < output.p_chunk_body_dimensions.p_width; x++) {

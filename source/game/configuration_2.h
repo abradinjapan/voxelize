@@ -222,10 +222,10 @@ void CONF2__setup__game(GAME__information* game_information) {
     CONF2__create__test_world_2(game_information, ESS__calculate__world_center());
 
     // setup world
-    (*game_information).p_world = RENDER__open__world((*game_information).p_positioning);
+    (*game_information).p_world_rendering = RENDER__open__world((*game_information).p_positioning);
 
     // setup drawing information
-    RENDER__render__entire_world((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positioning, (*game_information).p_world, (*game_information).p_temporaries);
+    RENDER__render__entire_world((*game_information).p_skins, (*game_information).p_chunks, (*game_information).p_positioning, (*game_information).p_world_rendering, (*game_information).p_temporaries);
 
     // setup camera rotation
     (*game_information).p_camera_rotation = RENDER__create__vertex(0.0f, 0.0f, 0.0f);
@@ -246,7 +246,7 @@ void CONF2__close__game(GAME__information game_information) {
     WINDOW__close__window(game_information.p_graphics);
     POS__close__positioning(game_information.p_positioning);
     CHUNK__close__chunks(game_information.p_chunks);
-    RENDER__close__world(game_information.p_world);
+    RENDER__close__world(game_information.p_world_rendering);
     RENDER__close__temporaries(game_information.p_temporaries);
 
     return;
@@ -284,7 +284,7 @@ void CONF2__do__block_placement(GAME__information* game_information, CHUNK__bloc
         ((CHUNK__chunk*)(*game_information).p_chunks.p_chunk_block_data.p_address)[chunks_index].p_blocks[block_index] = block;
 
         // rerender affected chunk body
-        RENDER__render__chunk_body((*game_information).p_skins, CHUNK__get__chunk_pointer_in_chunks((*game_information).p_chunks, chunks_index), chunks_index, (*game_information).p_world, (*game_information).p_temporaries);
+        RENDER__render__chunk_body((*game_information).p_skins, CHUNK__get__chunk_pointer_in_chunks((*game_information).p_chunks, chunks_index), chunks_index, (*game_information).p_world_rendering, (*game_information).p_temporaries);
 
         // rerender surfaces
         // TODO
@@ -348,7 +348,7 @@ void CONF2__display__frame(GAME__information* game_information) {
     WINDOW__update__current_window_size(&((*game_information).p_graphics));
 
     // draw everything
-    RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_positioning, (*game_information).p_camera_rotation);
+    RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world_rendering, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_positioning, (*game_information).p_camera_rotation);
 
     // display window
     SDL_GL_SwapWindow((*game_information).p_graphics.p_window_context);

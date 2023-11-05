@@ -210,7 +210,6 @@ CHUNK__chunk CHUNK__create__chunk__bars(CHUNK__block_data air, CHUNK__block_data
 /* Chunks */
 typedef struct CHUNK__chunks {
     BASIC__buffer p_chunk_block_data;
-    //ESS__dimensions p_dimensions;
 } CHUNK__chunks;
 
 // close chunks
@@ -222,14 +221,11 @@ void CHUNK__close__chunks(CHUNK__chunks chunks) {
 }
 
 // setup chunks
-CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data/*, CHUNK__chunks_x width, CHUNK__chunks_y height, CHUNK__chunks_z depth*/) {
+CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data) {
     CHUNK__chunks output;
 
     // setup output
     output.p_chunk_block_data = chunk_block_data;
-    //output.p_dimensions.p_width = width;
-    //output.p_dimensions.p_height = height;
-    //output.p_dimensions.p_depth = depth;
 
     return output;
 }
@@ -291,24 +287,6 @@ CHUNK__chunks CHUNK__open__chunks(CHUNK__chunk_count chunk_count, CHUNK__chunk_a
         // set one chunk
         CHUNK__set__chunk_in_chunks(output, chunk_index, default_chunk);
     }
-
-    /*// setup size data
-    output.p_dimensions.p_width = width;
-    output.p_dimensions.p_height = height;
-    output.p_dimensions.p_depth = depth;
-
-    // setup chunks
-    // x
-    for (CHUNK__chunks_x chunks_width = 0; chunks_width < width; chunks_width++) {
-        // y
-        for (CHUNK__chunks_y chunks_height = 0; chunks_height < height; chunks_height++) {
-            // z
-            for (CHUNK__chunks_z chunks_depth = 0; chunks_depth < depth; chunks_depth++) {
-                // setup chunk data
-                CHUNK__set__chunk_in_chunks(output, CHUNK__calculate__chunks_index(output, chunks_width, chunks_height, chunks_depth), default_chunk);
-            }
-        }
-    }*/
 
     return output;
 }

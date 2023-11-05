@@ -36,7 +36,7 @@ typedef struct GAME__information {
     SHADER__program p_chunks_shader_program;
     TEX__game_textures p_game_textures;
     SKIN__skins p_skins;
-    RENDER__world p_world;
+    RENDER__world p_world_rendering;
 
     // player input information
     CONTROLS__controls p_controls;
