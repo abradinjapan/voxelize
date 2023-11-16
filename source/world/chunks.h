@@ -233,7 +233,7 @@ CHUNK__chunks CHUNK__create__chunks(BASIC__buffer chunk_block_data) {
 // setup null chunks
 CHUNK__chunks CHUNK__create_null__chunks() {
     // setup empty chunks
-    return CHUNK__create__chunks(BASIC__create_null__buffer()/*, 0, 0, 0*/);
+    return CHUNK__create__chunks(BASIC__create_null__buffer());
 }
 
 /*// calculate chunk index from coords
