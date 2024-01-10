@@ -12,17 +12,22 @@
 // block count
 #define CONF2__block_count 10
 
-// block types
-#define CONF2__block__no_block 0
-#define CONF2__block__air 1
-#define CONF2__block__stone 2
-#define CONF2__block__grass 3
-#define CONF2__block__sand 4
-#define CONF2__block__dirt 5
-#define CONF2__block__glass 6
-#define CONF2__block__tar 7
-#define CONF2__block__red_leaves 8
-#define CONF2__block__green_leaves 9
+// block face types
+typedef enum CONF2__bft {
+    CONF2__bft__no_block,
+    CONF2__bft__air,
+    CONF2__bft__stone,
+    CONF2__bft__grass,
+    CONF2__bft__sand,
+    CONF2__bft__dirt,
+    CONF2__bft__glass,
+    CONF2__bft__tar,
+    CONF2__bft__red_leaves,
+    CONF2__bft__green_leaves,
+
+    // count
+    CONF2__bft__COUNT,
+} CONF2__bft;
 
 /* Setup Game Data */
 // create game block faces
@@ -34,16 +39,16 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     output = TEX__open__faces(16, 16, CONF2__block_count);
 
     // generate faces
-    TEX__generate_face__one_color(output, CONF2__block__no_block, TEX__create__pixel(0, 0, 0, 0)); // no face
-    TEX__generate_face__one_color(output, CONF2__block__air, TEX__create__pixel(0, 0, 0, 0)); // air face
-    TEX__generate_face__one_color_range(output, CONF2__block__stone, TEX__create__pixel(120, 120, 120, 255), random_context, color_intensity); // stone face
-    TEX__generate_face__one_color_range(output, CONF2__block__grass, TEX__create__pixel(50, 240, 50, 255), random_context, color_intensity); // grass face
-    TEX__generate_face__one_color_range(output, CONF2__block__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
-    TEX__generate_face__one_color_range(output, CONF2__block__dirt, TEX__create__pixel(100, 50, 0, 255), random_context, color_intensity); // dirt face
-    TEX__generate_face__box_texture(output, CONF2__block__glass, TEX__create__pixel(245, 245, 245, 255), TEX__create__pixel(0, 0, 0, 0)); // glass face
-    TEX__generate_face__one_color_range(output, CONF2__block__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
-    TEX__generate_face__checkerboard(output, CONF2__block__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
-    TEX__generate_face__checkerboard(output, CONF2__block__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
+    TEX__generate_face__one_color(output, CONF2__bft__no_block, TEX__create__pixel(0, 0, 0, 0)); // no face
+    TEX__generate_face__one_color(output, CONF2__bft__air, TEX__create__pixel(0, 0, 0, 0)); // air face
+    TEX__generate_face__one_color_range(output, CONF2__bft__stone, TEX__create__pixel(120, 120, 120, 255), random_context, color_intensity); // stone face
+    TEX__generate_face__one_color_range(output, CONF2__bft__grass, TEX__create__pixel(50, 240, 50, 255), random_context, color_intensity); // grass face
+    TEX__generate_face__one_color_range(output, CONF2__bft__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
+    TEX__generate_face__one_color_range(output, CONF2__bft__dirt, TEX__create__pixel(100, 50, 0, 255), random_context, color_intensity); // dirt face
+    TEX__generate_face__box_texture(output, CONF2__bft__glass, TEX__create__pixel(245, 245, 245, 255), TEX__create__pixel(0, 0, 0, 0)); // glass face
+    TEX__generate_face__one_color_range(output, CONF2__bft__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
+    TEX__generate_face__checkerboard(output, CONF2__bft__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
+    TEX__generate_face__checkerboard(output, CONF2__bft__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
 
     return output;
 }
@@ -51,16 +56,16 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
 // create game skins
 SKIN__skins CONF2__open__skins() {
     SKIN__skins output;
-    SKIN__skin_count no_skin = CONF2__block__no_block;
-    SKIN__skin_count air_skin = CONF2__block__air;
-    SKIN__skin_count stone_skin = CONF2__block__stone;
-    SKIN__skin_count grass_skin = CONF2__block__grass;
-    SKIN__skin_count sand_skin = CONF2__block__sand;
-    SKIN__skin_count dirt_skin = CONF2__block__dirt;
-    SKIN__skin_count glass_skin = CONF2__block__glass;
-    SKIN__skin_count tar_skin = CONF2__block__tar;
-    SKIN__skin_count red_leaves_skin = CONF2__block__red_leaves;
-    SKIN__skin_count green_leaves_skin = CONF2__block__green_leaves;
+    SKIN__skin_count no_skin = CONF2__bft__no_block;
+    SKIN__skin_count air_skin = CONF2__bft__air;
+    SKIN__skin_count stone_skin = CONF2__bft__stone;
+    SKIN__skin_count grass_skin = CONF2__bft__grass;
+    SKIN__skin_count sand_skin = CONF2__bft__sand;
+    SKIN__skin_count dirt_skin = CONF2__bft__dirt;
+    SKIN__skin_count glass_skin = CONF2__bft__glass;
+    SKIN__skin_count tar_skin = CONF2__bft__tar;
+    SKIN__skin_count red_leaves_skin = CONF2__bft__red_leaves;
+    SKIN__skin_count green_leaves_skin = CONF2__bft__green_leaves;
 
     // setup output
     output = SKIN__open__block_skins(CONF2__block_count);
@@ -156,7 +161,7 @@ void CONF2__create__test_world(GAME__information* game_information, ESS__world_v
     (*game_information).p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
 
     // open chunk
-    chunk = CHUNK__create__chunk__bars(CHUNK__create__block(CONF2__block__air), CHUNK__create__block(CONF2__block__stone));
+    chunk = CHUNK__create__chunk__bars(CHUNK__create__block(CONF2__bft__air), CHUNK__create__block(CONF2__bft__stone));
     
     // setup chunks
     (*game_information).p_chunks = CHUNK__open__chunks(ESS__calculate__dimensions_volume(chunks_dimensions), &chunk);
@@ -175,7 +180,7 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
     (*game_information).p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
 
     // create blank chunk
-    chunk = CHUNK__create__chunk(CHUNK__create__block(CONF2__block__air));
+    chunk = CHUNK__create__chunk(CHUNK__create__block(CONF2__bft__air));
 
     // setup chunks
     (*game_information).p_chunks = CHUNK__open__chunks((*game_information).p_positioning.p_chunk_body_count, &chunk);
@@ -190,21 +195,21 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
             for (u64 block_x = 0; block_x < ESS__define__chunk_side_block_count; block_x++) {
                 for (u64 block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
                     // setup stone
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)), CHUNK__create__block(CONF2__block__glass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)), CHUNK__create__block(CONF2__bft__glass));
 
                     // setup topsoil
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 1, block_z)), CHUNK__create__block(CONF2__block__grass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 1, block_z)), CHUNK__create__block(CONF2__bft__grass));
                 }
             }
         }
     }
 
     // create middle chunk
-    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__block__sand), CHUNK__create__block(CONF2__block__stone), CHUNK__create__block(CONF2__block__grass));
+    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__bft__sand), CHUNK__create__block(CONF2__bft__stone), CHUNK__create__block(CONF2__bft__grass));
     CHUNK__set__chunk_in_chunks((*game_information).p_chunks, ESS__calculate__dimensions_index((*game_information).p_positioning.p_chunk_body_dimensions, 1, 0, 1), &chunk);
 
     // create corner chunk
-    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__block__green_leaves), CHUNK__create__block(CONF2__block__air), CHUNK__create__block(CONF2__block__air));
+    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__bft__green_leaves), CHUNK__create__block(CONF2__bft__air), CHUNK__create__block(CONF2__bft__air));
     CHUNK__set__chunk_in_chunks((*game_information).p_chunks, ESS__calculate__dimensions_index((*game_information).p_positioning.p_chunk_body_dimensions, 2, 2, 2), &chunk);
 
     return;
@@ -332,11 +337,11 @@ void CONF2__display__frame(GAME__information* game_information) {
     // block placing
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
         // do block placement
-        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__block__red_leaves));
+        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__bft__red_leaves));
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_Q)) {
         // do block placement
-        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__block__air));
+        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__bft__air));
     }
 
     // check if player requested quit
