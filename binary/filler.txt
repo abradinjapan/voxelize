@@ -1,3 +1,0 @@
-This file just makes sure that the bin directory isn't empty.
-
-Job complete.
