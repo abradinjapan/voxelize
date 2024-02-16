@@ -2,7 +2,7 @@
 #define VOXELIZE__chunks
 
 /* Include */
-#include "../base/essentials.h"
+#include "block.h"
 
 /* Define */
 // coordinates
@@ -10,14 +10,8 @@ typedef ESS__world_x CHUNK__coordinate_x;
 typedef ESS__world_y CHUNK__coordinate_y;
 typedef ESS__world_z CHUNK__coordinate_z;
 
-// the data container of one block (block type ID but also unique block meta data)
-typedef u64 CHUNK__block_data;
-
 // the index of a block in the one dimensional chunk blocks array
 typedef u16 CHUNK__block_index;
-
-// the block ID
-typedef u64 CHUNK__block_ID;
 
 // the sides of a chunk
 typedef u8 CHUNK__chunk_axis_index;
@@ -36,25 +30,6 @@ typedef CHUNK__chunks_axis_index CHUNK__chunks_z;
 
 // the total count of chunks
 typedef ESS__dimensions_volume CHUNK__chunk_count;
-
-/* Block */
-// get block type from block data
-CHUNK__block_ID CHUNK__get__block_ID_from_block_data(CHUNK__block_data block_data) {
-    // extract block type and return
-    return (CHUNK__block_ID)block_data;
-}
-
-// create block data from raw block type
-CHUNK__block_data CHUNK__create__block(CHUNK__block_ID block_ID) {
-    // setup the data for the block (can be more complex later as block data has other states packed in)
-    return (CHUNK__block_data)block_ID;
-}
-
-// create empty block
-CHUNK__block_data CHUNK__create_null__block() {
-    // return empty
-    return CHUNK__create__block(0);
-}
 
 /* Block Position */
 // the type that stores one block position
@@ -84,7 +59,7 @@ CHUNK__block_position CHUNK__create_null__block_position() {
 
 /* Chunk */
 typedef struct CHUNK__chunk {
-    CHUNK__block_data p_blocks[ESS__define__chunk_total_block_count];
+    BLOCK__block p_blocks[ESS__define__chunk_total_block_count];
 } CHUNK__chunk;
 
 // chunk address
@@ -97,27 +72,27 @@ CHUNK__block_index CHUNK__calculate__block_index(CHUNK__block_position block_pos
 }
 
 // set block
-void CHUNK__set__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index, CHUNK__block_data block_data) {
+void CHUNK__set__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index, BLOCK__block block) {
     // set data
-    (*chunk_address).p_blocks[block_index] = block_data;
+    (*chunk_address).p_blocks[block_index] = block;
 
     return;
 }
 
 // get block
-CHUNK__block_data CHUNK__get__block_data_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index) {
+BLOCK__block CHUNK__get__block_from_chunk_address(CHUNK__chunk_address chunk_address, CHUNK__block_index block_index) {
     // return data
     return (*chunk_address).p_blocks[block_index];
 }
 
 // create a chunk with one specific block data for every block
-CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data) {
+CHUNK__chunk CHUNK__create__chunk(BLOCK__block block) {
     CHUNK__chunk output;
 
     // setup block data
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count; block_index++) {
         // set block
-        output.p_blocks[block_index] = block_data;
+        output.p_blocks[block_index] = block;
     }
     
     return output;
@@ -126,31 +101,31 @@ CHUNK__chunk CHUNK__create__chunk(CHUNK__block_data block_data) {
 // create a blank chunk
 CHUNK__chunk CHUNK__create_null__chunk() {
     // create empty chunk
-    return CHUNK__create__chunk(CHUNK__create_null__block());
+    return CHUNK__create__chunk(BLOCK__create_null__block());
 }
 
 // create chunk where every other block is air and one custom block type
-CHUNK__chunk CHUNK__create__chunk__alternating_block_pattern(CHUNK__block_ID first_block, CHUNK__block_ID second_block) {
+CHUNK__chunk CHUNK__create__chunk__alternating_block_pattern(BLOCK__block first_block, BLOCK__block second_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_block));
+    output = CHUNK__create__chunk(first_block);
 
     // setup every even block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count; block_index += 2) {
         // set block to second type
-        output.p_blocks[block_index] = CHUNK__create__block(second_block);
+        output.p_blocks[block_index] = second_block;
     }
 
     return output;
 }
 
 // create chunk where every 3 blocks are a custom type
-CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__block_data first_block, CHUNK__block_data second_block, CHUNK__block_data third_block) {
+CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(BLOCK__block first_block, BLOCK__block second_block, BLOCK__block third_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_block));
+    output = CHUNK__create__chunk(first_block);
 
     // setup every even block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count - 3; block_index += 3) {
@@ -164,11 +139,11 @@ CHUNK__chunk CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__block_data fi
 }
 
 // create chunk with 6 of one type and another seventh in a rotating pattern
-CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data first_six_blocks, CHUNK__block_data seventh_block) {
+CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(BLOCK__block first_six_blocks, BLOCK__block seventh_block) {
     CHUNK__chunk output;
 
     // setup output to all first type
-    output = CHUNK__create__chunk(CHUNK__create__block(first_six_blocks));
+    output = CHUNK__create__chunk(first_six_blocks);
 
     // setup every seventh block to be the chosen block type
     for (CHUNK__block_index block_index = 0; block_index < ESS__define__chunk_total_block_count - 7; block_index += 7) {
@@ -180,7 +155,7 @@ CHUNK__chunk CHUNK__create__chunk__7_rotating_block_pattern(CHUNK__block_data fi
 }
 
 // generate a chunk with a bar on all three axes
-CHUNK__chunk CHUNK__create__chunk__bars(CHUNK__block_data air, CHUNK__block_data bar) {
+CHUNK__chunk CHUNK__create__chunk__bars(BLOCK__block air, BLOCK__block bar) {
     CHUNK__chunk output;
 
     // initialize blank chunk

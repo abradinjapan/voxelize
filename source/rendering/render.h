@@ -375,8 +375,8 @@ RENDER__vertex_index RENDER__render__Z_face(RENDER__temporaries temps, RENDER__v
 // create the vertices for the chunk insides and send it to opengl
 void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_address, RENDER__object_index handle_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     RENDER__vertex_index vertex_index;
-    CHUNK__block_ID block_center_type;
-    CHUNK__block_ID block_side_type;
+    BLOCK__block center_block;
+    BLOCK__block side_block;
     RENDER__x chunk_x;
     RENDER__y chunk_y;
     RENDER__z chunk_z;
@@ -392,23 +392,23 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
             // for each block
             for (CHUNK__chunk_axis_index chunk_block = 0; chunk_block < ESS__define__chunk_side_block_count; chunk_block++) { // X
                 // get center block type
-                block_center_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice))));
+                center_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice)));
 
                 // try draw left face
                 // check if face is on outside (if so, do not draw)
                 if (chunk_block > 0) {
                     // get block on left side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block - 1, chunk_strip, chunk_slice))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block - 1, chunk_strip, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__left]);
+                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__left]);
                     }
                 }
 
@@ -416,17 +416,17 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_block < ESS__define__chunk_side_block_count - 1) {
                     // get block on right side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block + 1, chunk_strip, chunk_slice))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block + 1, chunk_strip, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block + 1) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__right]);
+                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__right]);
                     }
                 }
 
@@ -434,17 +434,17 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_strip < ESS__define__chunk_side_block_count - 1) {
                     // get block on top side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip + 1, chunk_slice))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip + 1, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip + 1) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__top]);
+                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__top]);
                     }
                 }
 
@@ -452,17 +452,17 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_strip > 0) {
                     // get block on bottom side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip - 1, chunk_slice))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip - 1, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__bottom]);
+                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__bottom]);
                     }
                 }
                 
@@ -470,17 +470,17 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_slice < ESS__define__chunk_side_block_count - 1) {
                     // get block on back side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice + 1))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice + 1)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice + 1) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__back]);
+                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__back]);
                     }
                 }
 
@@ -488,17 +488,17 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                 // check if face is on outside (if so, do not draw)
                 if (chunk_slice > 0) {
                     // get block on front side
-                    block_side_type = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice - 1))));
+                    side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice - 1)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, block_side_type).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, block_center_type).p_faces[SKIN__bst__front]);
+                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__front]);
                     }
                 }
             }
@@ -541,8 +541,8 @@ BASIC__bt RENDER__calculate__chunk_surface_face_is_renderable(SKIN__bdt center_b
 void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
-    CHUNK__block_ID center_block_ID;
-    CHUNK__block_ID outside_block_ID;
+    BLOCK__block center_block;
+    BLOCK__block outside_block;
     RENDER__x vertex_x;
     RENDER__y vertex_y;
     RENDER__z vertex_z;
@@ -561,29 +561,29 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each y axis
         for (RENDER__object_index block_y = 0; block_y < ESS__define__chunk_side_block_count; block_y++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, ESS__define__chunk_side_block_count - 1))));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, 0))));
+            center_block = CHUNK__get__block_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, ESS__define__chunk_side_block_count - 1)));
+            outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, 0)));
             
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = 0;
                 
                 // draw face
-                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block_ID).p_faces[SKIN__bst__front]);
+                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__front]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = 0;
                 
                 // draw face
-                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block_ID).p_faces[SKIN__bst__back]);
+                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__back]);
             }
         }
     }
@@ -619,8 +619,8 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
-    CHUNK__block_ID center_block_ID;
-    CHUNK__block_ID outside_block_ID;
+    BLOCK__block center_block;
+    BLOCK__block outside_block;
     RENDER__x vertex_x;
     RENDER__y vertex_y;
     RENDER__z vertex_z;
@@ -639,29 +639,29 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each z axis
         for (RENDER__object_index block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(ESS__define__chunk_side_block_count - 1, block_y, block_z))));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(0, block_y, block_z))));
+            center_block = CHUNK__get__block_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(ESS__define__chunk_side_block_count - 1, block_y, block_z)));
+            outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(0, block_y, block_z)));
         
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = 0;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block_ID).p_faces[SKIN__bst__left]);
+                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__left]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = 0;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block_ID).p_faces[SKIN__bst__right]);
+                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__right]);
             }
         }
     }
@@ -697,8 +697,8 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
-    CHUNK__block_ID center_block_ID;
-    CHUNK__block_ID outside_block_ID;
+    BLOCK__block center_block;
+    BLOCK__block outside_block;
     RENDER__x vertex_x;
     RENDER__y vertex_y;
     RENDER__z vertex_z;
@@ -717,29 +717,29 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
         // for each y axis
         for (RENDER__object_index block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
             // get block data
-            center_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, ESS__define__chunk_side_block_count - 1, block_z))));
-            outside_block_ID = CHUNK__get__block_ID_from_block_data(CHUNK__get__block_data_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z))));
+            center_block = CHUNK__get__block_from_chunk_address(center_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, ESS__define__chunk_side_block_count - 1, block_z)));
+            outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)));
         
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = 0;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block_ID).p_faces[SKIN__bst__top]);
+                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__top]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = 0;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block_ID).p_faces[SKIN__bst__bottom]);
+                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__bottom]);
             }
         }
     }

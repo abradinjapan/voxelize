@@ -157,11 +157,15 @@ void CONF2__create__test_world(GAME__information* game_information, ESS__world_v
     ESS__dimensions chunks_dimensions = ESS__create__dimensions(chunks_size, chunks_size, chunks_size);
     CHUNK__chunk chunk;
 
+    // blocks
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
+    BLOCK__block bar_block = BLOCK__create__block(CONF2__bft__stone, BLOCK__create_null__metadata());
+
     // setup world positions
     (*game_information).p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
 
     // open chunk
-    chunk = CHUNK__create__chunk__bars(CHUNK__create__block(CONF2__bft__air), CHUNK__create__block(CONF2__bft__stone));
+    chunk = CHUNK__create__chunk__bars(air_block, bar_block);
     
     // setup chunks
     (*game_information).p_chunks = CHUNK__open__chunks(ESS__calculate__dimensions_volume(chunks_dimensions), &chunk);
@@ -176,11 +180,19 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
     CHUNK__chunk chunk;
     CHUNK__chunk_address temp_chunk = 0;
 
+    // blocks
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
+    BLOCK__block glass_block = BLOCK__create__block(CONF2__bft__glass, BLOCK__create_null__metadata());
+    BLOCK__block grass_block = BLOCK__create__block(CONF2__bft__grass, BLOCK__create_null__metadata());
+    BLOCK__block sand_block = BLOCK__create__block(CONF2__bft__sand, BLOCK__create_null__metadata());
+    BLOCK__block stone_block = BLOCK__create__block(CONF2__bft__stone, BLOCK__create_null__metadata());
+    BLOCK__block green_leaves_block = BLOCK__create__block(CONF2__bft__green_leaves, BLOCK__create_null__metadata());
+
     // setup world positions
     (*game_information).p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
 
     // create blank chunk
-    chunk = CHUNK__create__chunk(CHUNK__create__block(CONF2__bft__air));
+    chunk = CHUNK__create__chunk(air_block);
 
     // setup chunks
     (*game_information).p_chunks = CHUNK__open__chunks((*game_information).p_positioning.p_chunk_body_count, &chunk);
@@ -195,21 +207,21 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
             for (u64 block_x = 0; block_x < ESS__define__chunk_side_block_count; block_x++) {
                 for (u64 block_z = 0; block_z < ESS__define__chunk_side_block_count; block_z++) {
                     // setup stone
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)), CHUNK__create__block(CONF2__bft__glass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)), glass_block);
 
                     // setup topsoil
-                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 1, block_z)), CHUNK__create__block(CONF2__bft__grass));
+                    CHUNK__set__block_data_from_chunk_address(temp_chunk, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 1, block_z)), grass_block);
                 }
             }
         }
     }
 
     // create middle chunk
-    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__bft__sand), CHUNK__create__block(CONF2__bft__stone), CHUNK__create__block(CONF2__bft__grass));
+    chunk = CHUNK__create__chunk__3_rotating_block_pattern(sand_block, stone_block, grass_block);
     CHUNK__set__chunk_in_chunks((*game_information).p_chunks, ESS__calculate__dimensions_index((*game_information).p_positioning.p_chunk_body_dimensions, 1, 0, 1), &chunk);
 
     // create corner chunk
-    chunk = CHUNK__create__chunk__3_rotating_block_pattern(CHUNK__create__block(CONF2__bft__green_leaves), CHUNK__create__block(CONF2__bft__air), CHUNK__create__block(CONF2__bft__air));
+    chunk = CHUNK__create__chunk__3_rotating_block_pattern(green_leaves_block, air_block, air_block);
     CHUNK__set__chunk_in_chunks((*game_information).p_chunks, ESS__calculate__dimensions_index((*game_information).p_positioning.p_chunk_body_dimensions, 2, 2, 2), &chunk);
 
     return;
@@ -258,7 +270,7 @@ void CONF2__close__game(GAME__information game_information) {
 }
 
 // performs block placing and rerendering
-void CONF2__do__block_placement(GAME__information* game_information, CHUNK__block_data block) {
+void CONF2__do__block_placement(GAME__information* game_information, BLOCK__block block) {
     CHUNK__chunks_index chunks_index = -1;
     CHUNK__block_index block_index = -1;
     BASIC__bt in_chunk = BASIC__bt__false;
@@ -303,6 +315,10 @@ void CONF2__display__frame(GAME__information* game_information) {
     float rotation_speed = 0.5f;
     ESS__world_axis shift = 2;
 
+    // blocks
+    BLOCK__block place_block = BLOCK__create__block(CONF2__bft__red_leaves, BLOCK__create_null__metadata());
+    BLOCK__block break_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
+
     // update mouse movement
     CONTROLS__update__mouse_position_change(&((*game_information).p_controls));
 
@@ -337,11 +353,11 @@ void CONF2__display__frame(GAME__information* game_information) {
     // block placing
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
         // do block placement
-        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__bft__red_leaves));
+        CONF2__do__block_placement(game_information, place_block);
     }
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_Q)) {
         // do block placement
-        CONF2__do__block_placement(game_information, CHUNK__create__block(CONF2__bft__air));
+        CONF2__do__block_placement(game_information, break_block);
     }
 
     // check if player requested quit
