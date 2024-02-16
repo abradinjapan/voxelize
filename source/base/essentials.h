@@ -7,12 +7,14 @@
 #include "list.h"
 
 /* Defines */
+// the world axis defines are the actual game coordinates
 // world axis defines
 typedef u64 ESS__world_axis; // the global axis type
 typedef ESS__world_axis ESS__world_x;
 typedef ESS__world_axis ESS__world_y;
 typedef ESS__world_axis ESS__world_z;
 
+// the dimension defines are not for game dimensions, they are a generic xyz space size storage
 // dimension defines
 typedef u64 ESS__dimension_axis;
 typedef ESS__dimension_axis ESS__dimension_x;
@@ -46,6 +48,7 @@ typedef ESS__dimension_axis ESS__dimensions_volume;
 #define ESS__define__far_plane 10000.0f
 
 /* World Vertices */
+// a position in the game world
 // world vertices
 typedef struct ESS__world_vertex {
     ESS__world_x p_x;
