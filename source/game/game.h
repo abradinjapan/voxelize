@@ -10,6 +10,8 @@
 #include "../world/chunks.h"
 #include "../world/positioning.h"
 #include "../rendering/render.h"
+#include "../world/generation.h"
+#include "../managing/world_manager.h"
 
 /* Game Information */
 // game state information
@@ -36,14 +38,12 @@ typedef struct GAME__information {
     SHADER__program p_chunks_shader_program;
     TEX__game_textures p_game_textures;
     SKIN__skins p_skins;
-    RENDER__world p_world_rendering;
 
-    // player input information
+    // running world information index manager
+    MANAGER__world_manager p_world_manager;
+
+    // player information
     CONTROLS__controls p_controls;
-
-    // game simulation information
-    POS__positioning p_positioning;
-    CHUNK__chunks p_chunks;
     RENDER__vertex p_camera_rotation;
 
     // game wide random contexts
@@ -54,7 +54,7 @@ typedef struct GAME__information {
 } GAME__information;
 
 // setup game information (does not actually start a game, information should be setup beforehand)
-GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHADER__program chunks_shader_program, TEX__game_textures game_textures) {
+GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHADER__program chunks_shader_program, TEX__game_textures game_textures, MANAGER__world_manager world_manager) {
     GAME__information output;
 
     // setup output
@@ -67,7 +67,7 @@ GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHAD
     output.p_chunks_shader_program = chunks_shader_program;
     output.p_game_textures = game_textures;
     output.p_controls = CONTROLS__create_null__controls();
-    output.p_chunks = CHUNK__create_null__chunks();
+    output.p_world_manager = world_manager;
     output.p_random_pixel_context = RANDOM__create_null__context();
 
     return output;
@@ -76,7 +76,7 @@ GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHAD
 // create null game information
 GAME__information GAME__create_null__game_information() {
     // return null game information
-    return GAME__create__game_information(WINDOW__create_null__graphics(), SHADER__create_null__shader_program(), TEX__create_null__game_textures());
+    return GAME__create__game_information(WINDOW__create_null__graphics(), SHADER__create_null__shader_program(), TEX__create_null__game_textures(), MANAGER__create_null__world_manager());
 }
 
 #endif

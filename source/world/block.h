@@ -16,7 +16,7 @@ typedef u64 BLOCK__metadatum_index;
 #define BLOCK__define__block_byte_count (sizeof(u64)*2)
 
 // null block ID
-#define BLOCK__define__null_block_ID -1
+#define BLOCK__define__null_block_ID 0
 
 // block metadata byte size
 #define BLOCK__define__metadata_byte_count (BLOCK__define__block_byte_count-sizeof(BLOCK__block_ID))

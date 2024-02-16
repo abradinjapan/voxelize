@@ -73,11 +73,11 @@ BASIC__buffer POS__calculate__position_sub_allocation(BASIC__buffer original_all
     return BASIC__create__buffer(original_allocation.p_address + (sizeof(ESS__world_vertex) * vertex_offset), (sizeof(ESS__world_vertex) * vertex_count));
 }
 
-// create an index sub allocation
+/*// create an index sub allocation
 BASIC__buffer POS__calculate__indices_sub_allocation(BASIC__buffer original_allocation, u64 index_offset, u64 index_count) {
     // return calculation
     return BASIC__create__buffer(original_allocation.p_address + (sizeof(POS__chunks_index) * index_offset), (sizeof(POS__chunks_index) * index_count));
-}
+}*/
 
 // calculate the world position of a chunk inside a chunks object
 ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chunks_position, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {

@@ -190,4 +190,9 @@ BASIC__bt ESS__calculate__coords_are_in_chunk(ESS__world_vertex chunk_position, 
     return ESS__calculate__position_is_in_box__exclusive(chunk_box, subject_position);
 }
 
+// calculate a world coordinate for a chunk starting with a chunk world position and adding a chunk-relative offset
+ESS__world_vertex ESS__calculate__chunk_relative_world_position(ESS__world_vertex base, ESS__dimensions chunks_deep_on_axes) {
+    return ESS__create__world_vertex(base.p_x + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_width), base.p_y + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_height), base.p_z + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_depth));
+}
+
 #endif
