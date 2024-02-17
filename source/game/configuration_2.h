@@ -275,10 +275,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__floating_sand, ESS__create__dimensions(5, 5, 5), camera_position, camera_position);
 
     // generate chunks
-    MANAGER__initialize__world((*game_information).p_world_manager, camera_position);
-
-    // setup drawing information
-    RENDER__render__entire_world((*game_information).p_skins, (*game_information).p_world_manager.p_chunks, (*game_information).p_world_manager.p_positioning, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_temporaries);
+    MANAGER__initialize__world((*game_information).p_world_manager, camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
 
     // setup camera rotation
     (*game_information).p_camera_rotation = RENDER__create__vertex(0.0f, 0.0f, 0.0f);

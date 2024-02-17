@@ -771,47 +771,6 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
     return;
 }
 
-// render everything in the world
-void RENDER__render__entire_world(SKIN__skins skins, CHUNK__chunks chunks, POS__positioning positioning, RENDER__world world_rendering, RENDER__temporaries temps) {
-    // render each chunk body
-    for (RENDER__object_index handle_ID = 0; handle_ID < world_rendering.p_chunk_bodies_count; handle_ID++) {
-        // render one chunk
-        RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(chunks, handle_ID), handle_ID, world_rendering, temps);
-    }
-
-    // render each chunk XY surface
-    for (RENDER__object_index x = 0; x < positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
-                // render one surface
-                RENDER__render__chunk_XY_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z + 1), world_rendering, temps);
-            }
-        }
-    }
-
-    // render each chunk YZ surface
-    for (RENDER__object_index x = 0; x < positioning.p_chunk_YZ_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positioning.p_chunk_YZ_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positioning.p_chunk_YZ_surface_dimensions.p_depth; z++) {
-                // render one surface
-                RENDER__render__chunk_YZ_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_YZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x + 1, y, z), world_rendering, temps);
-            }
-        }
-    }
-
-    // render each chunk XZ surface
-    for (RENDER__object_index x = 0; x < positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
-        for (RENDER__object_index y = 0; y < positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
-            for (RENDER__object_index z = 0; z < positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
-                // render one surface
-                RENDER__render__chunk_XZ_surface(skins, chunks, ESS__calculate__dimensions_index(positioning.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(positioning.p_chunk_body_dimensions, x, y + 1, z), world_rendering, temps);
-            }
-        }
-    }
-
-    return;
-}
-
 /* Draw World */
 // calculate the difference between the two positions
 RENDER__axis RENDER__calculate__render_axis(ESS__world_axis camera_axis, ESS__world_axis object_axis) {

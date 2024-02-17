@@ -163,19 +163,28 @@ void MANAGER__close__world_manager(MANAGER__world_manager world_manager) {
 }
 
 // initialize the world
-void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world_vertex chunks_position) {
+void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world_vertex chunks_position, SKIN__skins skins, RENDER__temporaries temps) {
+    CHUNK__chunk new_chunk;
+    CHUNK__chunks_index center_chunks_index;
+    CHUNK__chunks_index outside_chunks_index;
+    CHUNK__chunks_index surface_index;
+
     // create chunks
     for (CHUNK__chunk_x x = 0; x < world_manager.p_positioning.p_chunk_body_dimensions.p_width; x++) {
         for (CHUNK__chunk_y y = 0; y < world_manager.p_positioning.p_chunk_body_dimensions.p_height; y++) {
             for (CHUNK__chunk_z z = 0; z < world_manager.p_positioning.p_chunk_body_dimensions.p_depth; z++) {
                 // generate chunk data
-                CHUNK__chunk new_chunk = (*world_manager.p_generation_algorithm)(ESS__calculate__chunk_relative_world_position(chunks_position, ESS__create__dimensions(x, y, z)));
+                new_chunk = (*world_manager.p_generation_algorithm)(ESS__calculate__chunk_relative_world_position(chunks_position, ESS__create__dimensions(x, y, z)));
+                center_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z);
 
                 // set chunk
-                CHUNK__set__chunk_in_chunks(world_manager.p_chunks, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), &new_chunk);
+                CHUNK__set__chunk_in_chunks(world_manager.p_chunks, center_chunks_index, &new_chunk);
 
                 // set chunk position
                 ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z);
+
+                // render chunk
+                RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(world_manager.p_chunks, center_chunks_index), center_chunks_index, world_manager.p_rendered_world, temps);
             }
         }
     }
@@ -185,8 +194,16 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
+                // calculate indices
+                center_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z);
+                outside_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z + 1);
+                surface_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XY_surface_dimensions, x, y, z);
+                
                 // initialize chunk position
-                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XY_surface_dimensions, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z + 1);
+                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[surface_index] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z + 1);
+
+                // render surface
+                RENDER__render__chunk_XY_surface(skins, world_manager.p_chunks, surface_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
             }
         }
     }
@@ -195,8 +212,15 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_depth; z++) {
+                center_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z);
+                outside_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x + 1, y, z);
+                surface_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_YZ_surface_dimensions, x, y, z);
+
                 // initialize chunk position
-                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_YZ_surface_positions.p_address)[ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_YZ_surface_dimensions, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x + 1, y, z);
+                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_YZ_surface_positions.p_address)[surface_index] = POS__calculate__chunk_position_in_chunks(chunks_position, x + 1, y, z);
+
+                // render surface
+                RENDER__render__chunk_YZ_surface(skins, world_manager.p_chunks, surface_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
             }
         }
     }
@@ -205,8 +229,15 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
+                center_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z);
+                outside_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y + 1, z);
+                surface_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XZ_surface_dimensions, x, y, z);
+
                 // initialize chunk position
-                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XZ_surface_positions.p_address)[ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XZ_surface_dimensions, x, y, z)] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y + 1, z);
+                ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XZ_surface_positions.p_address)[surface_index] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y + 1, z);
+
+                // render surface
+                RENDER__render__chunk_XZ_surface(skins, world_manager.p_chunks, surface_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
             }
         }
     }
