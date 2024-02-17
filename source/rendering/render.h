@@ -199,7 +199,7 @@ RENDER__object_handle RENDER__create_null__handle() {
 
 // everything rendered in the game
 typedef struct RENDER__world {
-    // opengl vbo handles
+    // opengl handles
     BASIC__buffer p_all_handles; // the main allocation for all handles
 
     // sub allocations for vbo handles

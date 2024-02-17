@@ -39,7 +39,7 @@ typedef struct GAME__information {
     TEX__game_textures p_game_textures;
     SKIN__skins p_skins;
 
-    // running world information index manager
+    // world manager
     MANAGER__world_manager p_world_manager;
 
     // player information

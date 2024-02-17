@@ -151,7 +151,7 @@ GAME__information CONF2__open__game() {
     return output;
 }
 
-// create test world
+/*// create test world
 void CONF2__create__test_world(GAME__information* game_information, ESS__world_vertex camera_position) {
     CHUNK__chunks_index chunks_size = 5;
     ESS__dimensions chunks_dimensions = ESS__create__dimensions(chunks_size, chunks_size, chunks_size);
@@ -225,7 +225,7 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
     CHUNK__set__chunk_in_chunks((*game_information).p_world_manager.p_chunks, ESS__calculate__dimensions_index((*game_information).p_world_manager.p_positioning.p_chunk_body_dimensions, 2, 2, 2), &chunk);
 
     return;
-}
+}*/
 
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_position) {
@@ -245,12 +245,20 @@ CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_posi
     }
 }
 
-// create a world with the world manager
-void CONF2__open__world(GAME__information* game_information, ESS__dimensions chunks_dimensions, ESS__world_vertex chunks_initial_position, ESS__world_vertex camera_position) {
-    // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__ground_and_air, chunks_dimensions, chunks_initial_position, camera_position);
+// generate chunks based on world position
+CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_position) {
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
+    BLOCK__block sand_block = BLOCK__create__block(CONF2__bft__sand, BLOCK__create_null__metadata());
 
-    return;
+    // return chunk based on position
+    if (chunk_position.p_x % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_y % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_z % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0) {
+        // return sand
+        return CHUNK__create__chunk__3_rotating_block_pattern(air_block, air_block, sand_block);
+    } else {
+        // return air
+        return CHUNK__create__chunk(air_block);
+    }
 }
 
 // setup game
@@ -263,17 +271,11 @@ void CONF2__setup__game(GAME__information* game_information) {
     // setup skins
     (*game_information).p_skins = CONF2__open__skins();
 
-    // setup chunks
-    //CONF2__create__test_world_2(game_information, ESS__calculate__world_center());
-
-    // setup world
-    //(*game_information).p_world_manager.p_rendered_world = RENDER__open__world((*game_information).p_world_manager.p_positioning);
-
     // open world manager
-    CONF2__open__world(game_information, ESS__create__dimensions(3, 3, 3), camera_position, camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__floating_sand, ESS__create__dimensions(5, 5, 5), camera_position, camera_position);
 
     // generate chunks
-    MANAGER__build__world((*game_information).p_world_manager, camera_position);
+    MANAGER__initialize__world((*game_information).p_world_manager, camera_position);
 
     // setup drawing information
     RENDER__render__entire_world((*game_information).p_skins, (*game_information).p_world_manager.p_chunks, (*game_information).p_world_manager.p_positioning, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_temporaries);
@@ -399,6 +401,9 @@ void CONF2__display__frame(GAME__information* game_information) {
 
     // update window size
     WINDOW__update__current_window_size(&((*game_information).p_graphics));
+
+    // update world
+    
 
     // draw everything
     RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_world_manager.p_positioning, (*game_information).p_camera_rotation);
