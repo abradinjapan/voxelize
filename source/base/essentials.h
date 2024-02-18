@@ -84,6 +84,19 @@ ESS__world_vertex ESS__calculate__subtract_world_vertices(ESS__world_vertex a, E
     return ESS__create__world_vertex(a.p_x - b.p_x, a.p_y - b.p_y, a.p_z - b.p_z);
 }
 
+// group check vertices are equivalent
+BASIC__bt ESS__calculate__world_vertices_are_equal(ESS__world_vertex a, ESS__world_vertex b) {
+    return (BASIC__bt)((a.p_x == b.p_x) && (a.p_y == b.p_y) && (a.p_z == b.p_z));
+}
+
+// print world vertex
+void ESS__print__world_vertex(ESS__world_vertex vertex) {
+    // print
+    printf("[ %lu %lu %lu ]", vertex.p_x, vertex.p_y, vertex.p_z);
+
+    return;
+}
+
 /* Box */
 // a datatype that lays out a three-dimensional box shaped area
 typedef struct ESS__world_box {
@@ -123,6 +136,29 @@ BASIC__bt ESS__calculate__position_is_in_box__exclusive(ESS__world_box box, ESS_
 // check to see if a box fits entirely within a box (inclusive includes edge cases)
 BASIC__bt ESS__calculate__box_is_in_box__inclusive(ESS__world_box outside_box, ESS__world_box inside_box) {
     return ESS__calculate__position_is_in_box__inclusive(outside_box, inside_box.p_left_down_back) && ESS__calculate__position_is_in_box__inclusive(outside_box, inside_box.p_right_up_front);
+}
+
+// check to see if a box fits entirely within a box (exclusive does not include edge cases)
+BASIC__bt ESS__calculate__box_is_in_box__exclusive(ESS__world_box outside_box, ESS__world_box inside_box) {
+    return ESS__calculate__position_is_in_box__exclusive(outside_box, inside_box.p_left_down_back) && ESS__calculate__position_is_in_box__exclusive(outside_box, inside_box.p_right_up_front);
+}
+
+/*// calculate box size
+ESS__world_vertex ESS__calculate__world_box_size(ESS__world_box box) {
+    return ESS__create__world_vertex(box.p_left_down_back.p_x - box.p_right_up_front.p_x, box.p_left_down_back.p_y - box.p_right_up_front.p_y, box.p_left_down_back.p_z - box.p_right_up_front.p_z);
+}*/
+
+// print box
+void ESS__print__world_box(ESS__world_box box) {
+    // print first set of coords
+    printf("ruf");
+    ESS__print__world_vertex(box.p_right_up_front);
+
+    // print second set of coords
+    printf(" ldb");
+    ESS__print__world_vertex(box.p_left_down_back);
+
+    return;
 }
 
 /* Dimensions */
@@ -197,7 +233,7 @@ BASIC__bt ESS__calculate__coords_are_in_chunk(ESS__world_vertex chunk_position, 
 
 // calculate a world coordinate for a chunk starting with a chunk world position and adding a chunk-relative offset
 ESS__world_vertex ESS__calculate__chunk_relative_world_position(ESS__world_vertex base, ESS__dimensions chunks_deep_on_axes) {
-    return ESS__create__world_vertex(base.p_x + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_width), base.p_y + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_height), base.p_z + (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_depth));
+    return ESS__create__world_vertex(base.p_x - (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_width), base.p_y - (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_height), base.p_z - (ESS__calculate__chunk_side_size_in_world_coordinates() * chunks_deep_on_axes.p_depth));
 }
 
 // calculate current chunk the given position is in

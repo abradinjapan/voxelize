@@ -10,15 +10,15 @@ typedef u64 LIST__list_filled_index;
 typedef u64 LIST__list_increase;
 
 // list object
-typedef struct ANVIL__list {
+typedef struct LIST__list {
     BASIC__buffer p_buffer;
     LIST__list_filled_index p_filled_index;
     LIST__list_increase p_increase;
-} ANVIL__list;
+} LIST__list;
 
 // create a list
-ANVIL__list ANVIL__create__list(BASIC__buffer buffer, LIST__list_filled_index filled_index, LIST__list_increase increase) {
-    ANVIL__list output;
+LIST__list LIST__create__list(BASIC__buffer buffer, LIST__list_filled_index filled_index, LIST__list_increase increase) {
+    LIST__list output;
 
     // setup output
     output.p_buffer = buffer;
@@ -29,14 +29,14 @@ ANVIL__list ANVIL__create__list(BASIC__buffer buffer, LIST__list_filled_index fi
 }
 
 // create a null list
-ANVIL__list ANVIL__create_null__list() {
+LIST__list LIST__create_null__list() {
     // return empty list
-    return ANVIL__create__list(BASIC__create_null__buffer(), 0, 0);
+    return LIST__create__list(BASIC__create_null__buffer(), 0, 0);
 }
 
 // open a list
-ANVIL__list ANVIL__open__list(LIST__list_increase increase, BASIC__bt* error_occured) {
-    ANVIL__list output;
+LIST__list LIST__open__list(LIST__list_increase increase, BASIC__bt* error_occured) {
+    LIST__list output;
     BASIC__buffer allocation;
 
     // allocate list
@@ -48,7 +48,7 @@ ANVIL__list ANVIL__open__list(LIST__list_increase increase, BASIC__bt* error_occ
         *error_occured = BASIC__bt__true;
 
         // return empty
-        return ANVIL__create_null__list();
+        return LIST__create_null__list();
     // list is valid
     } else {
         // set error to false
@@ -64,7 +64,7 @@ ANVIL__list ANVIL__open__list(LIST__list_increase increase, BASIC__bt* error_occ
 }
 
 // destroy a list
-void ANVIL__close__list(ANVIL__list list) {
+void LIST__close__list(LIST__list list) {
     // free buffer
     BASIC__close__buffer(list.p_buffer);
 
@@ -72,7 +72,7 @@ void ANVIL__close__list(ANVIL__list list) {
 }
 
 // expand a list
-void ANVIL__list__expand(ANVIL__list* list, BASIC__bt* error_occured) {
+void LIST__list__expand(LIST__list* list, BASIC__bt* error_occured) {
     LIST__list_filled_index new_size;
     BASIC__buffer new_allocation;
 
@@ -107,11 +107,11 @@ void ANVIL__list__expand(ANVIL__list* list, BASIC__bt* error_occured) {
 }
 
 // request space for the list
-void ANVIL__list__request__space(ANVIL__list* list, BASIC__length byte_count, BASIC__bt* error_occured) {
+void LIST__list__request__space(LIST__list* list, BASIC__length byte_count, BASIC__bt* error_occured) {
     // expand the list until there is enough space
     while ((u64)(*list).p_buffer.p_length < ((*list).p_filled_index + byte_count)) {
         // expand the list
-        ANVIL__list__expand(list, error_occured);
+        LIST__list__expand(list, error_occured);
 
         // check for error
         if (*error_occured == BASIC__bt__true) {
@@ -124,17 +124,17 @@ void ANVIL__list__request__space(ANVIL__list* list, BASIC__length byte_count, BA
 }
 
 // calculate the tip of the list
-BASIC__address ANVIL__calculate__list_current(ANVIL__list* list) {
+BASIC__address LIST__calculate__list_current(LIST__list* list) {
     return (*list).p_buffer.p_address + (*list).p_filled_index;
 }
 
 // add a buffer to a list
-void ANVIL__list__append__buffer(ANVIL__list* list, BASIC__buffer buffer, BASIC__bt* memory_error_occured) {
+void LIST__list__append__buffer(LIST__list* list, BASIC__buffer buffer, BASIC__bt* memory_error_occured) {
     // request space
-    ANVIL__list__request__space(list, sizeof(BASIC__buffer), memory_error_occured);
+    LIST__list__request__space(list, sizeof(BASIC__buffer), memory_error_occured);
 
     // append data
-    (*(BASIC__buffer*)ANVIL__calculate__list_current(list)) = buffer;
+    (*(BASIC__buffer*)LIST__calculate__list_current(list)) = buffer;
 
     // increase fill
     (*list).p_filled_index += sizeof(BASIC__buffer);
@@ -143,15 +143,15 @@ void ANVIL__list__append__buffer(ANVIL__list* list, BASIC__buffer buffer, BASIC_
 }
 
 // add a list to a list
-void ANVIL__list__append__list(ANVIL__list* list, ANVIL__list data, BASIC__bt* memory_error_occured) {
+void LIST__list__append__list(LIST__list* list, LIST__list data, BASIC__bt* memory_error_occured) {
     // request space
-    ANVIL__list__request__space(list, sizeof(ANVIL__list), memory_error_occured);
+    LIST__list__request__space(list, sizeof(LIST__list), memory_error_occured);
 
     // append data
-    (*(ANVIL__list*)ANVIL__calculate__list_current(list)) = data;
+    (*(LIST__list*)LIST__calculate__list_current(list)) = data;
 
     // increase fill
-    (*list).p_filled_index += sizeof(ANVIL__list);
+    (*list).p_filled_index += sizeof(LIST__list);
 
     return;
 }

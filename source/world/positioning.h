@@ -57,7 +57,7 @@ ESS__world_vertex POS__calculate__chunk_position_in_chunks(ESS__world_vertex chu
 }
 
 // open positions
-POS__positioning POS__open__positioning(ESS__world_vertex camera_position, ESS__world_vertex chunks_position, ESS__dimensions chunks_dimensions) {
+POS__positioning POS__open__positioning(ESS__world_vertex camera_position, ESS__dimensions chunks_dimensions) {
     POS__positioning output;
 
     // setup camera position

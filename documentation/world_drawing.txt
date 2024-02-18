@@ -1,8 +1,8 @@
 Coords Convention:
     Right:  X
     Left:  -X
-    Up:     Y
-    Down:  -Y
+    Up:    -Y
+    Down:   Y
     Front:  Z
     Back:  -Z
 
