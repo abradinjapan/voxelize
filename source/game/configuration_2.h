@@ -235,7 +235,7 @@ CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_posi
 
     // return function based on height
     // is above ground
-    if (chunk_position.p_y > ESS__calculate__world_center().p_y) {
+    if (chunk_position.p_y < ESS__calculate__world_center().p_y) {
         // return air
         return CHUNK__create__chunk(air_block);
     // is ground
@@ -272,7 +272,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__floating_sand, ESS__create__dimensions(5, 5, 5), camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__floating_sand, ESS__create__dimensions(7, 7, 7), camera_position);
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
@@ -400,7 +400,7 @@ void CONF2__display__frame(GAME__information* game_information) {
     WINDOW__update__current_window_size(&((*game_information).p_graphics));
 
     // update world
-    MANAGER__update__world_2((*game_information).p_world_manager, (*game_information).p_skins, (*game_information).p_temporaries);
+    MANAGER__update__world((*game_information).p_world_manager, (*game_information).p_skins, (*game_information).p_temporaries);
 
     // draw everything
     RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_world_manager.p_positioning, (*game_information).p_camera_rotation);
