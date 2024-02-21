@@ -102,22 +102,22 @@ MANAGER__world_manager MANAGER__open__world_manager(GENERATION__function_address
     // setup chunk body slots
     for (MANAGER__chunk_body_slot_index index = 0; index < output.p_positioning.p_chunk_body_count; index++) {
         // initialize one slot
-        ((MANAGER__slot*)output.p_chunk_body_slots.p_address)[index] = MANAGER__create__slot(MANAGER__sat__available);
+        ((MANAGER__slot*)output.p_chunk_body_slots.p_address)[index] = MANAGER__create_null__slot();
     }
     // setup chunk XY surface slots
     for (MANAGER__chunk_XY_surface_slot_index index = 0; index < output.p_positioning.p_chunk_XY_surface_count; index++) {
         // initialize one slot
-        ((MANAGER__slot*)output.p_chunk_XY_surface_slots.p_address)[index] = MANAGER__create__slot(MANAGER__sat__available);
+        ((MANAGER__slot*)output.p_chunk_XY_surface_slots.p_address)[index] = MANAGER__create_null__slot();
     }
     // setup chunk YZ surface slots
     for (MANAGER__chunk_YZ_surface_slot_index index = 0; index < output.p_positioning.p_chunk_YZ_surface_count; index++) {
         // initialize one slot
-        ((MANAGER__slot*)output.p_chunk_YZ_surface_slots.p_address)[index] = MANAGER__create__slot(MANAGER__sat__available);
+        ((MANAGER__slot*)output.p_chunk_YZ_surface_slots.p_address)[index] = MANAGER__create_null__slot();
     }
     // setup chunk XZ surface slots
     for (MANAGER__chunk_XZ_surface_slot_index index = 0; index < output.p_positioning.p_chunk_XZ_surface_count; index++) {
         // initialize one slot
-        ((MANAGER__slot*)output.p_chunk_XZ_surface_slots.p_address)[index] = MANAGER__create__slot(MANAGER__sat__available);
+        ((MANAGER__slot*)output.p_chunk_XZ_surface_slots.p_address)[index] = MANAGER__create_null__slot();
     }
 
     return output;
