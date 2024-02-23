@@ -149,23 +149,37 @@ void MANAGER__close__world_manager(MANAGER__world_manager world_manager) {
 }
 
 // load chunk body
-void MANAGER__load__chunk_body(MANAGER__world_manager world_manager, MANAGER__chunk_body_slot_index chunk_slot_index, ESS__world_vertex chunk_position, SKIN__skins skins, RENDER__temporaries temps) {
+void MANAGER__load__chunk_body(MANAGER__world_manager world_manager, MANAGER__chunk_body_slot_index slot_index, ESS__world_vertex chunk_position, SKIN__skins skins, RENDER__temporaries temps) {
     CHUNK__chunk new_chunk;
 
     // generate chunk data
     new_chunk = (*world_manager.p_generation_algorithm)(chunk_position);
 
     // write chunk data
-    CHUNK__set__chunk_in_chunks(world_manager.p_chunks, chunk_slot_index, &new_chunk);
+    CHUNK__set__chunk_in_chunks(world_manager.p_chunks, slot_index, &new_chunk);
 
     // set chunk position
-    ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[chunk_slot_index] = chunk_position;
+    ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[slot_index] = chunk_position;
 
     // render chunk
-    RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(world_manager.p_chunks, chunk_slot_index), chunk_slot_index, world_manager.p_rendered_world, temps);
+    RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(world_manager.p_chunks, slot_index), slot_index, world_manager.p_rendered_world, temps);
 
     // mark slot as taken
-    ((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[chunk_slot_index].p_availability = MANAGER__sat__unavailable;
+    ((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
+
+    return;
+}
+
+// load chunk XY surface
+void MANAGER__load__chunk_XY_surface(MANAGER__world_manager world_manager, MANAGER__chunk_XY_surface_slot_index slot_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, ESS__world_vertex chunk_surface_position, SKIN__skins skins, RENDER__temporaries temps) {
+    // initialize chunk position
+    ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[slot_index] = chunk_surface_position;
+
+    // render surface
+    RENDER__render__chunk_XY_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
+
+    // mark slot as taken
+    ((MANAGER__slot*)world_manager.p_chunk_XY_surface_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
 
     return;
 }
@@ -191,7 +205,10 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
-                // calculate indices
+                // load surface
+                MANAGER__load__chunk_XY_surface(world_manager, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z + 1), POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z + 1), skins, temps);
+
+                /*// calculate indices
                 center_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z);
                 outside_chunks_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z + 1);
                 surface_index = ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XY_surface_dimensions, x, y, z);
@@ -200,7 +217,7 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
                 ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[surface_index] = POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z + 1);
 
                 // render surface
-                RENDER__render__chunk_XY_surface(skins, world_manager.p_chunks, surface_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
+                RENDER__render__chunk_XY_surface(skins, world_manager.p_chunks, surface_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);*/
             }
         }
     }
@@ -243,10 +260,11 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
 }
 
 // unload the out of range chunks & surfaces
-void MANAGER__crop__slots(MANAGER__world_manager world_manager, ESS__world_box valid_chunk_body_box) {
+void MANAGER__crop__slots(MANAGER__world_manager world_manager, ESS__world_box valid_chunk_body_box, ESS__world_box valid_chunk_XY_surface_box) {
     MANAGER__chunk_body_slot_index chunk_body_slots_freed = 0;
+    MANAGER__chunk_XY_surface_slot_index chunk_XY_surface_slots_freed = 0;
 
-    // mark open slots as available that are out of bounds
+    // mark open chunk body slots that are out of bounds as available
     for (MANAGER__chunk_body_slot_index slot_index = 0; slot_index < world_manager.p_positioning.p_chunk_body_count; slot_index++) {
         // check if slot is out of bounds
         if (ESS__calculate__box_is_in_box__inclusive(valid_chunk_body_box, ESS__calculate__chunk_box_from_vertex(((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[slot_index])) == BASIC__bt__false) {
@@ -258,8 +276,21 @@ void MANAGER__crop__slots(MANAGER__world_manager world_manager, ESS__world_box v
         }
     }
 
+    // mark open chunk XY surface slots that are out of bounds as available
+    for (MANAGER__chunk_XY_surface_slot_index slot_index = 0; slot_index < world_manager.p_positioning.p_chunk_XY_surface_count; slot_index++) {
+        // check if slot is out of bounds
+        if (ESS__calculate__box_is_in_box__inclusive(valid_chunk_XY_surface_box, ESS__calculate__chunk_XY_surface_from_vertex(((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[slot_index])) == BASIC__bt__false) {
+            // free slot
+            ((MANAGER__slot*)world_manager.p_chunk_XY_surface_slots.p_address)[slot_index].p_availability = MANAGER__sat__available;
+
+            // DEBUG
+            chunk_XY_surface_slots_freed++;
+        }
+    }
+
     // DEBUG
-    //printf("Slots freed: #%lu\n", chunk_body_slots_freed);
+    //printf("Chunk body slots freed: #%lu\n", chunk_body_slots_freed);
+    //printf("Chunk XY surface slots freed: #%lu\n", chunk_XY_surface_slots_freed);
 
     return;
 }
@@ -276,7 +307,7 @@ ESS__world_box MANAGER__calculate__valid_chunk_body_box(ESS__world_vertex curren
     left_down_back_chunk_count.p_y = chunks_dimensions.p_height / 2;
     left_down_back_chunk_count.p_z = chunks_dimensions.p_depth / 2;
 
-    // calculate right up front (account for even chunk count)
+    // calculate right up front (account for odd chunk count)
     right_up_front_chunk_count.p_x = (chunks_dimensions.p_width / 2) + ((chunks_dimensions.p_width) % 2);
     right_up_front_chunk_count.p_y = (chunks_dimensions.p_height / 2) + ((chunks_dimensions.p_height) % 2);
     right_up_front_chunk_count.p_z = (chunks_dimensions.p_depth / 2) + ((chunks_dimensions.p_depth) % 2);
@@ -288,29 +319,53 @@ ESS__world_box MANAGER__calculate__valid_chunk_body_box(ESS__world_vertex curren
     return output;
 }
 
+// calculate valid chunk XY surface box
+ESS__world_box MANAGER__calculate__valid_chunk_XY_surface_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
+    ESS__world_box output;
+    ESS__world_vertex left_down_back_chunk_count;
+    ESS__world_vertex right_up_front_chunk_count;
+    ESS__world_axis chunk_size = ESS__calculate__chunk_side_size_in_world_coordinates();
+
+    // calculate left down back
+    left_down_back_chunk_count.p_x = chunks_dimensions.p_width / 2;
+    left_down_back_chunk_count.p_y = chunks_dimensions.p_height / 2;
+    left_down_back_chunk_count.p_z = (chunks_dimensions.p_depth / 2) - 1;
+
+    // calculate right up front (account for odd chunk count)
+    right_up_front_chunk_count.p_x = (chunks_dimensions.p_width / 2) + ((chunks_dimensions.p_width) % 2);
+    right_up_front_chunk_count.p_y = (chunks_dimensions.p_height / 2) + ((chunks_dimensions.p_height) % 2);
+    right_up_front_chunk_count.p_z = ((chunks_dimensions.p_depth / 2) - 1) + (chunks_dimensions.p_depth % 2);
+
+    // calculate valid box
+    output.p_left_down_back = ESS__calculate__subtract_world_vertices(current_chunk_coord, ESS__create__world_vertex(left_down_back_chunk_count.p_x * chunk_size, left_down_back_chunk_count.p_y * chunk_size, left_down_back_chunk_count.p_z * chunk_size));
+    output.p_right_up_front = ESS__calculate__add_world_vertices(current_chunk_coord, ESS__create__world_vertex(right_up_front_chunk_count.p_x * chunk_size, right_up_front_chunk_count.p_y * chunk_size, right_up_front_chunk_count.p_z * chunk_size));
+
+    return output;
+}
+
 // find an open chunk slot
-MANAGER__chunk_body_slot_index MANAGER__find__available_chunk_body_slot_index(MANAGER__world_manager world_manager) {
+MANAGER__slot_index MANAGER__find__available_slot_index(BASIC__buffer slots_buffer, POS__position_count slot_count) {
     // search for slot index
-    for (MANAGER__chunk_body_slot_index index = 0; index < world_manager.p_positioning.p_chunk_body_count; index++) {
+    for (MANAGER__slot_index index = 0; index < slot_count; index++) {
         // if slot is avaliable
-        if (((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[index].p_availability == MANAGER__sat__available) {
+        if (((MANAGER__slot*)slots_buffer.p_address)[index].p_availability == MANAGER__sat__available) {
             // return index
             return index;
         }
     }
 
     // should not be possible, but handled anyways
-    return world_manager.p_positioning.p_chunk_body_count;
+    return slot_count;
 }
 
 // find if the chunk is already open
-MANAGER__chunk_body_slot_index MANAGER__find__unavaliable_chunk_body_slot_index(MANAGER__world_manager world_manager, ESS__world_vertex chunk_position) {
-    MANAGER__chunk_body_slot_index output = 0;
+MANAGER__slot_index MANAGER__find__unavaliable_slot_index(POS__position_count slot_count, BASIC__buffer slots_buffer, BASIC__buffer positions_buffer, ESS__world_vertex chunk_object_position) {
+    MANAGER__slot_index output = 0;
 
     // search for the slot
-    while (output < world_manager.p_positioning.p_chunk_body_count) {
+    while (output < slot_count) {
         // check for slot
-        if (((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[output].p_availability == MANAGER__sat__unavailable && ESS__calculate__world_vertices_are_equal(chunk_position, ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[output])) {
+        if (((MANAGER__slot*)slots_buffer.p_address)[output].p_availability == MANAGER__sat__unavailable && ESS__calculate__world_vertices_are_equal(chunk_object_position, ((ESS__world_vertex*)positions_buffer.p_address)[output])) {
             // valid slot
             return output;
         }
@@ -335,21 +390,23 @@ ESS__world_vertex MANAGER__calculate__chunk_position_by_offset(ESS__world_box va
     return output;
 }
 
-// load new chunks
-void MANAGER__load__new_chunks(MANAGER__world_manager world_manager, ESS__world_box valid_chunk_body_box, SKIN__skins skins, RENDER__temporaries temps) {
-    MANAGER__chunk_body_slot_index chunks_loaded = 0;
+// load new chunks & chunk surfaces
+void MANAGER__load__slots(MANAGER__world_manager world_manager, ESS__world_box valid_chunk_body_box, ESS__world_box valid_chunk_XY_surface_box, SKIN__skins skins, RENDER__temporaries temps) {
+    MANAGER__chunk_body_slot_index chunk_bodies_loaded = 0;
+    MANAGER__chunk_XY_surface_slot_index chunk_XY_surfaces_loaded = 0;
 
-    // check for loaded chunks and load unloaded chunks
+    // load missing chunk bodies in open slots
     for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_body_dimensions.p_width; x++) {
         for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_body_dimensions.p_height; y++) {
             for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_body_dimensions.p_depth; z++) {
+                // calculate expected chunk position and find its slot
                 ESS__world_vertex chunk_position = MANAGER__calculate__chunk_position_by_offset(valid_chunk_body_box, x, y, z);
-                MANAGER__chunk_body_slot_index current_slot_index = MANAGER__find__unavaliable_chunk_body_slot_index(world_manager, chunk_position);
+                MANAGER__chunk_body_slot_index current_slot_index = MANAGER__find__unavaliable_slot_index(world_manager.p_positioning.p_chunk_body_count, world_manager.p_chunk_body_slots, world_manager.p_positioning.p_chunk_body_positions, chunk_position);
 
                 // check for not loaded chunk
                 if (current_slot_index >= world_manager.p_positioning.p_chunk_body_count) {
                     // get an available slot
-                    MANAGER__chunk_body_slot_index available_slot_index = MANAGER__find__available_chunk_body_slot_index(world_manager);
+                    MANAGER__chunk_body_slot_index available_slot_index = MANAGER__find__available_slot_index(world_manager.p_chunk_body_slots, world_manager.p_positioning.p_chunk_body_count);
 
                     // load chunk
                     MANAGER__load__chunk_body(world_manager, available_slot_index, chunk_position, skins, temps);
@@ -358,14 +415,45 @@ void MANAGER__load__new_chunks(MANAGER__world_manager world_manager, ESS__world_
                     ((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[available_slot_index].p_availability = MANAGER__sat__unavailable;
 
                     // DEBUG
-                    chunks_loaded++;
+                    chunk_bodies_loaded++;
+                }
+            }
+        }
+    }
+
+    // load missing surfaces in open slots
+    for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
+        for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
+            for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
+                // calculate desired surface position and find its slot
+                ESS__world_vertex surface_position = MANAGER__calculate__chunk_position_by_offset(valid_chunk_XY_surface_box, x, y, z);
+                MANAGER__chunk_XY_surface_slot_index current_slot_index = MANAGER__find__unavaliable_slot_index(world_manager.p_positioning.p_chunk_XY_surface_count, world_manager.p_chunk_XY_surface_slots, world_manager.p_positioning.p_chunk_XY_surface_positions, surface_position);
+
+                // check for not loaded chunk
+                if (current_slot_index >= world_manager.p_positioning.p_chunk_XY_surface_count) {
+                    // get an available slot
+                    MANAGER__chunk_XY_surface_slot_index available_slot_index = MANAGER__find__available_slot_index(world_manager.p_chunk_XY_surface_slots, world_manager.p_positioning.p_chunk_XY_surface_count);
+
+                    // get the chunk slot indices
+                    MANAGER__chunk_body_slot_index center_chunk_slot_index = MANAGER__find__unavaliable_slot_index(world_manager.p_positioning.p_chunk_body_count, world_manager.p_chunk_body_slots, world_manager.p_positioning.p_chunk_body_positions, MANAGER__calculate__chunk_position_by_offset(valid_chunk_body_box, x, y, z));
+                    MANAGER__chunk_body_slot_index outside_chunk_slot_index = MANAGER__find__unavaliable_slot_index(world_manager.p_positioning.p_chunk_body_count, world_manager.p_chunk_body_slots, world_manager.p_positioning.p_chunk_body_positions, MANAGER__calculate__chunk_position_by_offset(valid_chunk_body_box, x, y, z + 1));
+
+                    // load chunk
+                    MANAGER__load__chunk_XY_surface(world_manager, available_slot_index, center_chunk_slot_index, outside_chunk_slot_index, surface_position, skins, temps);
+
+                    // mark chunk as loaded
+                    ((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[available_slot_index].p_availability = MANAGER__sat__unavailable;
+
+                    // DEBUG
+                    chunk_XY_surfaces_loaded++;
                 }
             }
         }
     }
 
     // DEBUG
-    //printf("Chunks Loaded: %lu\n", (u64)chunks_loaded);
+    //printf("Chunks Loaded: %lu\n", (u64)chunk_bodies_loaded);
+    //printf("Chunks XY Surfaces Loaded: %lu\n", (u64)chunk_XY_surfaces_loaded);
 
     return;
 }
@@ -375,8 +463,9 @@ void MANAGER__update__world(MANAGER__world_manager world_manager, SKIN__skins sk
     // calculate current player chunk
     ESS__world_vertex current_chunk_coord = ESS__calculate__current_chunk_by_coordinates(world_manager.p_positioning.p_camera_position);
 
-    // create the chunk body box
+    // create the validity boxes
     ESS__world_box valid_chunk_body_box = MANAGER__calculate__valid_chunk_body_box(current_chunk_coord, world_manager.p_positioning.p_chunk_body_dimensions);
+    ESS__world_box valid_chunk_XY_surface_box = MANAGER__calculate__valid_chunk_XY_surface_box(current_chunk_coord, world_manager.p_positioning.p_chunk_body_dimensions);
 
     /*// DEBUG
     printf("Current Chunk: ");
@@ -386,10 +475,13 @@ void MANAGER__update__world(MANAGER__world_manager world_manager, SKIN__skins sk
     printf("\n");*/
 
     // open up slots if necessary
-    MANAGER__crop__slots(world_manager, valid_chunk_body_box);
+    MANAGER__crop__slots(world_manager, valid_chunk_body_box, valid_chunk_XY_surface_box);
 
-    // load slots in new chunks
-    MANAGER__load__new_chunks(world_manager, valid_chunk_body_box, skins, temps);
+    // load up new slots
+    MANAGER__load__slots(world_manager, valid_chunk_body_box, valid_chunk_XY_surface_box, skins, temps);
+
+    // DEBUG
+    //printf("\n");
     
     return;
 }
