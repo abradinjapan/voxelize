@@ -233,6 +233,22 @@ ESS__world_box ESS__calculate__chunk_XY_surface_from_vertex(ESS__world_vertex su
     return ESS__create__world_box(surface_position, ESS__create__world_vertex(surface_position.p_x - chunk_box_size.p_x, surface_position.p_y - chunk_box_size.p_y, surface_position.p_z));
 }
 
+// create a world box that can contain a chunk YZ surface
+ESS__world_box ESS__calculate__chunk_YZ_surface_from_vertex(ESS__world_vertex surface_position) {
+    // calculate chunk box size
+    ESS__world_vertex chunk_box_size = ESS__calculate__chunk_box_size_in_world_coordinates();
+
+    return ESS__create__world_box(surface_position, ESS__create__world_vertex(surface_position.p_x, surface_position.p_y - chunk_box_size.p_y, surface_position.p_z - chunk_box_size.p_z));
+}
+
+// create a world box that can contain a chunk XZ surface
+ESS__world_box ESS__calculate__chunk_XZ_surface_from_vertex(ESS__world_vertex surface_position) {
+    // calculate chunk box size
+    ESS__world_vertex chunk_box_size = ESS__calculate__chunk_box_size_in_world_coordinates();
+
+    return ESS__create__world_box(surface_position, ESS__create__world_vertex(surface_position.p_x - chunk_box_size.p_x, surface_position.p_y, surface_position.p_z - chunk_box_size.p_z));
+}
+
 // check to see if a coordinate is within a chunk
 BASIC__bt ESS__calculate__coords_are_in_chunk(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
     // return calculation
