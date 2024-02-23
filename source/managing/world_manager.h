@@ -322,22 +322,22 @@ void MANAGER__crop__slots(MANAGER__world_manager world_manager, ESS__world_box v
     return;
 }
 
-// calculate valid chunk body box
-ESS__world_box MANAGER__calculate__valid_chunk_body_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
+// calculate valid chunk box
+ESS__world_box MANAGER__calculate__valid_chunk_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions, ESS__dimensions chunks_dimensions_adjustments) {
     ESS__world_box output;
     ESS__world_vertex left_down_back_chunk_count;
     ESS__world_vertex right_up_front_chunk_count;
     ESS__world_axis chunk_size = ESS__calculate__chunk_side_size_in_world_coordinates();
 
     // calculate left down back
-    left_down_back_chunk_count.p_x = chunks_dimensions.p_width / 2;
-    left_down_back_chunk_count.p_y = chunks_dimensions.p_height / 2;
-    left_down_back_chunk_count.p_z = chunks_dimensions.p_depth / 2;
+    left_down_back_chunk_count.p_x = (chunks_dimensions.p_width / 2) - chunks_dimensions_adjustments.p_width;
+    left_down_back_chunk_count.p_y = (chunks_dimensions.p_height / 2) - chunks_dimensions_adjustments.p_height;
+    left_down_back_chunk_count.p_z = (chunks_dimensions.p_depth / 2) - chunks_dimensions_adjustments.p_depth;
 
     // calculate right up front (account for odd chunk count)
-    right_up_front_chunk_count.p_x = (chunks_dimensions.p_width / 2) + ((chunks_dimensions.p_width) % 2);
-    right_up_front_chunk_count.p_y = (chunks_dimensions.p_height / 2) + ((chunks_dimensions.p_height) % 2);
-    right_up_front_chunk_count.p_z = (chunks_dimensions.p_depth / 2) + ((chunks_dimensions.p_depth) % 2);
+    right_up_front_chunk_count.p_x = ((chunks_dimensions.p_width / 2) - chunks_dimensions_adjustments.p_width) + ((chunks_dimensions.p_width) % 2);
+    right_up_front_chunk_count.p_y = ((chunks_dimensions.p_height / 2) - chunks_dimensions_adjustments.p_height) + ((chunks_dimensions.p_height) % 2);
+    right_up_front_chunk_count.p_z = ((chunks_dimensions.p_depth / 2) - chunks_dimensions_adjustments.p_depth) + ((chunks_dimensions.p_depth) % 2);
 
     // calculate valid chunk box
     output.p_left_down_back = ESS__calculate__subtract_world_vertices(current_chunk_coord, ESS__create__world_vertex(left_down_back_chunk_count.p_x * chunk_size, left_down_back_chunk_count.p_y * chunk_size, left_down_back_chunk_count.p_z * chunk_size));
@@ -346,76 +346,28 @@ ESS__world_box MANAGER__calculate__valid_chunk_body_box(ESS__world_vertex curren
     return output;
 }
 
+// calculate valid chunk body box
+ESS__world_box MANAGER__calculate__valid_chunk_body_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
+    // return calculation
+    return MANAGER__calculate__valid_chunk_box(current_chunk_coord, chunks_dimensions, ESS__create__dimensions(0, 0, 0));
+}
+
 // calculate valid chunk XY surface box
 ESS__world_box MANAGER__calculate__valid_chunk_XY_surface_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
-    ESS__world_box output;
-    ESS__world_vertex left_down_back_chunk_count;
-    ESS__world_vertex right_up_front_chunk_count;
-    ESS__world_axis chunk_size = ESS__calculate__chunk_side_size_in_world_coordinates();
-
-    // calculate left down back
-    left_down_back_chunk_count.p_x = chunks_dimensions.p_width / 2;
-    left_down_back_chunk_count.p_y = chunks_dimensions.p_height / 2;
-    left_down_back_chunk_count.p_z = (chunks_dimensions.p_depth / 2) - 1;
-
-    // calculate right up front (account for odd chunk count)
-    right_up_front_chunk_count.p_x = (chunks_dimensions.p_width / 2) + ((chunks_dimensions.p_width) % 2);
-    right_up_front_chunk_count.p_y = (chunks_dimensions.p_height / 2) + ((chunks_dimensions.p_height) % 2);
-    right_up_front_chunk_count.p_z = ((chunks_dimensions.p_depth / 2) - 1) + (chunks_dimensions.p_depth % 2);
-
-    // calculate valid box
-    output.p_left_down_back = ESS__calculate__subtract_world_vertices(current_chunk_coord, ESS__create__world_vertex(left_down_back_chunk_count.p_x * chunk_size, left_down_back_chunk_count.p_y * chunk_size, left_down_back_chunk_count.p_z * chunk_size));
-    output.p_right_up_front = ESS__calculate__add_world_vertices(current_chunk_coord, ESS__create__world_vertex(right_up_front_chunk_count.p_x * chunk_size, right_up_front_chunk_count.p_y * chunk_size, right_up_front_chunk_count.p_z * chunk_size));
-
-    return output;
+    // return calculation
+    return MANAGER__calculate__valid_chunk_box(current_chunk_coord, chunks_dimensions, ESS__create__dimensions(0, 0, 1));
 }
 
 // calculate valid chunk YZ surface box
 ESS__world_box MANAGER__calculate__valid_chunk_YZ_surface_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
-    ESS__world_box output;
-    ESS__world_vertex left_down_back_chunk_count;
-    ESS__world_vertex right_up_front_chunk_count;
-    ESS__world_axis chunk_size = ESS__calculate__chunk_side_size_in_world_coordinates();
-
-    // calculate left down back
-    left_down_back_chunk_count.p_x = (chunks_dimensions.p_width / 2) - 1;
-    left_down_back_chunk_count.p_y = chunks_dimensions.p_height / 2;
-    left_down_back_chunk_count.p_z = chunks_dimensions.p_depth / 2;
-
-    // calculate right up front (account for odd chunk count)
-    right_up_front_chunk_count.p_x = ((chunks_dimensions.p_width / 2) - 1) + ((chunks_dimensions.p_width) % 2);
-    right_up_front_chunk_count.p_y = (chunks_dimensions.p_height / 2) + ((chunks_dimensions.p_height) % 2);
-    right_up_front_chunk_count.p_z = (chunks_dimensions.p_depth / 2) + (chunks_dimensions.p_depth % 2);
-
-    // calculate valid box
-    output.p_left_down_back = ESS__calculate__subtract_world_vertices(current_chunk_coord, ESS__create__world_vertex(left_down_back_chunk_count.p_x * chunk_size, left_down_back_chunk_count.p_y * chunk_size, left_down_back_chunk_count.p_z * chunk_size));
-    output.p_right_up_front = ESS__calculate__add_world_vertices(current_chunk_coord, ESS__create__world_vertex(right_up_front_chunk_count.p_x * chunk_size, right_up_front_chunk_count.p_y * chunk_size, right_up_front_chunk_count.p_z * chunk_size));
-
-    return output;
+    // return calculation
+    return MANAGER__calculate__valid_chunk_box(current_chunk_coord, chunks_dimensions, ESS__create__dimensions(1, 0, 0));
 }
 
 // calculate valid chunk XZ surface box
 ESS__world_box MANAGER__calculate__valid_chunk_XZ_surface_box(ESS__world_vertex current_chunk_coord, ESS__dimensions chunks_dimensions) {
-    ESS__world_box output;
-    ESS__world_vertex left_down_back_chunk_count;
-    ESS__world_vertex right_up_front_chunk_count;
-    ESS__world_axis chunk_size = ESS__calculate__chunk_side_size_in_world_coordinates();
-
-    // calculate left down back
-    left_down_back_chunk_count.p_x = chunks_dimensions.p_width / 2;
-    left_down_back_chunk_count.p_y = (chunks_dimensions.p_height / 2) - 1;
-    left_down_back_chunk_count.p_z = chunks_dimensions.p_depth / 2;
-
-    // calculate right up front (account for odd chunk count)
-    right_up_front_chunk_count.p_x = (chunks_dimensions.p_width / 2) + ((chunks_dimensions.p_width) % 2);
-    right_up_front_chunk_count.p_y = ((chunks_dimensions.p_height / 2) - 1) + ((chunks_dimensions.p_height) % 2);
-    right_up_front_chunk_count.p_z = (chunks_dimensions.p_depth / 2) + (chunks_dimensions.p_depth % 2);
-
-    // calculate valid box
-    output.p_left_down_back = ESS__calculate__subtract_world_vertices(current_chunk_coord, ESS__create__world_vertex(left_down_back_chunk_count.p_x * chunk_size, left_down_back_chunk_count.p_y * chunk_size, left_down_back_chunk_count.p_z * chunk_size));
-    output.p_right_up_front = ESS__calculate__add_world_vertices(current_chunk_coord, ESS__create__world_vertex(right_up_front_chunk_count.p_x * chunk_size, right_up_front_chunk_count.p_y * chunk_size, right_up_front_chunk_count.p_z * chunk_size));
-
-    return output;
+    // return calculation
+    return MANAGER__calculate__valid_chunk_box(current_chunk_coord, chunks_dimensions, ESS__create__dimensions(0, 1, 0));
 }
 
 // find an open chunk slot
