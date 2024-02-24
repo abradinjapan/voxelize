@@ -143,11 +143,6 @@ BASIC__bt ESS__calculate__box_is_in_box__exclusive(ESS__world_box outside_box, E
     return ESS__calculate__position_is_in_box__exclusive(outside_box, inside_box.p_left_down_back) && ESS__calculate__position_is_in_box__exclusive(outside_box, inside_box.p_right_up_front);
 }
 
-/*// calculate box size
-ESS__world_vertex ESS__calculate__world_box_size(ESS__world_box box) {
-    return ESS__create__world_vertex(box.p_left_down_back.p_x - box.p_right_up_front.p_x, box.p_left_down_back.p_y - box.p_right_up_front.p_y, box.p_left_down_back.p_z - box.p_right_up_front.p_z);
-}*/
-
 // print box
 void ESS__print__world_box(ESS__world_box box) {
     // print first set of coords

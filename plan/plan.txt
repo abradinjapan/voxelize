@@ -1,20 +1,25 @@
-As of right now, the following features must be implemented into voxelize:
-    - Block placing and removing.
-        Which Requires:
-        - A world positioning system.
-            Which Requires:
-            - Global Coordinates.
-            - Chunk Coordinates.
-            - Block Coordinates.
-        - A player position.
-        - A player camera rotation & rotation based raycast.
-        - A system to redraw chunks and chunk sides when blocks are changed.
+Current issue:
+    The reason chunk surfaces exist is to draw faces that are not in one chunk or the other, but in between.
+    However, chunk surfaces are a lot of extra code to implement and objects to track.
+    But if they didn't exist, then how would block faces in between chunks be generated?
+    I didn't have a solution at the initial time of creation, but now I do.
+    Chunks (as in block data) needs to be generated one extra layer outside of the render distance so that when rendering visible chunks they still have the outside chunk's block data to work with.
 
-There is one thing that I need to define in order to move forward.
-    The unit of rotation used in rotation calculations.
-        Let this be radians.
+The new problems created:
+    If new chunks are rendered without chunk surfaces, then multithreading chunk rendering will have to wait for at least 7 chunks to be generated in order to render one chunk. (6 chunks surrounding 1 chunk)
 
-Player camera rotation and individual entity rotations need to be separated.
+The main problem with both systems comes down to world generation.
+    Not being able to generate more than one chunk at a time is proving to cause problems with the rendering system.
+        I always have to wait for chunks to generate before rendering them.
 
-Chunk rendering must be based on a chunks global position and camera position, producing an offset between the two, no longer it's f32 camera offset.
-    This must be changed first before any other changes.
+Plan for world generation:
+    World generation currently comes down to passing a function pointer to the generation algorithm and it being called later.
+
+I need to solve the world generation problem BEFORE rewriting the chunk generation & rendering system to be multithreaded.
+
+Note, do NOT change the world rendering system by removing chunk surfaces.
+    They pose no real problem, they are just a little annoying, but they work just fine.
+
+
+
+The unit of rotation used in rotation calculations should be radians.

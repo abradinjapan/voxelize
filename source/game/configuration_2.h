@@ -328,12 +328,11 @@ void CONF2__close__game(GAME__information game_information) {
 
 // performs block placing and rerendering
 void CONF2__do__block_placement(GAME__information* game_information, BLOCK__block block) {
-    CHUNK__chunks_index chunks_index = -1;
-    CHUNK__block_index block_index = -1;
+    MANAGER__chunk_body_slot_index chunks_index = -1;
     BASIC__bt in_chunk = BASIC__bt__false;
 
     // find chunk
-    for (CHUNK__chunks_index i = 0; i < (*game_information).p_world_manager.p_positioning.p_chunk_body_count; i++) {
+    for (MANAGER__chunk_body_slot_index i = 0; i < (*game_information).p_world_manager.p_positioning.p_chunk_body_count; i++) {
         // check range
         if (ESS__calculate__coords_are_in_chunk(((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[i], (*game_information).p_world_manager.p_positioning.p_camera_position)) {
             // found chunk
@@ -348,11 +347,18 @@ void CONF2__do__block_placement(GAME__information* game_information, BLOCK__bloc
 
     // if chunk was found
     if (in_chunk == BASIC__bt__true) {
-        // get block position
-        block_index = POS__calculate__block_index_from_world_position(((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index], (*game_information).p_world_manager.p_positioning.p_camera_position);
+        // get block position and index
+        CHUNK__block_position block_position = POS__calculate__block_local_position_from_world_position(((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index], (*game_information).p_world_manager.p_positioning.p_camera_position);
+        CHUNK__block_index block_index = CHUNK__calculate__block_index(block_position);
 
-        // DEBUG
-        printf("Placing Block!\n\tCamera Position: [ %lu, %lu, %lu ]\n\tChunk Position: [ %lu, %lu, %lu ]\n\tDifference: [ %li, %li, %li ]\n", (*game_information).p_world_manager.p_positioning.p_camera_position.p_x, (*game_information).p_world_manager.p_positioning.p_camera_position.p_y, (*game_information).p_world_manager.p_positioning.p_camera_position.p_z, ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_x, ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_y, ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_z, (*game_information).p_world_manager.p_positioning.p_camera_position.p_x - ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_x, (*game_information).p_world_manager.p_positioning.p_camera_position.p_y - ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_y, (*game_information).p_world_manager.p_positioning.p_camera_position.p_z - ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index].p_z);
+        /*// DEBUG
+        printf("Placing Block!\n\tCamera Position: ");
+        ESS__print__world_vertex((*game_information).p_world_manager.p_positioning.p_camera_position);
+        printf("\n\tChunk Position: ");
+        ESS__print__world_vertex(((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index]);
+        printf("\n\tDifference: ");
+        ESS__print__world_vertex(ESS__calculate__subtract_world_vertices((*game_information).p_world_manager.p_positioning.p_camera_position, ((ESS__world_vertex*)(*game_information).p_world_manager.p_positioning.p_chunk_body_positions.p_address)[chunks_index]));
+        printf("\n");*/
 
         // update block
         ((CHUNK__chunk*)(*game_information).p_world_manager.p_chunks.p_chunk_block_data.p_address)[chunks_index].p_blocks[block_index] = block;
@@ -361,7 +367,8 @@ void CONF2__do__block_placement(GAME__information* game_information, BLOCK__bloc
         RENDER__render__chunk_body((*game_information).p_skins, CHUNK__get__chunk_pointer_in_chunks((*game_information).p_world_manager.p_chunks, chunks_index), chunks_index, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_temporaries);
 
         // rerender surfaces
-        // TODO
+        // get surfaces
+        //MANAGER__chunk_YZ_surface_slot_index left_surface = MANAGER__find__unavaliable_slot_index((*game_information).p_world_manager.p_positioning.p_chunk_YZ_surface_count, (*game_information).p_world_manager.p_chunk_YZ_surface_slots, (*game_information).p_world_manager.p_positioning.p_chunk_YZ_surface_positions, );
     }
 
     return;

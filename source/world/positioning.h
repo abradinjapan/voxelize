@@ -102,20 +102,22 @@ void POS__close__positioning(POS__positioning positioning) {
     return;
 }
 
-// calculate the block position inside of a chunk from world coordinates
-CHUNK__block_index POS__calculate__block_index_from_world_position(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
-    CHUNK__block_index output;
-    CHUNK__block_position block_position;
+// calculate the block position inside of a chunk (assumes the chunk_position and subject position are within one chunk!)
+CHUNK__block_position POS__calculate__block_local_position_from_world_position(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
+    CHUNK__block_position output;
 
     // calculate block position
-    block_position.p_x = (chunk_position.p_x - subject_position.p_x) / (ESS__define__bits_per_block__total_count);
-    block_position.p_y = (chunk_position.p_y - subject_position.p_y) / (ESS__define__bits_per_block__total_count);
-    block_position.p_z = (chunk_position.p_z - subject_position.p_z) / (ESS__define__bits_per_block__total_count);
-
-    // setup output
-    output = CHUNK__calculate__block_index(block_position);
-
+    output.p_x = (chunk_position.p_x - subject_position.p_x) / (ESS__define__bits_per_block__total_count);
+    output.p_y = (chunk_position.p_y - subject_position.p_y) / (ESS__define__bits_per_block__total_count);
+    output.p_z = (chunk_position.p_z - subject_position.p_z) / (ESS__define__bits_per_block__total_count);
+    
     return output;
+}
+
+// calculate the block position inside of a chunk from world coordinates (assumes the chunk_position and subject position are within one chunk!)
+CHUNK__block_index POS__calculate__block_index_from_world_position(ESS__world_vertex chunk_position, ESS__world_vertex subject_position) {
+    // return calculation
+    return CHUNK__calculate__block_index(POS__calculate__block_local_position_from_world_position(chunk_position, subject_position));
 }
 
 #endif
