@@ -292,11 +292,14 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position) {
     }
 
     // create leaves
-    for (CHUNK__chunk_x x = 6; x <= 8; x++) {
-        for (CHUNK__chunk_y y = 6; y <= 8; y++) {
-            for (CHUNK__chunk_z z = 6; z <= 8; z++) {
-                // generate leaf
-                output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))] = leaf_block;
+    for (BLOCK__block_x x = 6; x <= 8; x++) {
+        for (BLOCK__block_y y = 6; y <= 8; y++) {
+            for (BLOCK__block_z z = 6; z <= 8; z++) {
+                // if not a log
+                if (output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))].p_block_ID != CONF2__bt__oak_log) {
+                    // generate leaf
+                    output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))] = leaf_block;
+                }
             }
         }
     }

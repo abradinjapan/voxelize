@@ -215,9 +215,9 @@ void MANAGER__load__chunk_XZ_surface(MANAGER__world_manager world_manager, MANAG
 // initialize the world
 void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world_vertex chunks_position, SKIN__skins skins, RENDER__temporaries temps) {
     // create chunk bodies
-    for (CHUNK__chunk_x x = 0; x < world_manager.p_positioning.p_chunk_body_dimensions.p_width; x++) {
-        for (CHUNK__chunk_y y = 0; y < world_manager.p_positioning.p_chunk_body_dimensions.p_height; y++) {
-            for (CHUNK__chunk_z z = 0; z < world_manager.p_positioning.p_chunk_body_dimensions.p_depth; z++) {
+    for (BLOCK__block_x x = 0; x < world_manager.p_positioning.p_chunk_body_dimensions.p_width; x++) {
+        for (BLOCK__block_y y = 0; y < world_manager.p_positioning.p_chunk_body_dimensions.p_height; y++) {
+            for (BLOCK__block_z z = 0; z < world_manager.p_positioning.p_chunk_body_dimensions.p_depth; z++) {
                 // load chunk
                 MANAGER__load__chunk_body(world_manager, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__chunk_relative_world_position(chunks_position, ESS__create__dimensions(x, y, z)), skins, temps);
             }
@@ -226,9 +226,9 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
 
     // create chunk surfaces
     // initialize all chunk XY surfaces
-    for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
-        for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
-            for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
+    for (BLOCK__block_x x = 0; x < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_width; x++) {
+        for (BLOCK__block_y y = 0; y < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_height; y++) {
+            for (BLOCK__block_z z = 0; z < world_manager.p_positioning.p_chunk_XY_surface_dimensions.p_depth; z++) {
                 // load surface
                 MANAGER__load__chunk_XY_surface(world_manager, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XY_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z + 1), POS__calculate__chunk_position_in_chunks(chunks_position, x, y, z + 1), skins, temps);
             }
@@ -236,9 +236,9 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     }
 
     // initialize all chunk YZ surfaces
-    for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_width; x++) {
-        for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_height; y++) {
-            for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_depth; z++) {
+    for (BLOCK__block_x x = 0; x < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_width; x++) {
+        for (BLOCK__block_y y = 0; y < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_height; y++) {
+            for (BLOCK__block_z z = 0; z < world_manager.p_positioning.p_chunk_YZ_surface_dimensions.p_depth; z++) {
                 // load surface
                 MANAGER__load__chunk_YZ_surface(world_manager, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_YZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x + 1, y, z), POS__calculate__chunk_position_in_chunks(chunks_position, x + 1, y, z), skins, temps);
             }
@@ -246,9 +246,9 @@ void MANAGER__initialize__world(MANAGER__world_manager world_manager, ESS__world
     }
 
     // initialize all chunk XZ surfaces
-    for (CHUNK__chunks_x x = 0; x < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
-        for (CHUNK__chunks_y y = 0; y < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
-            for (CHUNK__chunks_z z = 0; z < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
+    for (BLOCK__block_x x = 0; x < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_width; x++) {
+        for (BLOCK__block_y y = 0; y < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_height; y++) {
+            for (BLOCK__block_z z = 0; z < world_manager.p_positioning.p_chunk_XZ_surface_dimensions.p_depth; z++) {
                 // load surface
                 MANAGER__load__chunk_XZ_surface(world_manager, ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_XZ_surface_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y, z), ESS__calculate__dimensions_index(world_manager.p_positioning.p_chunk_body_dimensions, x, y + 1, z), POS__calculate__chunk_position_in_chunks(chunks_position, x, y + 1, z), skins, temps);
             }

@@ -13,12 +13,6 @@ typedef ESS__world_z CHUNK__coordinate_z;
 // the index of a block in the one dimensional chunk blocks array
 typedef u16 CHUNK__block_index;
 
-// the sides of a chunk
-typedef u8 CHUNK__chunk_axis_index;
-typedef CHUNK__chunk_axis_index CHUNK__chunk_x;
-typedef CHUNK__chunk_axis_index CHUNK__chunk_y;
-typedef CHUNK__chunk_axis_index CHUNK__chunk_z;
-
 // the index of a chunk into a 3d chunk array
 typedef u32 CHUNK__chunks_index;
 
@@ -34,13 +28,13 @@ typedef ESS__dimensions_volume CHUNK__chunk_count;
 /* Block Position */
 // the type that stores one block position
 typedef struct CHUNK__block_position {
-    CHUNK__chunk_x p_x;
-    CHUNK__chunk_y p_y;
-    CHUNK__chunk_z p_z;
+    BLOCK__block_x p_x;
+    BLOCK__block_y p_y;
+    BLOCK__block_z p_z;
 } CHUNK__block_position;
 
 // create a block position
-CHUNK__block_position CHUNK__create__block_position(CHUNK__chunk_x x, CHUNK__chunk_y y, CHUNK__chunk_z z) {
+CHUNK__block_position CHUNK__create__block_position(BLOCK__block_x x, BLOCK__block_y y, BLOCK__block_z z) {
     CHUNK__block_position output;
 
     // setup output

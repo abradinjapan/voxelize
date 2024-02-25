@@ -386,11 +386,11 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
     vertex_index = 0;
 
     // for each chunk slice
-    for (CHUNK__chunk_axis_index chunk_slice = 0; chunk_slice < ESS__define__chunk_side_block_count; chunk_slice++) { // Z
+    for (BLOCK__block_z chunk_slice = 0; chunk_slice < ESS__define__chunk_side_block_count; chunk_slice++) { // Z
         // for each chunk strip
-        for (CHUNK__chunk_axis_index chunk_strip = 0; chunk_strip < ESS__define__chunk_side_block_count; chunk_strip++) { // Y
+        for (BLOCK__block_y chunk_strip = 0; chunk_strip < ESS__define__chunk_side_block_count; chunk_strip++) { // Y
             // for each block
-            for (CHUNK__chunk_axis_index chunk_block = 0; chunk_block < ESS__define__chunk_side_block_count; chunk_block++) { // X
+            for (BLOCK__block_x chunk_block = 0; chunk_block < ESS__define__chunk_side_block_count; chunk_block++) { // X
                 // get center block type
                 center_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice)));
 

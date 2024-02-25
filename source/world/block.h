@@ -8,6 +8,12 @@
 // block ID
 typedef u32 BLOCK__block_ID;
 
+// block axes
+typedef u8 BLOCK__axis;
+typedef BLOCK__axis BLOCK__block_x;
+typedef BLOCK__axis BLOCK__block_y;
+typedef BLOCK__axis BLOCK__block_z;
+
 // block metadata types
 typedef u8 BLOCK__metadatum;
 typedef u64 BLOCK__metadatum_index;
