@@ -323,12 +323,12 @@ RENDER__vertex_index RENDER__render__X_face(RENDER__temporaries temps, RENDER__v
 
     // render first triangle
     RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z, texture_min, texture_min, texture_z));
-    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z + offset_size, texture_min, texture_max, texture_z));
-    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y + offset_size, z, texture_max, texture_min, texture_z));
+    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z + offset_size, texture_max, texture_min, texture_z));
+    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y + offset_size, z, texture_min, texture_max, texture_z));
 
     // render second triangle
-    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z + offset_size, texture_min, texture_max, texture_z));
-    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y + offset_size, z, texture_max, texture_min, texture_z));
+    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y, z + offset_size, texture_max, texture_min, texture_z));
+    RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y + offset_size, z, texture_min, texture_max, texture_z));
     RENDER__render_and_next__compact_vertex(&vertex_index, temps.p_vertices.p_address, RENDER__render__one_vertex(x, y + offset_size, z + offset_size, texture_max, texture_max, texture_z));
 
     return vertex_index;
