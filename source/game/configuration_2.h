@@ -267,10 +267,41 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position)
 CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
-    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__oak_log, BLOCK__create_null__metadata());
+    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__glass, BLOCK__create_null__metadata());
 
     // return chunk
     return CHUNK__create__chunk__bars(air_block, glass_block);
+}
+
+// generate a tree in a chunk
+CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position) {
+    CHUNK__chunk output;
+
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block oak_block = BLOCK__create__block(CONF2__bt__oak_log, BLOCK__create_null__metadata());
+    BLOCK__block leaf_block = BLOCK__create__block(CONF2__bt__green_leaves, BLOCK__create_null__metadata());
+
+    // clear chunk with air
+    output = CHUNK__create__chunk(air_block);
+
+    // create logs
+    for (CHUNK__block_index y = 0; y < ESS__define__chunk_side_block_count / 2; y++) {
+        // generate log
+        output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(7, y, 7))] = oak_block;
+    }
+
+    // create leaves
+    for (CHUNK__chunk_x x = 6; x <= 8; x++) {
+        for (CHUNK__chunk_y y = 6; y <= 8; y++) {
+            for (CHUNK__chunk_z z = 6; z <= 8; z++) {
+                // generate leaf
+                output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))] = leaf_block;
+            }
+        }
+    }
+
+    return output;
 }
 
 // setup game
@@ -284,7 +315,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__bars, ESS__create__dimensions(5, 5, 5), camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__tree, ESS__create__dimensions(5, 5, 5), camera_position);
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);

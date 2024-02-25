@@ -211,12 +211,6 @@ CHUNK__chunks CHUNK__create_null__chunks() {
     return CHUNK__create__chunks(BASIC__create_null__buffer());
 }
 
-/*// calculate chunk index from coords
-CHUNK__chunks_index CHUNK__calculate__chunks_index(CHUNK__chunks chunks, CHUNK__chunks_x x, CHUNK__chunks_y y, CHUNK__chunks_z z) {
-    // return chunk index
-    return (chunks.p_dimensions.p_height * chunks.p_dimensions.p_width * z) + (chunks.p_dimensions.p_width * y) + x;
-}*/
-
 // calculate chunk dimensions
 CHUNK__chunk_count CHUNK__calculate__chunks_count(ESS__dimensions dimensions) {
     // return calculation
