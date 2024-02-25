@@ -1,3 +1,27 @@
 How to generate the world?
 
+Problems to be sovled:
+    - Most things that generate in chunks will likely have blocks that bleed into other chunks, this makes generating chunk block data a little awkward.
+        It will also not scale well for bigger and bigger structures.
+    - Multiple chunks need to be generated at the same time in order to render in a timely fashion.
+    - There needs to be an algorithm to generate the basic shape of the terrain.
 
+Brainstorm:
+    Maybe always generate the terrain in this fashion:
+        1) Terrain Shape.
+        2) Structures.
+    But what about when multiple structures overlap?
+        Maybe the order of the structures that generate and overwrite each other will be important.
+        Possible order:
+            1) Ores
+            2) Caves
+            3) Trees
+            4) Foliage
+            5) Structures (above and below ground)
+        The structure overwriting will proceed from first to last.
+            Making the last category the dominant structure.
+
+Maybe for the issue of chunk generation, maybe creating a prebuilt map of what should be generated outside the current view of the player is the key.
+    When creating chunks, that map will be referenced and the chunk will be created based on it.
+    Maybe creating a map of the world not based on blocks will suffice.
+        Instead, it would be based on objects in a scene.

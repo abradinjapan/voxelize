@@ -324,7 +324,7 @@ void TEX__generate_face__checkerboard(TEX__faces faces, TEX__face_index face_ind
     write_to = TEX__calculate__faces_pointer(faces, face_index);
 
     // draw each double row
-    for (TEX__pixel_index row = 0; row < faces.p_width; row += 2) {
+    for (TEX__pixel_index row = 0; row < faces.p_height; row += 2) {
         // draw the first row
         for (u64 pixel = 0; pixel < faces.p_width; pixel++) {
             if (pixel % 2 == 0) {
@@ -340,6 +340,28 @@ void TEX__generate_face__checkerboard(TEX__faces faces, TEX__face_index face_ind
             } else {
                 write_to = TEX__write__pixel(write_to, b);
             }
+        }
+    }
+
+    return;
+}
+
+// generate vertical stripes
+void TEX__generate_face__vertical_stripes(TEX__faces faces, TEX__face_index face_index, TEX__pixel line_color_a, TEX__pixel line_color_b) {
+    BASIC__address write_to;
+
+    // get write to pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // draw each row
+    for (TEX__pixel_index row = 0; row < faces.p_height; row++) {
+        // write each pixel in alternating order
+        for (TEX__pixel_index pixel = 0; pixel < faces.p_height; pixel += 2) {
+            // write first pixel
+            write_to = TEX__write__pixel(write_to, line_color_a);
+
+            // write second pixel
+            write_to = TEX__write__pixel(write_to, line_color_b);
         }
     }
 

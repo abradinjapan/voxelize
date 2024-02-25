@@ -9,13 +9,27 @@
 #include <stdlib.h>
 
 /* Define */
-// block count
-#define CONF2__block_count 10
+// blocks
+typedef enum CONF2__bt {
+    CONF2__bt__no_block,
+    CONF2__bt__air,
+    CONF2__bt__stone,
+    CONF2__bt__grass,
+    CONF2__bt__sand,
+    CONF2__bt__dirt,
+    CONF2__bt__glass,
+    CONF2__bt__tar,
+    CONF2__bt__red_leaves,
+    CONF2__bt__green_leaves,
+    CONF2__bt__oak_log,
+
+    // count
+    CONF2__bt__COUNT,
+} CONF2__bt;
 
 // block face types
 typedef enum CONF2__bft {
-    CONF2__bft__no_block,
-    CONF2__bft__air,
+    CONF2__bft__no_face,
     CONF2__bft__stone,
     CONF2__bft__grass,
     CONF2__bft__sand,
@@ -24,6 +38,8 @@ typedef enum CONF2__bft {
     CONF2__bft__tar,
     CONF2__bft__red_leaves,
     CONF2__bft__green_leaves,
+    CONF2__bft__oak_log_bark, // the front, back, left and right faces
+    CONF2__bft__oak_log_core, // the top and bottom faces
 
     // count
     CONF2__bft__COUNT,
@@ -36,11 +52,10 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__pixel_color color_intensity = 5;
 
     // open faces
-    output = TEX__open__faces(16, 16, CONF2__block_count);
+    output = TEX__open__faces(16, 16, CONF2__bft__COUNT);
 
     // generate faces
-    TEX__generate_face__one_color(output, CONF2__bft__no_block, TEX__create__pixel(0, 0, 0, 0)); // no face
-    TEX__generate_face__one_color(output, CONF2__bft__air, TEX__create__pixel(0, 0, 0, 0)); // air face
+    TEX__generate_face__one_color(output, CONF2__bft__no_face, TEX__create__pixel(0, 0, 0, 0)); // no face
     TEX__generate_face__one_color_range(output, CONF2__bft__stone, TEX__create__pixel(120, 120, 120, 255), random_context, color_intensity); // stone face
     TEX__generate_face__one_color_range(output, CONF2__bft__grass, TEX__create__pixel(50, 240, 50, 255), random_context, color_intensity); // grass face
     TEX__generate_face__one_color_range(output, CONF2__bft__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
@@ -49,6 +64,8 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__one_color_range(output, CONF2__bft__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
     TEX__generate_face__checkerboard(output, CONF2__bft__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
     TEX__generate_face__checkerboard(output, CONF2__bft__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
+    TEX__generate_face__vertical_stripes(output, CONF2__bft__oak_log_bark, TEX__create__pixel(115, 50, 0, 255), TEX__create__pixel(180, 50, 0, 255)); // oak log bark face
+    TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(115, 50, 0, 255), TEX__create__pixel(255, 150, 80, 255)); // oak log core face
 
     return output;
 }
@@ -56,31 +73,22 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
 // create game skins
 SKIN__skins CONF2__open__skins() {
     SKIN__skins output;
-    SKIN__skin_count no_skin = CONF2__bft__no_block;
-    SKIN__skin_count air_skin = CONF2__bft__air;
-    SKIN__skin_count stone_skin = CONF2__bft__stone;
-    SKIN__skin_count grass_skin = CONF2__bft__grass;
-    SKIN__skin_count sand_skin = CONF2__bft__sand;
-    SKIN__skin_count dirt_skin = CONF2__bft__dirt;
-    SKIN__skin_count glass_skin = CONF2__bft__glass;
-    SKIN__skin_count tar_skin = CONF2__bft__tar;
-    SKIN__skin_count red_leaves_skin = CONF2__bft__red_leaves;
-    SKIN__skin_count green_leaves_skin = CONF2__bft__green_leaves;
 
     // setup output
-    output = SKIN__open__block_skins(CONF2__block_count);
+    output = SKIN__open__block_skins(CONF2__bt__COUNT);
 
     // setup block skins
-    SKIN__set__skin__block(output, no_skin, SKIN__create__block__one_skin(no_skin, SKIN__bdt__dont_draw));
-    SKIN__set__skin__block(output, air_skin, SKIN__create__block__one_skin(air_skin, SKIN__bdt__dont_draw));
-    SKIN__set__skin__block(output, stone_skin, SKIN__create__block__one_skin(stone_skin, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, grass_skin, SKIN__create__block__one_skin(grass_skin, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, sand_skin, SKIN__create__block__one_skin(sand_skin, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, dirt_skin, SKIN__create__block__one_skin(dirt_skin, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, glass_skin, SKIN__create__block__one_skin(glass_skin, SKIN__bdt__draw_all_sides));
-    SKIN__set__skin__block(output, tar_skin, SKIN__create__block__one_skin(tar_skin, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, red_leaves_skin, SKIN__create__block__one_skin(red_leaves_skin, SKIN__bdt__draw_all_sides));
-    SKIN__set__skin__block(output, green_leaves_skin, SKIN__create__block__one_skin(green_leaves_skin, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__no_block, SKIN__create__block__one_skin(CONF2__bft__no_face, SKIN__bdt__dont_draw));
+    SKIN__set__skin__block(output, CONF2__bt__air, SKIN__create__block__one_skin(CONF2__bft__no_face, SKIN__bdt__dont_draw));
+    SKIN__set__skin__block(output, CONF2__bt__stone, SKIN__create__block__one_skin(CONF2__bft__stone, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__grass, SKIN__create__block__one_skin(CONF2__bft__grass, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__sand, SKIN__create__block__one_skin(CONF2__bft__sand, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__dirt, SKIN__create__block__one_skin(CONF2__bft__dirt, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__glass, SKIN__create__block__one_skin(CONF2__bft__glass, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__tar, SKIN__create__block__one_skin(CONF2__bft__tar, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__red_leaves, SKIN__create__block__one_skin(CONF2__bft__red_leaves, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__green_leaves, SKIN__create__block__one_skin(CONF2__bft__green_leaves, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__oak_log, SKIN__create__block(CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_core, CONF2__bft__oak_log_core, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, SKIN__bdt__draw_all_sides));
 
     return output;
 }
@@ -151,29 +159,7 @@ GAME__information CONF2__open__game() {
     return output;
 }
 
-/*// create test world
-void CONF2__create__test_world(GAME__information* game_information, ESS__world_vertex camera_position) {
-    CHUNK__chunks_index chunks_size = 5;
-    ESS__dimensions chunks_dimensions = ESS__create__dimensions(chunks_size, chunks_size, chunks_size);
-    CHUNK__chunk chunk;
-
-    // blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block bar_block = BLOCK__create__block(CONF2__bft__stone, BLOCK__create_null__metadata());
-
-    // setup world positions
-    (*game_information).p_world_manager.p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
-
-    // open chunk
-    chunk = CHUNK__create__chunk__bars(air_block, bar_block);
-    
-    // setup chunks
-    (*game_information).p_world_manager.p_chunks = CHUNK__open__chunks(ESS__calculate__dimensions_volume(chunks_dimensions), &chunk);
-
-    return;
-}
-
-// create small world
+/*// create small world
 void CONF2__create__test_world_2(GAME__information* game_information, ESS__world_vertex camera_position) {
     CHUNK__chunks_index chunks_size = 3;
     ESS__dimensions chunks_dimensions = ESS__create__dimensions(chunks_size, chunks_size, chunks_size);
@@ -181,12 +167,12 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
     CHUNK__chunk_address temp_chunk = 0;
 
     // blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block glass_block = BLOCK__create__block(CONF2__bft__glass, BLOCK__create_null__metadata());
-    BLOCK__block grass_block = BLOCK__create__block(CONF2__bft__grass, BLOCK__create_null__metadata());
-    BLOCK__block sand_block = BLOCK__create__block(CONF2__bft__sand, BLOCK__create_null__metadata());
-    BLOCK__block stone_block = BLOCK__create__block(CONF2__bft__stone, BLOCK__create_null__metadata());
-    BLOCK__block green_leaves_block = BLOCK__create__block(CONF2__bft__green_leaves, BLOCK__create_null__metadata());
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__glass, BLOCK__create_null__metadata());
+    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass, BLOCK__create_null__metadata());
+    BLOCK__block sand_block = BLOCK__create__block(CONF2__bt__sand, BLOCK__create_null__metadata());
+    BLOCK__block stone_block = BLOCK__create__block(CONF2__bt__stone, BLOCK__create_null__metadata());
+    BLOCK__block green_leaves_block = BLOCK__create__block(CONF2__bt__green_leaves, BLOCK__create_null__metadata());
 
     // setup world positions
     (*game_information).p_world_manager.p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
@@ -230,8 +216,8 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_position) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block grass_block = BLOCK__create__block(CONF2__bft__grass, BLOCK__create_null__metadata());
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass, BLOCK__create_null__metadata());
 
     // return function based on height
     // is above ground
@@ -248,8 +234,8 @@ CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_posi
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_position) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block sand_block = BLOCK__create__block(CONF2__bft__sand, BLOCK__create_null__metadata());
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block sand_block = BLOCK__create__block(CONF2__bt__sand, BLOCK__create_null__metadata());
 
     // return chunk based on position
     if (chunk_position.p_x % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_y % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_z % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0) {
@@ -264,8 +250,8 @@ CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_posit
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block tar_block = BLOCK__create__block(CONF2__bft__tar, BLOCK__create_null__metadata());
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block tar_block = BLOCK__create__block(CONF2__bt__tar, BLOCK__create_null__metadata());
 
     // return chunk based on position
     if (chunk_position.p_x % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_y % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_z % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0) {
@@ -280,8 +266,8 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position)
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
-    BLOCK__block glass_block = BLOCK__create__block(CONF2__bft__glass, BLOCK__create_null__metadata());
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__oak_log, BLOCK__create_null__metadata());
 
     // return chunk
     return CHUNK__create__chunk__bars(air_block, glass_block);
@@ -298,7 +284,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__floating_sand, ESS__create__dimensions(5, 5, 5), camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__bars, ESS__create__dimensions(5, 5, 5), camera_position);
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
@@ -380,8 +366,8 @@ void CONF2__display__frame(GAME__information* game_information) {
     ESS__world_axis shift = 2;
 
     // blocks
-    BLOCK__block place_block = BLOCK__create__block(CONF2__bft__red_leaves, BLOCK__create_null__metadata());
-    BLOCK__block break_block = BLOCK__create__block(CONF2__bft__air, BLOCK__create_null__metadata());
+    BLOCK__block place_block = BLOCK__create__block(CONF2__bt__red_leaves, BLOCK__create_null__metadata());
+    BLOCK__block break_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
 
     // update mouse movement
     CONTROLS__update__mouse_position_change(&((*game_information).p_controls));

@@ -8,6 +8,7 @@
 /* Define */
 typedef TEX__block_face_ID SKIN__skin;
 typedef u64 SKIN__skin_count;
+typedef SKIN__skin_count SKIN__skin_index;
 
 /* Skin */
 // block skin type
