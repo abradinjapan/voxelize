@@ -54,8 +54,9 @@ MANAGER__slot MANAGER__create_null__slot() {
 /* Manager */
 // manager type
 typedef struct MANAGER__world_manager {
-    // generation algorithm
+    // generation algorithm data
     GENERATION__function_address__generate_chunk p_generation_algorithm;
+    GENERATION__blueprint p_blueprint;
 
     // tracked objects
     RENDER__world p_rendered_world;
@@ -153,7 +154,7 @@ void MANAGER__load__chunk_body(MANAGER__world_manager world_manager, MANAGER__ch
     CHUNK__chunk new_chunk;
 
     // generate chunk data
-    new_chunk = (*world_manager.p_generation_algorithm)(chunk_position);
+    new_chunk = (*world_manager.p_generation_algorithm)(chunk_position, &(world_manager.p_blueprint));
 
     // write chunk data
     CHUNK__set__chunk_in_chunks(world_manager.p_chunks, slot_index, &new_chunk);

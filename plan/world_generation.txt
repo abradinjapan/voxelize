@@ -25,3 +25,40 @@ Maybe for the issue of chunk generation, maybe creating a prebuilt map of what s
     When creating chunks, that map will be referenced and the chunk will be created based on it.
     Maybe creating a map of the world not based on blocks will suffice.
         Instead, it would be based on objects in a scene.
+
+I want to use an algorithm like wave function collapse to generate my worlds.
+    There will be a seed world and a generated world.
+        The seed world is a small group of chunks that the wave function collapse algorithm uses to generate the generated world.
+            Idea, what if each block counted the amount of times that another block was around it and then using that data the world is generated based on those ratios.
+    Actually, wave function collapse might not be the best algorithm.
+        Although it would work, the world might look unnatural.
+
+Maybe a form of noise generation would be a better idea.
+
+Algorithm idea:
+    Maybe we have points on a map.
+    As the map is expanded, new height values are generated based on nearby ones.
+        Meaning that they can only go so far up and down with each new height point.
+
+For generating structures, maybe implementing a system that converts block indices on the world scale to chunk ID's and block indices will help the issue of structures bleeding into other chunks.
+    Actually, maybe for anything, a world block sized coordinate system would be effective.
+        Chunks are just the way to store blocks, but not the way to index them on a world level.
+        This is actually a good idea, but there comes the issue of how to handle chunks outside of the players view distance that need to be accessed and modified.
+
+Maybe the issue of chunks not being in a fixed area around the player would work well with chunks being generated and rendered where the player is loaded.
+    Also to note from a programming standpoint, chunks are pretty cheap to have in RAM.
+        At the time of writing they are 65536 bytes in size.
+    Although, with the consideration of how the game will save and load chunks it is now necessary to decide how the world will be saved.
+        Since it is impractical to keep all chunks saved in ram until the player manually saves and exits the game, chunks will have to be written to disk.
+
+Maybe chunks that are outside render distance can be worked with on disk and not in ram.
+
+In terms of terrain generation, maybe using mathematic equations to generate height would suffice.
+    Maybe I could layer some equations to make a rolling hills effect.
+        Note, the correct height must be calculable given any position.
+    I think for now superflat worlds will have to do.
+
+y = sin(x) + sin(2x) + sin(-3x) makes a terrain like repeating pattern.
+
+Remember smooth step functions:
+    Equation: y = x ^ 2 * (3 - (2 * x))

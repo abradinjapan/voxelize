@@ -81,7 +81,7 @@ SKIN__skins CONF2__open__skins() {
     SKIN__set__skin__block(output, CONF2__bt__no_block, SKIN__create__block__one_skin(CONF2__bft__no_face, SKIN__bdt__dont_draw));
     SKIN__set__skin__block(output, CONF2__bt__air, SKIN__create__block__one_skin(CONF2__bft__no_face, SKIN__bdt__dont_draw));
     SKIN__set__skin__block(output, CONF2__bt__stone, SKIN__create__block__one_skin(CONF2__bft__stone, SKIN__bdt__draw_only_one_side));
-    SKIN__set__skin__block(output, CONF2__bt__grass, SKIN__create__block__one_skin(CONF2__bft__grass, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__grass, SKIN__create__block(CONF2__bft__grass, CONF2__bft__grass, CONF2__bft__grass, CONF2__bft__dirt, CONF2__bft__grass, CONF2__bft__grass, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__sand, SKIN__create__block__one_skin(CONF2__bft__sand, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__dirt, SKIN__create__block__one_skin(CONF2__bft__dirt, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__glass, SKIN__create__block__one_skin(CONF2__bft__glass, SKIN__bdt__draw_all_sides));
@@ -214,10 +214,13 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 }*/
 
 // generate chunks based on world position
-CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_position) {
+CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
     BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    blueprint = blueprint;
 
     // return function based on height
     // is above ground
@@ -232,10 +235,13 @@ CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_posi
 }
 
 // generate chunks based on world position
-CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_position) {
+CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
     BLOCK__block sand_block = BLOCK__create__block(CONF2__bt__sand, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    blueprint = blueprint;
 
     // return chunk based on position
     if (chunk_position.p_x % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_y % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_z % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0) {
@@ -248,10 +254,13 @@ CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_posit
 }
 
 // generate chunks based on world position
-CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position) {
+CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
     BLOCK__block tar_block = BLOCK__create__block(CONF2__bt__tar, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    blueprint = blueprint;
 
     // return chunk based on position
     if (chunk_position.p_x % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_y % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0 && chunk_position.p_z % (ESS__calculate__chunk_side_size_in_world_coordinates() * 2) == 0) {
@@ -264,23 +273,31 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position)
 }
 
 // generate chunks based on world position
-CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position) {
+CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
     BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__glass, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    chunk_position = chunk_position;
+    blueprint = blueprint;
 
     // return chunk
     return CHUNK__create__chunk__bars(air_block, glass_block);
 }
 
 // generate a tree in a chunk
-CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position) {
+CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     CHUNK__chunk output;
 
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
     BLOCK__block oak_block = BLOCK__create__block(CONF2__bt__oak_log, BLOCK__create_null__metadata());
     BLOCK__block leaf_block = BLOCK__create__block(CONF2__bt__green_leaves, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    chunk_position = chunk_position;
+    blueprint = blueprint;
 
     // clear chunk with air
     output = CHUNK__create__chunk(air_block);
@@ -303,6 +320,26 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position) {
             }
         }
     }
+
+    return output;
+}
+
+// generate a flat world
+CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
+    CHUNK__chunk output;
+
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
+    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass, BLOCK__create_null__metadata());
+    BLOCK__block stone_block = BLOCK__create__block(CONF2__bt__stone, BLOCK__create_null__metadata());
+    BLOCK__block oak_block = BLOCK__create__block(CONF2__bt__oak_log, BLOCK__create_null__metadata());
+    BLOCK__block leaf_block = BLOCK__create__block(CONF2__bt__green_leaves, BLOCK__create_null__metadata());
+
+    // quiet compiler warning
+    blueprint = blueprint;
+
+    // generate world
+    // TODO
 
     return output;
 }
