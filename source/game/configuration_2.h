@@ -327,6 +327,7 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position, GENE
 // generate a flat world
 CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     CHUNK__chunk output;
+    ESS__world_vertex world_center = ESS__calculate__world_center();
 
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air, BLOCK__create_null__metadata());
@@ -339,7 +340,31 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
     blueprint = blueprint;
 
     // generate world
-    // TODO
+    // if an above ground chunk
+    if (chunk_position.p_y < world_center.p_y) {
+        // return an air chunk
+        output = CHUNK__create__chunk(air_block);
+    // if the ground surface chunk
+    } else if (chunk_position.p_y < world_center.p_y + ESS__calculate__chunk_box_size_in_world_coordinates().p_y) {
+        // make a grass chunk
+        output = CHUNK__create__chunk(grass_block);
+    // otherwise, it is a stone chunk
+    } else {
+        output = CHUNK__create__chunk(stone_block);
+    }
+
+    /*// if an above ground chunk
+    if (chunk_position.p_y > world_center.p_y) {
+        // return an air chunk
+        output = CHUNK__create__chunk(air_block);
+    // if the ground surface chunk
+    } else if (chunk_position.p_y > world_center.p_y - ESS__calculate__chunk_box_size_in_world_coordinates().p_y) {
+        // make a grass chunk
+        output = CHUNK__create__chunk(grass_block);
+    // otherwise, it is a stone chunk
+    } else {
+        output = CHUNK__create__chunk(stone_block);
+    }*/
 
     return output;
 }
@@ -355,7 +380,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__tree, ESS__create__dimensions(5, 5, 5), camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position);
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);

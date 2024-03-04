@@ -62,3 +62,9 @@ y = sin(x) + sin(2x) + sin(-3x) makes a terrain like repeating pattern.
 
 Remember smooth step functions:
     Equation: y = x ^ 2 * (3 - (2 * x))
+
+Maybe the blueprint can contain pre generated structures and structures are marked with their location with a world box instead of a world vertex.
+    AKA, the structure will have a box in which it resides when pre-loaded.
+    The blueprint will contain all structures for a limited space in the world.
+        When necessary, the blueprint can either save blueprint chunks to disk or generate everything in a perfectly replicable way.
+    When determining if there is a structure in a chunk, looking through the chunks to see if that world box overlaps will be key.
