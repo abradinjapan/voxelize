@@ -345,7 +345,7 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
         // return an air chunk
         output = CHUNK__create__chunk(air_block);
     // if the ground surface chunk
-    } else if (chunk_position.p_y < world_center.p_y + ESS__calculate__chunk_box_size_in_world_coordinates().p_y) {
+    } else if (chunk_position.p_y == world_center.p_y) {
         // make a grass chunk
         output = CHUNK__create__chunk(grass_block);
     // otherwise, it is a stone chunk
