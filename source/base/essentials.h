@@ -24,7 +24,10 @@ typedef ESS__dimension_axis ESS__dimensions_index;
 typedef ESS__dimension_axis ESS__dimensions_volume;
 
 // basics
+#define ESS__define__bits_per_nibble 4
 #define ESS__define__bits_per_byte 8
+#define ESS__define__nibble_combination_count 16
+#define ESS__define__nibble_max_value (ESS__define__nibble_combination_count-1)
 
 /* Game Details */
 // world positioning
