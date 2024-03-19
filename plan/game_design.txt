@@ -4,8 +4,9 @@ Blocks:
     All blocks can be water logged.
     All items can be placed as blocks.
 
-Block Spots Ideas:
+Superblock Ideas:
     Gasses.
     Temperature.
     Humidity.
     Pointer to extra metadata.
+    Power.

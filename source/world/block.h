@@ -6,7 +6,7 @@
 
 /* Defines */
 // block ID
-typedef u32 BLOCK__block_ID;
+typedef u16 BLOCK__block_ID;
 
 // liquid types
 typedef u8 BLOCK__liquid_type; // actually a u4, lower bits
