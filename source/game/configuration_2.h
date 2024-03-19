@@ -167,12 +167,12 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
     CHUNK__chunk_address temp_chunk = 0;
 
     // blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__glass);
-    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass);
-    BLOCK__block sand_block = BLOCK__create__block(CONF2__bt__sand);
-    BLOCK__block stone_block = BLOCK__create__block(CONF2__bt__stone);
-    BLOCK__block green_leaves_block = BLOCK__create__block(CONF2__bt__green_leaves);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__glass);
+    BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
+    BLOCK__block sand_block = BLOCK__create__block_only_solid(CONF2__bt__sand);
+    BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
+    BLOCK__block green_leaves_block = BLOCK__create__block_only_solid(CONF2__bt__green_leaves);
 
     // setup world positions
     (*game_information).p_world_manager.p_positioning = POS__open__positioning(camera_position, camera_position, chunks_dimensions);
@@ -216,8 +216,8 @@ void CONF2__create__test_world_2(GAME__information* game_information, ESS__world
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
 
     // quiet compiler warning
     blueprint = blueprint;
@@ -237,8 +237,8 @@ CHUNK__chunk CONF2__generate_chunks__ground_and_air(ESS__world_vertex chunk_posi
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block sand_block = BLOCK__create__block(CONF2__bt__sand);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block sand_block = BLOCK__create__block_only_solid(CONF2__bt__sand);
 
     // quiet compiler warning
     blueprint = blueprint;
@@ -256,8 +256,8 @@ CHUNK__chunk CONF2__generate_chunks__floating_sand(ESS__world_vertex chunk_posit
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block tar_block = BLOCK__create__block(CONF2__bt__tar);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block tar_block = BLOCK__create__block_only_solid(CONF2__bt__tar);
 
     // quiet compiler warning
     blueprint = blueprint;
@@ -275,8 +275,8 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position,
 // generate chunks based on world position
 CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block glass_block = BLOCK__create__block(CONF2__bt__glass);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__glass);
 
     // quiet compiler warning
     chunk_position = chunk_position;
@@ -291,9 +291,9 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position, GENE
     CHUNK__chunk output;
 
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block oak_block = BLOCK__create__block(CONF2__bt__oak_log);
-    BLOCK__block leaf_block = BLOCK__create__block(CONF2__bt__green_leaves);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block oak_block = BLOCK__create__block_only_solid(CONF2__bt__oak_log);
+    BLOCK__block leaf_block = BLOCK__create__block_only_solid(CONF2__bt__green_leaves);
 
     // quiet compiler warning
     chunk_position = chunk_position;
@@ -313,7 +313,7 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position, GENE
         for (BLOCK__block_y y = 6; y <= 8; y++) {
             for (BLOCK__block_z z = 6; z <= 8; z++) {
                 // if not a log
-                if (output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))].p_block_ID != CONF2__bt__oak_log) {
+                if (output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))].p_solid.p_ID != CONF2__bt__oak_log) {
                     // generate leaf
                     output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))] = leaf_block;
                 }
@@ -330,11 +330,11 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
     ESS__world_vertex world_center = ESS__calculate__world_center();
 
     // setup blocks
-    BLOCK__block air_block = BLOCK__create__block(CONF2__bt__air);
-    BLOCK__block grass_block = BLOCK__create__block(CONF2__bt__grass);
-    BLOCK__block stone_block = BLOCK__create__block(CONF2__bt__stone);
-    BLOCK__block oak_block = BLOCK__create__block(CONF2__bt__oak_log);
-    BLOCK__block leaf_block = BLOCK__create__block(CONF2__bt__green_leaves);
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
+    BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
+    BLOCK__block oak_block = BLOCK__create__block_only_solid(CONF2__bt__oak_log);
+    BLOCK__block leaf_block = BLOCK__create__block_only_solid(CONF2__bt__green_leaves);
 
     // quiet compiler warning
     blueprint = blueprint;
@@ -449,8 +449,8 @@ void CONF2__display__frame(GAME__information* game_information) {
     ESS__world_axis shift = 2;
 
     // blocks
-    BLOCK__block place_block = BLOCK__create__block(CONF2__bt__red_leaves);
-    BLOCK__block break_block = BLOCK__create__block(CONF2__bt__air);
+    BLOCK__block place_block = BLOCK__create__block_only_solid(CONF2__bt__red_leaves);
+    BLOCK__block break_block = BLOCK__create__block_only_solid(CONF2__bt__air);
 
     // update mouse movement
     CONTROLS__update__mouse_position_change(&((*game_information).p_controls));

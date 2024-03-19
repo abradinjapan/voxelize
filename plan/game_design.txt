@@ -10,3 +10,5 @@ Superblock Ideas:
     Humidity.
     Pointer to extra metadata.
     Power.
+    Solid (normal block).
+    Liquid.

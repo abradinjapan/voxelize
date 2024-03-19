@@ -401,14 +401,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block - 1, chunk_strip, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__left]);
+                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__left]);
                     }
                 }
 
@@ -419,14 +419,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block + 1, chunk_strip, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block + 1) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__right]);
+                        vertex_index = RENDER__render__X_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__right]);
                     }
                 }
 
@@ -437,14 +437,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip + 1, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip + 1) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__top]);
+                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__top]);
                     }
                 }
 
@@ -455,14 +455,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip - 1, chunk_slice)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__bottom]);
+                        vertex_index = RENDER__render__Y_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__bottom]);
                     }
                 }
                 
@@ -473,14 +473,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice + 1)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice + 1) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__back]);
+                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__back]);
                     }
                 }
 
@@ -491,14 +491,14 @@ void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_ad
                     side_block = CHUNK__get__block_from_chunk_address(chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(chunk_block, chunk_strip, chunk_slice - 1)));
 
                     // check if face would be hidden (if so, do not draw)
-                    if (SKIN__get__skin__block(skins, side_block.p_block_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
+                    if (SKIN__get__skin__block(skins, side_block.p_solid.p_ID).p_draw_type != SKIN__bdt__draw_only_one_side) {
                         // get vertex values
                         chunk_x = ((float)chunk_block) * offset_size;
                         chunk_y = ((float)chunk_strip) * offset_size;
                         chunk_z = ((float)chunk_slice) * offset_size;
 
                         // draw face
-                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__front]);
+                        vertex_index = RENDER__render__Z_face(temps, vertex_index, chunk_x, chunk_y, chunk_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__front]);
                     }
                 }
             }
@@ -565,25 +565,25 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
             outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, block_y, 0)));
             
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = 0;
                 
                 // draw face
-                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__front]);
+                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__front]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = 0;
                 
                 // draw face
-                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__back]);
+                vertex_index = RENDER__render__Z_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_faces[SKIN__bst__back]);
             }
         }
     }
@@ -643,25 +643,25 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
             outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(0, block_y, block_z)));
         
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = 0;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__left]);
+                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__left]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = 0;
                 vertex_y = ((float)block_y) * offset_size;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__right]);
+                vertex_index = RENDER__render__X_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_faces[SKIN__bst__right]);
             }
         }
     }
@@ -721,25 +721,25 @@ void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
             outside_block = CHUNK__get__block_from_chunk_address(outside_chunk_address, CHUNK__calculate__block_index(CHUNK__create__block_position(block_x, 0, block_z)));
         
             // if the first side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = 0;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_block_ID).p_faces[SKIN__bst__top]);
+                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_faces[SKIN__bst__top]);
             }
 
             // if the second side should be drawn
-            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_block_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_block_ID).p_draw_type) == BASIC__bt__true) {
+            if (RENDER__calculate__chunk_surface_face_is_renderable(SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_draw_type, SKIN__get__skin__block(skins, center_block.p_solid.p_ID).p_draw_type) == BASIC__bt__true) {
                 // get vertex values
                 vertex_x = ((float)block_x) * offset_size;
                 vertex_y = 0;
                 vertex_z = ((float)block_z) * offset_size;
                 
                 // draw face
-                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_block_ID).p_faces[SKIN__bst__bottom]);
+                vertex_index = RENDER__render__Y_face(temps, vertex_index, vertex_x, vertex_y, vertex_z, SKIN__get__skin__block(skins, outside_block.p_solid.p_ID).p_faces[SKIN__bst__bottom]);
             }
         }
     }
