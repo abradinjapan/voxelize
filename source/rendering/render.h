@@ -373,7 +373,7 @@ RENDER__vertex_index RENDER__render__Z_face(RENDER__temporaries temps, RENDER__v
 }
 
 // create the vertices for the chunk insides and send it to opengl
-void RENDER__render__chunk_body(SKIN__skins skins, CHUNK__chunk_address chunk_address, RENDER__object_index handle_index, RENDER__world world_rendering, RENDER__temporaries temps) {
+void RENDER__render__chunk_solid_body(SKIN__skins skins, CHUNK__chunk_address chunk_address, RENDER__object_index handle_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     RENDER__vertex_index vertex_index;
     BLOCK__block center_block;
     BLOCK__block side_block;
@@ -538,7 +538,7 @@ BASIC__bt RENDER__calculate__chunk_surface_face_is_renderable(SKIN__bdt center_b
 }
 
 // render a chunk XY surface
-void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
+void RENDER__render__chunk_solid_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
     BLOCK__block center_block;
@@ -616,7 +616,7 @@ void RENDER__render__chunk_XY_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 }
 
 // render a chunk YZ surface
-void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
+void RENDER__render__chunk_solid_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
     BLOCK__block center_block;
@@ -694,7 +694,7 @@ void RENDER__render__chunk_YZ_surface(SKIN__skins skins, CHUNK__chunks chunks, R
 }
 
 // render a chunk XZ surface
-void RENDER__render__chunk_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
+void RENDER__render__chunk_solid_XZ_surface(SKIN__skins skins, CHUNK__chunks chunks, RENDER__object_index handle_index, CHUNK__chunks_index center_chunks_index, CHUNK__chunks_index outside_chunks_index, RENDER__world world_rendering, RENDER__temporaries temps) {
     CHUNK__chunk_address center_chunk_address;
     CHUNK__chunk_address outside_chunk_address;
     BLOCK__block center_block;

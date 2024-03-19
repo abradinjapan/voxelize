@@ -433,7 +433,7 @@ void CONF2__do__block_placement(GAME__information* game_information, BLOCK__bloc
         ((CHUNK__chunk*)(*game_information).p_world_manager.p_chunks.p_chunk_block_data.p_address)[chunks_index].p_blocks[block_index] = block;
 
         // rerender affected chunk body
-        RENDER__render__chunk_body((*game_information).p_skins, CHUNK__get__chunk_pointer_in_chunks((*game_information).p_world_manager.p_chunks, chunks_index), chunks_index, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_temporaries);
+        RENDER__render__chunk_solid_body((*game_information).p_skins, CHUNK__get__chunk_pointer_in_chunks((*game_information).p_world_manager.p_chunks, chunks_index), chunks_index, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_temporaries);
 
         // rerender surfaces
         // get surfaces

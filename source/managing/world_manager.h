@@ -163,7 +163,7 @@ void MANAGER__load__chunk_body(MANAGER__world_manager world_manager, MANAGER__ch
     ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_body_positions.p_address)[slot_index] = chunk_position;
 
     // render chunk
-    RENDER__render__chunk_body(skins, CHUNK__get__chunk_pointer_in_chunks(world_manager.p_chunks, slot_index), slot_index, world_manager.p_rendered_world, temps);
+    RENDER__render__chunk_solid_body(skins, CHUNK__get__chunk_pointer_in_chunks(world_manager.p_chunks, slot_index), slot_index, world_manager.p_rendered_world, temps);
 
     // mark slot as taken
     ((MANAGER__slot*)world_manager.p_chunk_body_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
@@ -177,7 +177,7 @@ void MANAGER__load__chunk_XY_surface(MANAGER__world_manager world_manager, MANAG
     ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XY_surface_positions.p_address)[slot_index] = chunk_surface_position;
 
     // render surface
-    RENDER__render__chunk_XY_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
+    RENDER__render__chunk_solid_XY_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
 
     // mark slot as taken
     ((MANAGER__slot*)world_manager.p_chunk_XY_surface_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
@@ -191,7 +191,7 @@ void MANAGER__load__chunk_YZ_surface(MANAGER__world_manager world_manager, MANAG
     ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_YZ_surface_positions.p_address)[slot_index] = chunk_surface_position;
 
     // render surface
-    RENDER__render__chunk_YZ_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
+    RENDER__render__chunk_solid_YZ_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
 
     // mark slot as taken
     ((MANAGER__slot*)world_manager.p_chunk_YZ_surface_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
@@ -205,7 +205,7 @@ void MANAGER__load__chunk_XZ_surface(MANAGER__world_manager world_manager, MANAG
     ((ESS__world_vertex*)world_manager.p_positioning.p_chunk_XZ_surface_positions.p_address)[slot_index] = chunk_surface_position;
 
     // render surface
-    RENDER__render__chunk_XZ_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
+    RENDER__render__chunk_solid_XZ_surface(skins, world_manager.p_chunks, slot_index, center_chunks_index, outside_chunks_index, world_manager.p_rendered_world, temps);
 
     // mark slot as taken
     ((MANAGER__slot*)world_manager.p_chunk_XZ_surface_slots.p_address)[slot_index].p_availability = MANAGER__sat__unavailable;
