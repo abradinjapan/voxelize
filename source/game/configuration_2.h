@@ -17,6 +17,7 @@ typedef enum CONF2__bt {
     CONF2__bt__grass,
     CONF2__bt__sand,
     CONF2__bt__dirt,
+    CONF2__bt__snow,
     CONF2__bt__glass,
     CONF2__bt__tar,
     CONF2__bt__red_leaves,
@@ -34,6 +35,7 @@ typedef enum CONF2__bft {
     CONF2__bft__grass,
     CONF2__bft__sand,
     CONF2__bft__dirt,
+    CONF2__bft__snow,
     CONF2__bft__glass,
     CONF2__bft__tar,
     CONF2__bft__red_leaves,
@@ -60,6 +62,7 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__one_color_range(output, CONF2__bft__grass, TEX__create__pixel(50, 240, 50, 255), random_context, color_intensity); // grass face
     TEX__generate_face__one_color_range(output, CONF2__bft__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
     TEX__generate_face__one_color_range(output, CONF2__bft__dirt, TEX__create__pixel(100, 50, 0, 255), random_context, color_intensity); // dirt face
+    TEX__generate_face__one_color_range(output, CONF2__bft__snow, TEX__create__pixel(250, 250, 250, 255), random_context, color_intensity); // snow face
     TEX__generate_face__box_texture(output, CONF2__bft__glass, TEX__create__pixel(245, 245, 245, 255), TEX__create__pixel(0, 0, 0, 0)); // glass face
     TEX__generate_face__one_color_range(output, CONF2__bft__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
     TEX__generate_face__checkerboard(output, CONF2__bft__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
@@ -84,6 +87,7 @@ SKIN__skins CONF2__open__skins() {
     SKIN__set__skin__block(output, CONF2__bt__grass, SKIN__create__block(CONF2__bft__grass, CONF2__bft__grass, CONF2__bft__grass, CONF2__bft__dirt, CONF2__bft__grass, CONF2__bft__grass, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__sand, SKIN__create__block__one_skin(CONF2__bft__sand, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__dirt, SKIN__create__block__one_skin(CONF2__bft__dirt, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__snow, SKIN__create__block__one_skin(CONF2__bft__snow, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__glass, SKIN__create__block__one_skin(CONF2__bft__glass, SKIN__bdt__draw_all_sides));
     SKIN__set__skin__block(output, CONF2__bt__tar, SKIN__create__block__one_skin(CONF2__bft__tar, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__red_leaves, SKIN__create__block__one_skin(CONF2__bft__red_leaves, SKIN__bdt__draw_all_sides));
