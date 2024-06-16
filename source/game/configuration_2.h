@@ -23,6 +23,7 @@ typedef enum CONF2__bt {
     CONF2__bt__red_leaves,
     CONF2__bt__green_leaves,
     CONF2__bt__oak_log,
+    CONF2__bt__cactus,
 
     // count
     CONF2__bt__COUNT,
@@ -42,6 +43,8 @@ typedef enum CONF2__bft {
     CONF2__bft__green_leaves,
     CONF2__bft__oak_log_bark, // the front, back, left and right faces
     CONF2__bft__oak_log_core, // the top and bottom faces
+    CONF2__bft__cactus_sides,
+    CONF2__bft__cactus_core,
 
     // count
     CONF2__bft__COUNT,
@@ -67,8 +70,10 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__one_color_range(output, CONF2__bft__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
     TEX__generate_face__checkerboard(output, CONF2__bft__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
     TEX__generate_face__checkerboard(output, CONF2__bft__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
-    TEX__generate_face__vertical_stripes(output, CONF2__bft__oak_log_bark, TEX__create__pixel(115, 50, 0, 255), TEX__create__pixel(180, 50, 0, 255)); // oak log bark face
-    TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(115, 50, 0, 255), TEX__create__pixel(255, 150, 80, 255)); // oak log core face
+    TEX__generate_face__vertical_stripes(output, CONF2__bft__oak_log_bark, TEX__create__pixel(180, 50, 0, 255), TEX__create__pixel(180, 60, 0, 255)); // oak log bark face
+    TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(180, 50, 0, 255), TEX__create__pixel(255, 150, 80, 255)); // oak log core face
+    TEX__generate_face__vertical_stripes(output, CONF2__bft__cactus_sides, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus side face
+    TEX__generate_face__box_texture(output, CONF2__bft__cactus_core, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus core face
 
     return output;
 }
@@ -93,6 +98,7 @@ SKIN__skins CONF2__open__skins() {
     SKIN__set__skin__block(output, CONF2__bt__red_leaves, SKIN__create__block__one_skin(CONF2__bft__red_leaves, SKIN__bdt__draw_all_sides));
     SKIN__set__skin__block(output, CONF2__bt__green_leaves, SKIN__create__block__one_skin(CONF2__bft__green_leaves, SKIN__bdt__draw_all_sides));
     SKIN__set__skin__block(output, CONF2__bt__oak_log, SKIN__create__block(CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_core, CONF2__bft__oak_log_core, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__cactus, SKIN__create__block(CONF2__bft__cactus_sides, CONF2__bft__cactus_sides, CONF2__bft__cactus_core, CONF2__bft__cactus_core, CONF2__bft__cactus_sides, CONF2__bft__cactus_sides, SKIN__bdt__draw_only_one_side));
 
     return output;
 }
@@ -328,6 +334,34 @@ CHUNK__chunk CONF2__generate_chunks__tree(ESS__world_vertex chunk_position, GENE
     return output;
 }
 
+// generate a cactus in a chunk
+CHUNK__chunk CONF2__generate_chunks__cacti(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
+    CHUNK__chunk output;
+
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block sand_block = BLOCK__create__block_only_solid(CONF2__bt__sand);
+    BLOCK__block cactus_block = BLOCK__create__block_only_solid(CONF2__bt__cactus);
+
+    // quiet compiler warning
+    chunk_position = chunk_position;
+    blueprint = blueprint;
+
+    // clear chunk with air
+    output = CHUNK__create__chunk(air_block);
+
+    // create sand
+    output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(7, 0, 7))] = sand_block;
+
+    // create logs
+    for (CHUNK__block_index y = 0; y < 3; y++) {
+        // generate log
+        output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(7, y + 1, 7))] = cactus_block;
+    }
+
+    return output;
+}
+
 // generate a flat world
 CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     CHUNK__chunk output;
@@ -371,7 +405,7 @@ void CONF2__setup__game(GAME__information* game_information) {
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position);
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__tree, ESS__create__dimensions(5, 5, 5), camera_position);
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
