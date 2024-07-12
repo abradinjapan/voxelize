@@ -5,6 +5,8 @@
 // C
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>
+#include <limits.h>
 
 /* Define */
 // base types
@@ -34,6 +36,31 @@ typedef enum BASIC__bt {
     // count
     BASIC__bt__COUNT = BASIC__bt__LIMIT,
 } BASIC__bt;
+
+// math types
+#define BASIC__define__pi M_PI
+
+/* Fractions */
+typedef struct BASIC__integer_fraction {
+    s64 p_top;
+    s64 p_bottom;
+} BASIC__integer_fraction;
+
+// create custom
+BASIC__integer_fraction BASIC__create__integer_fraction(s64 top, s64 bottom) {
+    BASIC__integer_fraction output;
+
+    // setup output
+    output.p_top = top;
+    output.p_bottom = bottom;
+
+    return output;
+}
+
+// create null
+BASIC__integer_fraction BASIC__create_null__integer_fraction() {
+    return BASIC__create__integer_fraction(0, 0);
+}
 
 /* Allocate */
 // create allocation

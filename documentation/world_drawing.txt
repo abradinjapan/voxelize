@@ -20,6 +20,9 @@ GUI buffer layout:
     u16: - [ Position: Texture X Coordinate ]
     u16: - [ Position: Texture Y Coordinate ]
 
+Chunk positioning notes:
+    Chunks in world coordinates go positive down, right and towards the camera.
+
 Note:
     There are 3 coordinate spaces in this game for chunks.
     1) The world coordinates.

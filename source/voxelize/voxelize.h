@@ -9,6 +9,7 @@
 // run the game
 void VOX__run__game() {
     GAME__information game_information;
+    GENERATION__seed master_seed = 19283;
 
     // create game
     game_information = CONF2__open__game();
@@ -20,7 +21,7 @@ void VOX__run__game() {
     }
 
     // setup game
-    CONF2__setup__game(&game_information);
+    CONF2__setup__game(&game_information, master_seed);
 
     // run game
     while (SDL_QuitRequested() == SDL_FALSE && game_information.p_game_state != GAME__gsi__game_quitting && CONF2__check__error(&game_information) == BASIC__bt__false) {

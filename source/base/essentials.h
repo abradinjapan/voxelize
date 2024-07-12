@@ -36,6 +36,7 @@ typedef ESS__dimension_axis ESS__dimensions_volume;
 #define ESS__define__bits_per_block__range__end ((1<<ESS__define__bits_per_block)-1)
 #define ESS__define__bits_per_block__total_count (ESS__define__bits_per_block__range__end+1)
 #define ESS__define__world_axis_middle ((ESS__world_axis)1<<((sizeof(ESS__world_axis)*ESS__define__bits_per_byte)-1)) // this is the value that is the middle of each axis (X Y Z)
+#define ESS__define__world_axis_max_value ULLONG_MAX
 
 // the size of one chunk dimension in blocks
 #define ESS__define__chunk_side_block_count 16
@@ -103,8 +104,8 @@ void ESS__print__world_vertex(ESS__world_vertex vertex) {
 /* Box */
 // a datatype that lays out a three-dimensional box shaped area
 typedef struct ESS__world_box {
-    ESS__world_vertex p_right_up_front; // the point that lays to the right, up & front of the box (X, Y, Z)
-    ESS__world_vertex p_left_down_back; // the point that lays to the left, down & back of the box (-X, -Y, -Z)
+    ESS__world_vertex p_right_up_front; // the point that lays to the right, up & front of the box (X, -Y, Z)
+    ESS__world_vertex p_left_down_back; // the point that lays to the left, down & back of the box (-X, Y, -Z)
 } ESS__world_box;
 
 // create custom world box

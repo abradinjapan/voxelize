@@ -74,12 +74,15 @@ typedef struct MANAGER__world_manager {
 } MANAGER__world_manager;
 
 // open a world manager
-MANAGER__world_manager MANAGER__open__world_manager(GENERATION__function_address__generate_chunk generation_algorithm, ESS__dimensions chunks_dimensions, ESS__world_vertex camera_position) {
+MANAGER__world_manager MANAGER__open__world_manager(GENERATION__function_address__generate_chunk generation_algorithm, ESS__dimensions chunks_dimensions, ESS__world_vertex camera_position, GENERATION__blueprint blueprint) {
     MANAGER__world_manager output;
     CHUNK__chunk blank_chunk = CHUNK__create_null__chunk();
 
     // setup generation algorithm
     output.p_generation_algorithm = generation_algorithm;
+
+    // setup blueprint
+    output.p_blueprint = blueprint;
 
     // open positions
     output.p_positioning = POS__open__positioning(camera_position, chunks_dimensions);
