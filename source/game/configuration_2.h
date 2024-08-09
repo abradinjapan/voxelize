@@ -394,14 +394,14 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
     return output;
 }
 
-// generate a hilly world
+/*// generate a hilly world
 CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     CHUNK__chunk output;
-    ESS__world_axis heights[ESS__define__chunk_side_block_count][ESS__define__chunk_side_block_count];
+    GENERATION__peak_y heights[ESS__define__chunk_side_block_count][ESS__define__chunk_side_block_count];
     ESS__world_box chunk_box = ESS__calculate__chunk_box_from_vertex(chunk_position);
 
     // calculate hill chunk range
-    ESS__world_box hill_range = ESS__create__world_box(ESS__create__world_vertex(ESS__define__world_axis_max_value, (*blueprint).p_terrain.p_minimum_terrain_height, ESS__define__world_axis_max_value), ESS__create__world_vertex(0, (*blueprint).p_terrain.p_maximum_terrain_height, 0));
+    ESS__world_box hill_range = ESS__create__world_box(ESS__create__world_vertex(ESS__define__world_axis_max_value, (*blueprint).p_terrain.p_tallest_terrain_height, ESS__define__world_axis_max_value), ESS__create__world_vertex(0, (*blueprint).p_terrain.p_shortest_terrain_height, 0));
 
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
@@ -411,17 +411,14 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
     // generate chunk
     // if within the hill range
     if (ESS__calculate__box_is_in_box__inclusive(hill_range, chunk_box)) {
-        // DEBUG
-        printf("Generating hilly chunk.\n");
-
         // calculate heights
         for (ESS__world_x x = 0; x < ESS__define__chunk_side_block_count; x++) {
             for (ESS__world_z z = 0; z < ESS__define__chunk_side_block_count; z++) {
                 // calculate height
-                heights[x][z] = GENERATION__calculate__terrain_height(blueprint, chunk_box.p_left_down_back);
+                heights[x][z] = GENERATION__calculate__terrain_height(blueprint, ESS__calculate__add_world_vertices(chunk_box.p_right_up_front, ESS__create__world_vertex(ESS__define__bits_per_block__total_count * x, 0, ESS__define__bits_per_block__total_count * z)));
 
                 // DEBUG
-                printf("DEBUG: [ %lu %lu %lu ][ %lu %lu %lu ]\n", (*blueprint).p_terrain.p_maximum_terrain_height, heights[x][z], (*blueprint).p_terrain.p_minimum_terrain_height, 0, heights[x][z] - (*blueprint).p_terrain.p_minimum_terrain_height, (*blueprint).p_terrain.p_minimum_terrain_height - (*blueprint).p_terrain.p_maximum_terrain_height);
+                printf("Terrain Height & Chunk Height: [ %lld, %lld (%lld) ]\n", heights[x][z], chunk_position.p_y, chunk_position.p_y - heights[x][z]);
             }
         }
 
@@ -431,12 +428,22 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
                 // get height in blocks
                 GENERATION__peak_y peak_y = heights[x][z];
                 BLOCK__block_y height;
+
+                // DEBUG
+                //printf("Heights: [ %ld < %ld < %ld ]\n", chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates(), peak_y, chunk_position.p_y);
+                
                 // if peak is below edge
-                if (peak_y > (chunk_position.p_y/* + ESS__calculate__chunk_side_size_in_world_coordinates()*/)) {
+                if (peak_y > (chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates())) {
+                    // DEBUG
+                    //printf("\tIs Lower: [ %ld, %ld ]\n", peak_y, chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates());
+
                     // make grass
                     height = ESS__define__chunk_side_block_count;
                 // if peak is above edge
                 } else if (peak_y < chunk_position.p_y) {
+                    // DEBUG
+                    //printf("\tIs Higher: [ %ld, %ld ]\n", peak_y, chunk_position.p_y);
+
                     // make air
                     height = 0;
                 // peak is in between
@@ -445,8 +452,11 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
                     height = (chunk_position.p_y - peak_y) / ESS__calculate__block_size_in_world_coordinates();
 
                     // DEBUG
-                    printf("Height: %lu\n", height);
+                    //printf("Is In Between: %lu\n", (u64)height);
                 }
+
+                // DEBUG
+                //printf("\n");
 
                 // set bottom to be grass
                 for (BLOCK__block_y y = 0; y < height; y++) {
@@ -459,22 +469,17 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
             }
         }
     // if an above hill height limit chunk
-    } else if (chunk_position.p_y < (*blueprint).p_terrain.p_maximum_terrain_height) {
-        // DEBUG
-        printf("Generating air chunk.\n");
-
+    } else if (chunk_position.p_y < (*blueprint).p_terrain.p_tallest_terrain_height) {
         // return an air chunk
         output = CHUNK__create__chunk(air_block);
     // otherwise, it is a stone chunk
     } else {
-        // DEBUG
-        printf("Generating stone chunk.\n");
-
+        // generate stone chunk
         output = CHUNK__create__chunk(stone_block);
     }
 
     return output;
-}
+}*/
 
 // setup game
 void CONF2__setup__game(GAME__information* game_information, GENERATION__seed seed) {
@@ -487,7 +492,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__cacti, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed));
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed));
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);

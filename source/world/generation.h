@@ -20,8 +20,8 @@ typedef GENERATION__peak_axis GENERATION__peak_z;
 typedef GENERATION__peak_y GENERATION__height;
 typedef GENERATION__height GENERATION__ocean_height;
 typedef GENERATION__height GENERATION__terrain_height;
-typedef GENERATION__terrain_height GENERATION__terrain_height__max;
-typedef GENERATION__terrain_height GENERATION__terrain_height__min;
+typedef GENERATION__terrain_height GENERATION__terrain_height__shortness;
+typedef GENERATION__terrain_height GENERATION__terrain_height__tallness;
 
 // null height
 #define GENERATION__define__null_height 0
@@ -56,18 +56,18 @@ GENERATION__peak_coordinate GENERATION__create_null__peak_coordinate() {
 typedef struct GENERATION__terrain {
     // heights
     GENERATION__ocean_height p_ocean_height; // the height at which open terrain will be water
-    GENERATION__terrain_height__min p_minimum_terrain_height; // the min height that terrain can generate to (not including structures)
-    GENERATION__terrain_height__max p_maximum_terrain_height; // the max height that terrain can generate to (not including structures)
+    GENERATION__terrain_height__tallness p_tallest_terrain_height; // the highest height (towards -Y (up)) that terrain can generate to (not including structures)
+    GENERATION__terrain_height__shortness p_shortest_terrain_height; // the shortest height (towards Y (down)) that terrain can generate to (not including structures)
 } GENERATION__terrain;
 
 // create custom terrain
-GENERATION__terrain GENERATION__create__terrain(GENERATION__ocean_height ocean_height, GENERATION__terrain_height__min minimum_terrain_height, GENERATION__terrain_height__max maximum_terrain_height) {
+GENERATION__terrain GENERATION__create__terrain(GENERATION__ocean_height ocean_height, GENERATION__terrain_height__tallness terrain_maximum_tallness, GENERATION__terrain_height__shortness terrain_minimum_shortness) {
     GENERATION__terrain output;
 
     // setup output
     output.p_ocean_height = ocean_height;
-    output.p_minimum_terrain_height = minimum_terrain_height;
-    output.p_maximum_terrain_height = maximum_terrain_height;
+    output.p_tallest_terrain_height = terrain_maximum_tallness;
+    output.p_shortest_terrain_height = terrain_minimum_shortness;
 
     return output;
 }
@@ -139,7 +139,7 @@ GENERATION__blueprint GENERATION__open__blueprint(GENERATION__seed master_seed) 
 
 /* Terrain Height */
 // calculate cosine interpolation
-f32 GENERATION__calculate__cosine_interpolation__floating_point(f32 point_a, f32 point_b, f32 in_between) {
+/*f32 GENERATION__calculate__cosine_interpolation__floating_point(f32 point_a, f32 point_b, f32 in_between) {
     // do math for height
     f32 modified_in_between = (1 - cosf(in_between * BASIC__define__pi)) * 0.5;
 
@@ -153,20 +153,33 @@ GENERATION__height GENERATION__calculate__terrain_height_interpolation(GENERATIO
     return ((range_start * (in_between.p_bottom - in_between.p_top)) + (range_end * in_between.p_top)) / in_between.p_bottom + range_end;
 }
 
+// calculate regular interpolation
+GENERATION__height GENERATION__calculate__terrain_height_interpolation__2(GENERATION__peak_axis range_start, GENERATION__peak_axis range_end, BASIC__integer_fraction in_between) {
+    // calculate higher value
+    if (range_start > range_end) {
+        return (((range_start - range_end) * in_between.p_top) / in_between.p_bottom) + range_end;
+    } else if (range_end > range_start) {
+        return (((range_end - range_start) * in_between.p_top) / in_between.p_bottom) + range_start;
+    } else {
+        // equal, just return one of them
+        return range_start;
+    }
+}
+
 // calculate peak from coords
 GENERATION__peak_coordinate GENERATION__calculate__nearest_peak_from_coordinate__always_round_down(ESS__world_vertex coordinate, GENERATION__peak_coordinate peak_offsets) {
     GENERATION__peak_coordinate output;
 
     // calculate peaks
-    output.p_x = (coordinate.p_x / GENERATION__define__peak_spread_distance) + peak_offsets.p_x;
-    output.p_z = (coordinate.p_z / GENERATION__define__peak_spread_distance) + peak_offsets.p_z;
+    output.p_x = (coordinate.p_x / GENERATION__define__peak_spread_distance) + peak_offsets.p_x * GENERATION__define__peak_spread_distance;
+    output.p_z = (coordinate.p_z / GENERATION__define__peak_spread_distance) + peak_offsets.p_z * GENERATION__define__peak_spread_distance;
 
     return output;
 }
 
 // calculate peak height from peak coordinates
 GENERATION__terrain_height GENERATION__calculate__peak_coordinate_height__one_axis(GENERATION__blueprint_address blueprint, GENERATION__peak_axis peak_number) {
-    return ((RANDOM__generate_number__mark_1(&(*blueprint).p_random_context) * (*blueprint).p_terrain_x_seed * peak_number) % ((*blueprint).p_terrain.p_minimum_terrain_height - (*blueprint).p_terrain.p_maximum_terrain_height)) + (*blueprint).p_terrain.p_minimum_terrain_height;
+    return ((RANDOM__generate_number_and_advance__mark_1(&(*blueprint).p_random_context) * (*blueprint).p_terrain_x_seed * peak_number) % ((*blueprint).p_terrain.p_shortest_terrain_height - (*blueprint).p_terrain.p_tallest_terrain_height)) + (*blueprint).p_terrain.p_tallest_terrain_height;
 }
 
 // calculate terrain height from world x & z
@@ -182,8 +195,13 @@ GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blu
     GENERATION__terrain_height peak_height_x1z0 = GENERATION__calculate__peak_coordinate_height__one_axis(blueprint, peak_x1z0.p_x);
 
     // return middle height of one coordinate
-    return GENERATION__calculate__terrain_height_interpolation(peak_height_x0z0, peak_height_x1z0, BASIC__create__integer_fraction(xz_point.p_x, (*blueprint).p_terrain.p_minimum_terrain_height - (*blueprint).p_terrain.p_maximum_terrain_height));
+    return GENERATION__calculate__terrain_height_interpolation__2(peak_height_x0z0, peak_height_x1z0, BASIC__create__integer_fraction(peak_height_x1z0 - peak_height_x0z0, (*blueprint).p_terrain.p_tallest_terrain_height - (*blueprint).p_terrain.p_shortest_terrain_height));
 }
+
+// calculate the height of terrain given
+GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blueprint_address blueprint, ESS__world_vertex xz_point) {
+    return (RANDOM__generate_number__mark_1(&(*blueprint).p_random_context, xz_point.p_x) % ((*blueprint).p_terrain.p_shortest_terrain_height - (*blueprint).p_terrain.p_tallest_terrain_height)) + (*blueprint).p_terrain.p_shortest_terrain_height;
+}*/
 
 /* Generation Function Pointer */
 // function pointer that calls a chunk generation function

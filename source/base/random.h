@@ -35,16 +35,24 @@ RANDOM__context RANDOM__create_null__context() {
 }
 
 /* Generators */
-RANDOM__number RANDOM__generate_number__mark_1(RANDOM__context* context) {
+// generate one number from a specific seed and iteration
+RANDOM__number RANDOM__generate_number__mark_1(RANDOM__context* context, RANDOM__iteration iteration) {
+    return (*context).p_seed * iteration * 998877665544332211;
+}
+
+// generate one random number and advance the iteration by 1
+RANDOM__number RANDOM__generate_number_and_advance__mark_1(RANDOM__context* context) {
     RANDOM__number output;
 
     // generate number
-    output = (*context).p_seed * (*context).p_iteration * 998877665544332211;
+    output = RANDOM__generate_number__mark_1(context, (*context).p_iteration);
 
     // increment iteration
     (*context).p_iteration++;
 
     return output;
 }
+
+// generate random numbe
 
 #endif

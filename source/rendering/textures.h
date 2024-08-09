@@ -267,9 +267,9 @@ void TEX__generate_face__one_color_range(TEX__faces faces, TEX__face_index face_
             temp_pixel = initial_pixel;
 
             // randomize colors
-            temp_pixel.p_red += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
-            temp_pixel.p_green += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
-            temp_pixel.p_blue += (RANDOM__generate_number__mark_1(random_context) % color_intensity);
+            temp_pixel.p_red += (RANDOM__generate_number_and_advance__mark_1(random_context) % color_intensity);
+            temp_pixel.p_green += (RANDOM__generate_number_and_advance__mark_1(random_context) % color_intensity);
+            temp_pixel.p_blue += (RANDOM__generate_number_and_advance__mark_1(random_context) % color_intensity);
 
             // write pixel
             write_to = TEX__write__pixel(write_to, temp_pixel);
