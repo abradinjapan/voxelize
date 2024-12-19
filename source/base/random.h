@@ -37,7 +37,7 @@ RANDOM__context RANDOM__create_null__context() {
 /* Generators */
 // generate one number from a specific seed and iteration
 RANDOM__number RANDOM__generate_number__mark_1(RANDOM__context* context, RANDOM__iteration iteration) {
-    return (*context).p_seed * iteration * 998877665544332211;
+    return (*context).p_seed * iteration * 987654321;
 }
 
 // generate one random number and advance the iteration by 1
@@ -52,7 +52,5 @@ RANDOM__number RANDOM__generate_number_and_advance__mark_1(RANDOM__context* cont
 
     return output;
 }
-
-// generate random numbe
 
 #endif
