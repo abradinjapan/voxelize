@@ -394,7 +394,7 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
     return output;
 }
 
-/*// generate a hilly world
+// generate a hilly world
 CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     CHUNK__chunk output;
     GENERATION__peak_y heights[ESS__define__chunk_side_block_count][ESS__define__chunk_side_block_count];
@@ -407,6 +407,11 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
     BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
     BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
     BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
+
+    // DEBUG
+    printf("---------------Chunk Position: ");
+    ESS__print__world_vertex(chunk_position);
+    printf("\n");
 
     // generate chunk
     // if within the hill range
@@ -433,14 +438,14 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
                 //printf("Heights: [ %ld < %ld < %ld ]\n", chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates(), peak_y, chunk_position.p_y);
                 
                 // if peak is below edge
-                if (peak_y > (chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates())) {
+                if (peak_y < (chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates())) {
                     // DEBUG
                     //printf("\tIs Lower: [ %ld, %ld ]\n", peak_y, chunk_position.p_y + ESS__calculate__chunk_side_size_in_world_coordinates());
 
                     // make grass
                     height = ESS__define__chunk_side_block_count;
                 // if peak is above edge
-                } else if (peak_y < chunk_position.p_y) {
+                } else if (peak_y > chunk_position.p_y) {
                     // DEBUG
                     //printf("\tIs Higher: [ %ld, %ld ]\n", peak_y, chunk_position.p_y);
 
@@ -479,7 +484,7 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
     }
 
     return output;
-}*/
+}
 
 // setup game
 void CONF2__setup__game(GAME__information* game_information, GENERATION__seed seed) {
@@ -492,7 +497,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed));
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__hilly_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed));
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);

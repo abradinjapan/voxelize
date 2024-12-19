@@ -14,6 +14,12 @@ typedef ESS__world_axis ESS__world_x;
 typedef ESS__world_axis ESS__world_y;
 typedef ESS__world_axis ESS__world_z;
 
+// chunk relative coords
+typedef s64 ESS__world_chunk_axis;
+typedef ESS__world_chunk_axis ESS__world_chunk_x;
+typedef ESS__world_chunk_axis ESS__world_chunk_y;
+typedef ESS__world_chunk_axis ESS__world_chunk_z;
+
 // the dimension defines are not for game dimensions, they are a generic xyz space size storage
 // dimension defines
 typedef u64 ESS__dimension_axis;
@@ -101,7 +107,7 @@ void ESS__print__world_vertex(ESS__world_vertex vertex) {
     return;
 }
 
-/* Box */
+/* World Box */
 // a datatype that lays out a three-dimensional box shaped area
 typedef struct ESS__world_box {
     ESS__world_vertex p_right_up_front; // the point that lays to the right, up & front of the box (X, -Y, Z)
@@ -194,6 +200,31 @@ ESS__dimensions_volume ESS__calculate__dimensions_volume(ESS__dimensions dimensi
 // calculate a dimension's index
 ESS__dimensions_index ESS__calculate__dimensions_index(ESS__dimensions dimensions, ESS__dimension_x x, ESS__dimension_y y, ESS__dimension_z z) {
     return (dimensions.p_height * dimensions.p_width * z) + (dimensions.p_width * y) + x;
+}
+
+/* World Chunk Positions */
+// a position that increments once per chunk on each axis
+typedef struct ESS__world_chunk_position {
+    ESS__world_chunk_x p_x;
+    ESS__world_chunk_y p_y;
+    ESS__world_chunk_z p_z;
+} ESS__world_chunk_position;
+
+// create
+ESS__world_chunk_position ESS__create__world_chunk_position(ESS__world_chunk_x x, ESS__world_chunk_y y, ESS__world_chunk_z z) {
+    ESS__world_chunk_position output;
+
+    // setup output
+    output.p_x = x;
+    output.p_y = y;
+    output.p_z = z;
+
+    return output;
+}
+
+// create null
+ESS__world_chunk_position ESS__create_null__world_chunk_position() {
+    return ESS__create__world_chunk_position(0, 0, 0);
 }
 
 /* Game Calculations */

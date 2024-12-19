@@ -196,12 +196,12 @@ GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blu
 
     // return middle height of one coordinate
     return GENERATION__calculate__terrain_height_interpolation__2(peak_height_x0z0, peak_height_x1z0, BASIC__create__integer_fraction(peak_height_x1z0 - peak_height_x0z0, (*blueprint).p_terrain.p_tallest_terrain_height - (*blueprint).p_terrain.p_shortest_terrain_height));
-}
+}*/
 
 // calculate the height of terrain given
 GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blueprint_address blueprint, ESS__world_vertex xz_point) {
-    return (RANDOM__generate_number__mark_1(&(*blueprint).p_random_context, xz_point.p_x) % ((*blueprint).p_terrain.p_shortest_terrain_height - (*blueprint).p_terrain.p_tallest_terrain_height)) + (*blueprint).p_terrain.p_shortest_terrain_height;
-}*/
+    return (RANDOM__generate_number__mark_1(&(*blueprint).p_random_context, xz_point.p_x) % ((*blueprint).p_terrain.p_tallest_terrain_height - (*blueprint).p_terrain.p_shortest_terrain_height)) + (*blueprint).p_terrain.p_shortest_terrain_height;
+}
 
 /* Generation Function Pointer */
 // function pointer that calls a chunk generation function
