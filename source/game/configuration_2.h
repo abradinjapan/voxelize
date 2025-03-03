@@ -408,11 +408,6 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
     BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
     BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
 
-    // DEBUG
-    printf("---------------Chunk Position: ");
-    ESS__print__world_vertex(chunk_position);
-    printf("\n");
-
     // generate chunk
     // if within the hill range
     if (ESS__calculate__box_is_in_box__inclusive(hill_range, chunk_box)) {
@@ -423,7 +418,7 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
                 heights[x][z] = GENERATION__calculate__terrain_height(blueprint, ESS__calculate__add_world_vertices(chunk_box.p_right_up_front, ESS__create__world_vertex(ESS__define__bits_per_block__total_count * x, 0, ESS__define__bits_per_block__total_count * z)));
 
                 // DEBUG
-                printf("Terrain Height & Chunk Height: [ %lld, %lld (%lld) ]\n", heights[x][z], chunk_position.p_y, chunk_position.p_y - heights[x][z]);
+                //printf("Terrain Height & Chunk Height: [ %lld, %lld (%lld) ]\n", heights[x][z], chunk_position.p_y, chunk_position.p_y - heights[x][z]);
             }
         }
 

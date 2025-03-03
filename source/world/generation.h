@@ -139,7 +139,7 @@ GENERATION__blueprint GENERATION__open__blueprint(GENERATION__seed master_seed) 
 
 /* Terrain Height */
 // calculate cosine interpolation
-/*f32 GENERATION__calculate__cosine_interpolation__floating_point(f32 point_a, f32 point_b, f32 in_between) {
+f32 GENERATION__calculate__cosine_interpolation__floating_point(f32 point_a, f32 point_b, f32 in_between) {
     // do math for height
     f32 modified_in_between = (1 - cosf(in_between * BASIC__define__pi)) * 0.5;
 
@@ -196,12 +196,12 @@ GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blu
 
     // return middle height of one coordinate
     return GENERATION__calculate__terrain_height_interpolation__2(peak_height_x0z0, peak_height_x1z0, BASIC__create__integer_fraction(peak_height_x1z0 - peak_height_x0z0, (*blueprint).p_terrain.p_tallest_terrain_height - (*blueprint).p_terrain.p_shortest_terrain_height));
-}*/
+}
 
-// calculate the height of terrain given
+/*// calculate the height of terrain given
 GENERATION__terrain_height GENERATION__calculate__terrain_height(GENERATION__blueprint_address blueprint, ESS__world_vertex xz_point) {
     return (RANDOM__generate_number__mark_1(&(*blueprint).p_random_context, xz_point.p_x) % ((*blueprint).p_terrain.p_tallest_terrain_height - (*blueprint).p_terrain.p_shortest_terrain_height)) + (*blueprint).p_terrain.p_shortest_terrain_height;
-}
+}*/
 
 /* Generation Function Pointer */
 // function pointer that calls a chunk generation function
