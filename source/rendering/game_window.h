@@ -106,6 +106,11 @@ WINDOW__graphics WINDOW__open__window(WINDOW__et* error, WINDOW__window_configur
         return output;
     }
 
+    // setup expectations
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
     // initalize window
     output.p_window_context = SDL_CreateWindow((const char*)window_configuration.p_title.p_address, 0, 0, window_configuration.p_width, window_configuration.p_height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if (output.p_window_context == 0) {
