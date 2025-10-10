@@ -16,7 +16,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <SDL2/SDL.h>
-#include "../../../cglm/include/cglm/cglm.h" // #include <cglm/cglm.h> <- (if cglm is already installed) (otherwise, put cglm in voxelize-project folder)
+//#include "../../../cglm/include/cglm/cglm.h" 
+#include <cglm/cglm.h> // <- (if cglm is already installed) (otherwise, put cglm in voxelize-project folder)
 #include <math.h>
 
 /* Define */

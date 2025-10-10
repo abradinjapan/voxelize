@@ -91,6 +91,9 @@ typedef struct GENERATION__blueprint {
     GENERATION__seed p_terrain_x_seed;
     GENERATION__seed p_terrain_z_seed;
 
+    // structure seed
+    GENERATION__seed p_structure_seed;
+
     // terrain data
     GENERATION__terrain p_terrain;
 } GENERATION__blueprint;
@@ -99,7 +102,7 @@ typedef struct GENERATION__blueprint {
 typedef GENERATION__blueprint* GENERATION__blueprint_address;
 
 // create custom blueprint
-GENERATION__blueprint GENERATION__create__blueprint(RANDOM__context random_context, GENERATION__seed master_seed, GENERATION__seed terrain_x_seed, GENERATION__seed terrain_z_seed, GENERATION__terrain terrain) {
+GENERATION__blueprint GENERATION__create__blueprint(RANDOM__context random_context, GENERATION__seed master_seed, GENERATION__seed terrain_x_seed, GENERATION__seed terrain_z_seed, GENERATION__seed structure_seed, GENERATION__terrain terrain) {
     GENERATION__blueprint output;
 
     // setup output
@@ -107,6 +110,7 @@ GENERATION__blueprint GENERATION__create__blueprint(RANDOM__context random_conte
     output.p_master_seed = master_seed;
     output.p_terrain_x_seed = terrain_x_seed;
     output.p_terrain_z_seed = terrain_z_seed;
+    output.p_structure_seed = structure_seed;
     output.p_terrain = terrain;
 
     return output;
@@ -115,24 +119,26 @@ GENERATION__blueprint GENERATION__create__blueprint(RANDOM__context random_conte
 // create null blueprint
 GENERATION__blueprint GENERATION__create_null__blueprint() {
     // return empty
-    return GENERATION__create__blueprint(RANDOM__create_null__context(), GENERATION__define__null_seed, GENERATION__define__null_seed, GENERATION__define__null_seed, GENERATION__create_null__terrain());
+    return GENERATION__create__blueprint(RANDOM__create_null__context(), GENERATION__define__null_seed, GENERATION__define__null_seed, GENERATION__define__null_seed, GENERATION__define__null_seed, GENERATION__create_null__terrain());
 }
 
 // open blueprint from seed
-GENERATION__blueprint GENERATION__open__blueprint(GENERATION__seed master_seed) {
+GENERATION__blueprint GENERATION__open__blueprint(GENERATION__seed master_seed, GENERATION__terrain terrain) {
     GENERATION__blueprint output;
 
     // setup seeds
     output.p_master_seed = master_seed;
     output.p_terrain_x_seed = output.p_master_seed - 2;
     output.p_terrain_z_seed = output.p_master_seed - 3;
+    output.p_structure_seed = output.p_master_seed - 4;
 
     // setup random context
     output.p_random_context = RANDOM__create__context(output.p_master_seed - 1, 0);
 
     // setup terrain
-    GENERATION__height max_min_height = ESS__calculate__chunk_box_size_in_world_coordinates().p_y * 2;
-    output.p_terrain = GENERATION__create__terrain(ESS__calculate__world_center().p_y, ESS__calculate__world_center().p_y + max_min_height, ESS__calculate__world_center().p_y - max_min_height);
+    //GENERATION__height max_min_height = ESS__calculate__chunk_box_size_in_world_coordinates().p_y * 2;
+    //output.p_terrain = GENERATION__create__terrain(ESS__calculate__world_center().p_y, ESS__calculate__world_center().p_y + max_min_height, ESS__calculate__world_center().p_y - max_min_height);
+    output.p_terrain = terrain;
 
     return output;
 }

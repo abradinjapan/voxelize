@@ -492,7 +492,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed));
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed, GENERATION__create__terrain(ESS__calculate__world_center().p_y, 0 /* TEMP VALUE */, 0 /* TEMP VALUE */)));
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
