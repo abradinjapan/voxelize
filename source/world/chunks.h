@@ -5,11 +5,6 @@
 #include "block.h"
 
 /* Define */
-// coordinates
-typedef ESS__world_x CHUNK__coordinate_x;
-typedef ESS__world_y CHUNK__coordinate_y;
-typedef ESS__world_z CHUNK__coordinate_z;
-
 // the index of a block in the one dimensional chunk blocks array
 typedef u16 CHUNK__block_index;
 
