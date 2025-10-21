@@ -68,7 +68,7 @@ CONTROLS__controls CONTROLS__open__controls() {
 }
 
 // change whether or not the mouse is fixed to the middle of the game window
-void CONTROLS__update__mouse_lock(BASIC__bt mouse_locked) {
+void CONTROLS__set__mouse_lock_state(BASIC__bt mouse_locked) {
     if (mouse_locked == BASIC__bt__true) {
         SDL_SetRelativeMouseMode(SDL_TRUE);
     } else {
@@ -78,13 +78,18 @@ void CONTROLS__update__mouse_lock(BASIC__bt mouse_locked) {
     return;
 }
 
+// get whether or not the mound is locked
+BASIC__bt CONTROLS__get__mouse_lock_state() {
+    return (BASIC__bt)SDL_GetRelativeMouseMode();
+}
+
 // close controls
 void CONTROLS__close__controls(CONTROLS__controls controls) {
     // quiet compiler message
     controls = controls;
 
     // make sure mouse is released
-    CONTROLS__update__mouse_lock(BASIC__bt__false);
+    CONTROLS__set__mouse_lock_state(BASIC__bt__false);
 
     return;
 }

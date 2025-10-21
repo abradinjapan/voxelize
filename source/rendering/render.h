@@ -17,7 +17,7 @@
 #include <GL/gl.h>
 #include <SDL2/SDL.h>
 //#include "../../../cglm/include/cglm/cglm.h" 
-#include <cglm/cglm.h> // <- (if cglm is already installed) (otherwise, put cglm in voxelize-project folder)
+#include <cglm/cglm.h> // <- (if cglm is already installed) (otherwise, put cglm in voxelize-project folder and use above commented file path)
 #include <math.h>
 
 /* Define */
@@ -910,8 +910,8 @@ RENDER__matrix_f32 RENDER__calculate__transform_matrix(WINDOW__window_configurat
     return output;
 }
 
-// draw everything
-void RENDER__draw__world(TEX__game_textures game_textures, RENDER__world world_rendering, WINDOW__window_configuration window, SHADER__program shader_program, POS__positioning positioning, RENDER__vertex camera_rotation) {
+// draw everything in the playing world
+void RENDER__draw__game_world(TEX__game_textures game_textures, RENDER__world world_rendering, WINDOW__window_configuration window, SHADER__program shader_program, POS__positioning positioning, RENDER__vertex camera_rotation) {
     RENDER__matrix_f32 final_transform;
 
     // bind proper textures

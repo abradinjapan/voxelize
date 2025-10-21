@@ -24,7 +24,7 @@ void VOX__run__game() {
     CONF2__setup__game(&game_information, master_seed);
 
     // run game
-    while (SDL_QuitRequested() == SDL_FALSE && game_information.p_game_state != GAME__gsi__game_quitting && CONF2__check__error(&game_information) == BASIC__bt__false) {
+    while (SDL_QuitRequested() == SDL_FALSE && game_information.p_game_state != GAME__gsi__game__main_menu__quitting && CONF2__check__error(&game_information) == BASIC__bt__false) {
         // display frame
         CONF2__display__frame(&game_information);
     }

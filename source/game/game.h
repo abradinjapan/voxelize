@@ -16,9 +16,10 @@
 /* Game Information */
 // game state information
 typedef enum GAME__gsi {
-    GAME__gsi__game_paused,
-    GAME__gsi__game_running,
-    GAME__gsi__game_quitting,
+    GAME__gsi__game__main_menu,
+    GAME__gsi__game__main_menu__quitting,
+    GAME__gsi__game__running_world__paused,
+    GAME__gsi__game__running_world__playing,
     GAME__gsi__LENGTH,
 } GAME__gsi;
 
@@ -58,7 +59,7 @@ GAME__information GAME__create__game_information(WINDOW__graphics graphics, SHAD
     GAME__information output;
 
     // setup output
-    output.p_game_state = GAME__gsi__game_running;
+    output.p_game_state = GAME__gsi__game__main_menu;
     output.p_error_occured = BASIC__bt__false;
     output.p_graphics_error = WINDOW__et__no_error;
     output.p_shader_error = SHADER__et__no_error;

@@ -166,6 +166,9 @@ GAME__information CONF2__open__game() {
     // setup controls
     output.p_controls = CONTROLS__open__controls();
 
+    // auto run to game
+    output.p_game_state = GAME__gsi__game__running_world__playing;
+
     return output;
 }
 
@@ -501,7 +504,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_camera_rotation = RENDER__create__vertex(0.0f, 0.0f, 0.0f);
 
     // fixate mouse
-    CONTROLS__update__mouse_lock(BASIC__bt__true);
+    CONTROLS__set__mouse_lock_state(BASIC__bt__true);
 
     return;
 }
@@ -570,67 +573,84 @@ void CONF2__do__block_placement(GAME__information* game_information, BLOCK__bloc
 
 // displays the next frame
 void CONF2__display__frame(GAME__information* game_information) {
+    // constants
     float rotation_speed = 0.5f;
     ESS__world_axis shift = 2;
 
-    // blocks
-    BLOCK__block place_block = BLOCK__create__block_only_solid(CONF2__bt__red_leaves);
-    BLOCK__block break_block = BLOCK__create__block_only_solid(CONF2__bt__air);
-
-    // update mouse movement
-    CONTROLS__update__mouse_position_change(&((*game_information).p_controls));
-
-    // update rotations
-    (*game_information).p_camera_rotation.p_vertices[0] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_y * -1.0f * rotation_speed;
-    (*game_information).p_camera_rotation.p_vertices[1] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_x * rotation_speed;
-
-    // update player position movement (x)
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_A)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_x -= ESS__define__bits_per_block__total_count >> shift;
-    }
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_D)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_x += ESS__define__bits_per_block__total_count >> shift;
-    }
-
-    // update player position movement (y)
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_LSHIFT)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_y += ESS__define__bits_per_block__total_count >> shift;
-    }
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_SPACE)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_y -= ESS__define__bits_per_block__total_count >> shift;
-    }
-
-    // update player position movement (z)
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_W)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_z -= ESS__define__bits_per_block__total_count >> shift;
-    }
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_S)) {
-        (*game_information).p_world_manager.p_positioning.p_camera_position.p_z += ESS__define__bits_per_block__total_count >> shift;
-    }
-
-    // block placing
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
-        // do block placement
-        CONF2__do__block_placement(game_information, place_block);
-    }
-    if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_Q)) {
-        // do block placement
-        CONF2__do__block_placement(game_information, break_block);
-    }
-
-    // check if player requested quit
+    // check if player requested the menu
     if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_ESCAPE)) {
-        (*game_information).p_game_state = GAME__gsi__game_quitting;
+        // lock mouse state
+        if ((*game_information).p_game_state == GAME__gsi__game__running_world__playing) {
+            // unlock mouse for menu
+            CONTROLS__set__mouse_lock_state(BASIC__bt__false);
+
+            // set game state
+            (*game_information).p_game_state = GAME__gsi__game__running_world__paused;
+        } else if ((*game_information).p_game_state == GAME__gsi__game__running_world__paused) {
+            // unlock mouse to resume
+            CONTROLS__set__mouse_lock_state(BASIC__bt__true);
+
+            // set game state
+            (*game_information).p_game_state = GAME__gsi__game__running_world__playing;
+        }
     }
 
     // update window size
     WINDOW__update__current_window_size(&((*game_information).p_graphics));
 
-    // update world
-    MANAGER__update__world((*game_information).p_world_manager, (*game_information).p_skins, (*game_information).p_temporaries);
+    // only run world if game is in play mode
+    if ((*game_information).p_game_state == GAME__gsi__game__running_world__playing) {
+        // blocks
+        BLOCK__block place_block = BLOCK__create__block_only_solid(CONF2__bt__red_leaves);
+        BLOCK__block break_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+
+        // update mouse movement
+        CONTROLS__update__mouse_position_change(&((*game_information).p_controls));
+
+        // update rotations
+        (*game_information).p_camera_rotation.p_vertices[0] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_y * -1.0f * rotation_speed;
+        (*game_information).p_camera_rotation.p_vertices[1] += (*game_information).p_controls.p_mouse_position_change.p_mouse_change_x * rotation_speed;
+
+        // update player position movement (x)
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_A)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_x -= ESS__define__bits_per_block__total_count >> shift;
+        }
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_D)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_x += ESS__define__bits_per_block__total_count >> shift;
+        }
+
+        // update player position movement (y)
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_LSHIFT)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_y += ESS__define__bits_per_block__total_count >> shift;
+        }
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_SPACE)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_y -= ESS__define__bits_per_block__total_count >> shift;
+        }
+
+        // update player position movement (z)
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_W)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_z -= ESS__define__bits_per_block__total_count >> shift;
+        }
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_S)) {
+            (*game_information).p_world_manager.p_positioning.p_camera_position.p_z += ESS__define__bits_per_block__total_count >> shift;
+        }
+
+        // block placing
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_E)) {
+            // do block placement
+            CONF2__do__block_placement(game_information, place_block);
+        }
+        if (CONTROLS__check__key_pressed((*game_information).p_controls, SDL_SCANCODE_Q)) {
+            // do block placement
+            CONF2__do__block_placement(game_information, break_block);
+        }
+
+        // update world
+        MANAGER__update__world((*game_information).p_world_manager, (*game_information).p_skins, (*game_information).p_temporaries);
+    }
 
     // draw everything
-    RENDER__draw__world((*game_information).p_game_textures, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_world_manager.p_positioning, (*game_information).p_camera_rotation);
+    RENDER__draw__game_world((*game_information).p_game_textures, (*game_information).p_world_manager.p_rendered_world, (*game_information).p_graphics.p_window_configuration, (*game_information).p_chunks_shader_program, (*game_information).p_world_manager.p_positioning, (*game_information).p_camera_rotation);
 
     // display window
     SDL_GL_SwapWindow((*game_information).p_graphics.p_window_context);
