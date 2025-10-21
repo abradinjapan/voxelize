@@ -23,6 +23,9 @@ typedef u64 TEX__block_face_ID;
 #define TEX__block_faces__texture_ID (GL_TEXTURE0 + TEX__block_faces__texture_unit_ID)
 #define TEX__block_faces__texture_type GL_TEXTURE_2D_ARRAY
 #define TEX__block_faces__faces_per_block 6
+#define TEX__gui_faces__texture_unit_ID 1
+#define TEX__gui_faces__texture_ID (GL_TEXTURE0 + TEX__gui_faces__texture_unit_ID)
+#define TEX__gui_faces__texture_type GL_TEXTURE_2D_ARRAY
 
 /* Pixel */
 // one pixel
@@ -105,6 +108,7 @@ TEX__faces TEX__open__faces(TEX__dimension_length width, TEX__dimension_length h
 typedef enum TEX__gtt {
     // game texture types
     TEX__gtt__block_faces,
+    TEX__gtt__gui_faces,
     TEX__gtt__LIMIT,
 
     // count
@@ -113,17 +117,24 @@ typedef enum TEX__gtt {
 
 // game textures
 typedef struct TEX__game_textures {
+    // faces
     TEX__faces p_block_faces;
+    TEX__faces p_gui_faces;
+
+    // opengl face handles
     GLuint p_block_faces_handle;
+    GLuint p_gui_faces_handle;
 } TEX__game_textures;
 
 // create game textures
-TEX__game_textures TEX__create__game_textures(TEX__faces block_faces, GLuint block_faces_handle) {
+TEX__game_textures TEX__create__game_textures(TEX__faces block_faces, TEX__faces gui_faces, GLuint block_faces_handle, GLuint gui_faces_handle) {
     TEX__game_textures output;
 
     // setup output
     output.p_block_faces = block_faces;
+    output.p_gui_faces = gui_faces;
     output.p_block_faces_handle = block_faces_handle;
+    output.p_gui_faces_handle = gui_faces_handle;
 
     return output;
 }
@@ -131,7 +142,7 @@ TEX__game_textures TEX__create__game_textures(TEX__faces block_faces, GLuint blo
 // create null game textures
 TEX__game_textures TEX__create_null__game_textures() {
     // return null
-    return TEX__create__game_textures(TEX__create_null__faces(), 0);
+    return TEX__create__game_textures(TEX__create_null__faces(), TEX__create_null__faces(), 0, 0);
 }
 
 // bind a specific texture buffer to be used in rendering
@@ -149,6 +160,15 @@ void TEX__bind__game_textures__specific(TEX__game_textures game_textures, TEX__g
             glUniform1i(glGetUniformLocation(shader_program.p_program_ID, "GLOBAL_current_texture_unit"), TEX__block_faces__texture_unit_ID);
 
             break;
+        case TEX__gtt__gui_faces:
+            // set active texture (one per game texture type)
+            glActiveTexture(TEX__gui_faces__texture_ID);
+
+            // bind texture buffer
+            glBindTexture(TEX__gui_faces__texture_type, game_textures.p_gui_faces_handle);
+
+            // set active texture unit in opengl shader uniform
+            glUniform1i(glGetUniformLocation(shader_program.p_program_ID, "GLOBAL_current_texture_unit"), TEX__gui_faces__texture_unit_ID);
         default:
             break;
     }
