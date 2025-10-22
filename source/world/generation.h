@@ -96,6 +96,8 @@ typedef struct GENERATION__blueprint {
 
     // terrain data
     GENERATION__terrain p_terrain;
+
+    // structure data
 } GENERATION__blueprint;
 
 // blueprint address
