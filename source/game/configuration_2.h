@@ -392,8 +392,6 @@ CHUNK__chunk CONF2__generate_chunks__flat_world(ESS__world_vertex chunk_position
     BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
     BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
     BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
-    BLOCK__block oak_block = BLOCK__create__block_only_solid(CONF2__bt__oak_log);
-    BLOCK__block leaf_block = BLOCK__create__block_only_solid(CONF2__bt__green_leaves);
 
     // quiet compiler warning
     blueprint = blueprint;
