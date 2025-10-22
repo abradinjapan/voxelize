@@ -4,7 +4,6 @@
 /* Include */
 #include "basic.h"
 #include "random.h"
-#include "list.h"
 
 /* Defines */
 // the world axis defines are the actual game coordinates

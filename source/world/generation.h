@@ -78,6 +78,28 @@ GENERATION__terrain GENERATION__create_null__terrain() {
     return GENERATION__create__terrain(GENERATION__define__null_height, GENERATION__define__null_height, GENERATION__define__null_height);
 }
 
+/* Structure */
+// structure type
+typedef enum GENERATION__st {
+    // structure types
+    GENERATION__st__dungeon,
+
+    // COUNT
+    GENERATION__st__COUNT
+} GENERATION__st;
+
+// structure container
+typedef struct GENERATION__structure {
+    // structure type
+    GENERATION__st p_type;
+
+    // space taken
+    ESS__world_box p_position;
+} GENERATION__structure;
+
+// structure generation script function pointer
+typedef GENERATION__structure (*GENERATION__function_address__structure_generation)(ESS__world_vertex, GENERATION__st, GENERATION__seed);
+
 /* Blueprint */
 // the blueprint for the world generation
 typedef struct GENERATION__blueprint {
