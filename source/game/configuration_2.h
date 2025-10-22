@@ -24,6 +24,8 @@ typedef enum CONF2__bt {
     CONF2__bt__green_leaves,
     CONF2__bt__oak_log,
     CONF2__bt__cactus,
+    CONF2__bt__red_brick,
+    CONF2__bt__stone_brick,
 
     // count
     CONF2__bt__COUNT,
@@ -45,6 +47,10 @@ typedef enum CONF2__bft {
     CONF2__bft__oak_log_core, // the top and bottom faces
     CONF2__bft__cactus_sides,
     CONF2__bft__cactus_core,
+    CONF2__bft__red_brick_sides,
+    CONF2__bft__red_brick_core,
+    CONF2__bft__stone_brick_sides,
+    CONF2__bft__stone_brick_core,
 
     // count
     CONF2__bft__COUNT,
@@ -74,6 +80,10 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(180, 50, 0, 255), TEX__create__pixel(255, 150, 80, 255)); // oak log core face
     TEX__generate_face__vertical_stripes(output, CONF2__bft__cactus_sides, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus side face
     TEX__generate_face__box_texture(output, CONF2__bft__cactus_core, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus core face
+    TEX__generate_face__brick_side(output, CONF2__bft__red_brick_sides, TEX__create__pixel(200, 200, 200, 255), TEX__create__pixel(200, 0, 0, 255)); // brick side face
+    TEX__generate_face__brick_core(output, CONF2__bft__red_brick_core, TEX__create__pixel(200, 200, 200, 255), TEX__create__pixel(200, 0, 0, 255)); // brick core face
+    TEX__generate_face__brick_side(output, CONF2__bft__stone_brick_sides, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick side face
+    TEX__generate_face__brick_core(output, CONF2__bft__stone_brick_core, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
 
     return output;
 }
@@ -97,8 +107,10 @@ SKIN__skins CONF2__open__skins() {
     SKIN__set__skin__block(output, CONF2__bt__tar, SKIN__create__block__one_skin(CONF2__bft__tar, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__red_leaves, SKIN__create__block__one_skin(CONF2__bft__red_leaves, SKIN__bdt__draw_all_sides));
     SKIN__set__skin__block(output, CONF2__bt__green_leaves, SKIN__create__block__one_skin(CONF2__bft__green_leaves, SKIN__bdt__draw_all_sides));
-    SKIN__set__skin__block(output, CONF2__bt__oak_log, SKIN__create__block(CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_core, CONF2__bft__oak_log_core, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, SKIN__bdt__draw_all_sides));
+    SKIN__set__skin__block(output, CONF2__bt__oak_log, SKIN__create__block(CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_core, CONF2__bft__oak_log_core, CONF2__bft__oak_log_bark, CONF2__bft__oak_log_bark, SKIN__bdt__draw_only_one_side));
     SKIN__set__skin__block(output, CONF2__bt__cactus, SKIN__create__block(CONF2__bft__cactus_sides, CONF2__bft__cactus_sides, CONF2__bft__cactus_core, CONF2__bft__cactus_core, CONF2__bft__cactus_sides, CONF2__bft__cactus_sides, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__red_brick, SKIN__create__block(CONF2__bft__red_brick_sides, CONF2__bft__red_brick_sides, CONF2__bft__red_brick_core, CONF2__bft__red_brick_core, CONF2__bft__red_brick_sides, CONF2__bft__red_brick_sides, SKIN__bdt__draw_only_one_side));
+    SKIN__set__skin__block(output, CONF2__bt__stone_brick, SKIN__create__block(CONF2__bft__stone_brick_sides, CONF2__bft__stone_brick_sides, CONF2__bft__stone_brick_core, CONF2__bft__stone_brick_core, CONF2__bft__stone_brick_sides, CONF2__bft__stone_brick_sides, SKIN__bdt__draw_only_one_side));
 
     return output;
 }
@@ -289,7 +301,7 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position,
 CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
-    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__glass);
+    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__stone_brick);
 
     // quiet compiler warning
     chunk_position = chunk_position;
@@ -495,7 +507,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed, GENERATION__create__terrain(ESS__calculate__world_center().p_y, 0 /* TEMP VALUE */, 0 /* TEMP VALUE */)));
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__bars, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed, GENERATION__create__terrain(ESS__calculate__world_center().p_y, 0 /* TEMP VALUE */, 0 /* TEMP VALUE */)));
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);

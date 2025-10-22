@@ -388,4 +388,68 @@ void TEX__generate_face__vertical_stripes(TEX__faces faces, TEX__face_index face
     return;
 }
 
+// generate rectangular brick side pattern
+void TEX__generate_face__brick_side(TEX__faces faces, TEX__face_index face_index, TEX__pixel grout_color, TEX__pixel brick_color) {
+    BASIC__address write_to;
+
+    // get write pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // generate pixels
+    for (TEX__pixel_index row = 0; row < faces.p_height; row++) {
+        // check for grout layer
+        if (row % 4 == 3) {
+            // draw grout pixels
+            for (TEX__pixel_index column = 0; column < faces.p_width; column++) {
+                // draw pixel
+                write_to = TEX__write__pixel(write_to, grout_color);
+            }
+        // not a grout layer, but still has grout spots
+        } else {
+            // draw bricks & grout spots
+            for (TEX__pixel_index column = 0; column < faces.p_width; column++) {
+                // determine grout / brick pixel positions
+                // is a left most grout
+                if ((row % 8) > 3 && column % 8 == 0) {
+                    // draw grout
+                    write_to = TEX__write__pixel(write_to, grout_color);
+                // is a middle grout
+                } else if ((row % 8) < 3 && column % 8 == 3) {
+                    // draw grout
+                    write_to = TEX__write__pixel(write_to, grout_color);
+                // is a brick
+                } else {
+                    // draw brick
+                    write_to = TEX__write__pixel(write_to, brick_color);
+                }
+            }
+        }
+    }
+
+    return;
+}
+
+// generate rectangular brick core pattern
+void TEX__generate_face__brick_core(TEX__faces faces, TEX__face_index face_index, TEX__pixel grout_color, TEX__pixel brick_color) {
+    BASIC__address write_to;
+
+    // get write pointer
+    write_to = TEX__calculate__faces_pointer(faces, face_index);
+
+    // generate pixels
+    for (TEX__pixel_index row = 0; row < faces.p_height; row++) {
+        // for each column
+        for (TEX__pixel_index column = 0; column < faces.p_width; column++) {
+            // draw stripes
+            if (row == 4 || row == 12 || column == 3 || column == 11) {
+                write_to = TEX__write__pixel(write_to, grout_color);
+            } else {
+                write_to = TEX__write__pixel(write_to, brick_color);
+            }
+        }
+    }
+
+    return;
+}
+
 #endif
