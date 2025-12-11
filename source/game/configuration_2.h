@@ -27,6 +27,7 @@ typedef enum CONF2__bt {
     CONF2__bt__red_brick,
     CONF2__bt__stone_brick,
     CONF2__bt__mossy_stone_brick,
+    CONF2__bt__crate,
 
     // count
     CONF2__bt__COUNT,
@@ -54,6 +55,7 @@ typedef enum CONF2__bft {
     CONF2__bft__stone_brick_core,
     CONF2__bft__mossy_stone_brick_sides,
     CONF2__bft__mossy_stone_brick_core,
+    CONF2__bft__crate,
 
     // count
     CONF2__bft__COUNT,
@@ -89,6 +91,7 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__brick_core(output, CONF2__bft__stone_brick_core, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
     TEX__generate_face__brick_side(output, CONF2__bft__mossy_stone_brick_sides, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick side face
     TEX__generate_face__brick_core(output, CONF2__bft__mossy_stone_brick_core, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
+    TEX__generate_face__box_texture(output, CONF2__bft__crate, TEX__create__pixel(150, 75, 0, 255), TEX__create__pixel(100, 50, 0, 255)); // brick core face
 
     return output;
 }
@@ -307,7 +310,7 @@ CHUNK__chunk CONF2__generate_chunks__tar_cubes(ESS__world_vertex chunk_position,
 CHUNK__chunk CONF2__generate_chunks__bars(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
     // setup blocks
     BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
-    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__mossy_stone_brick);
+    BLOCK__block glass_block = BLOCK__create__block_only_solid(CONF2__bt__red_brick);
 
     // quiet compiler warning
     chunk_position = chunk_position;
@@ -500,9 +503,70 @@ CHUNK__chunk CONF2__generate_chunks__hilly_world(ESS__world_vertex chunk_positio
     return output;
 }*/
 
+// generate a dungeon
+CHUNK__chunk CONF2__generate_chunk__structure__dungeon() {
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block stone_brick_block = BLOCK__create__block_only_solid(CONF2__bt__stone_brick);
+    BLOCK__block mossy_stone_brick_block = BLOCK__create__block_only_solid(CONF2__bt__mossy_stone_brick);
+    BLOCK__block crate_block = BLOCK__create__block_only_solid(CONF2__bt__crate);
+
+    // create blank output
+    CHUNK__chunk output = CHUNK__create__chunk(air_block);
+
+    // create floor
+    for (BLOCK__block_x x = 0; x < ESS__define__chunk_side_block_count; x++) {
+        for (BLOCK__block_x z = 0; z < ESS__define__chunk_side_block_count; z++) {
+            // create floor block
+            output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, 0, z))] = stone_brick_block;
+        }
+    }
+
+    // place crate
+    output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(1, 1, 1))] = crate_block;
+
+    return output;
+}
+
+// generate a flat world
+CHUNK__chunk CONF2__generate_chunks__advanced_flat_world(ESS__world_vertex chunk_position, GENERATION__blueprint_address blueprint) {
+    CHUNK__chunk output;
+    ESS__world_vertex world_center = ESS__calculate__world_center();
+
+    // setup blocks
+    BLOCK__block air_block = BLOCK__create__block_only_solid(CONF2__bt__air);
+    BLOCK__block grass_block = BLOCK__create__block_only_solid(CONF2__bt__grass);
+    BLOCK__block stone_block = BLOCK__create__block_only_solid(CONF2__bt__stone);
+
+    // quiet compiler warning
+    blueprint = blueprint;
+
+    // generate world
+    // if an above ground chunk
+    if (chunk_position.p_y < world_center.p_y + ESS__calculate__chunk_side_size_in_world_coordinates()) {
+        // return an air chunk
+        output = CHUNK__create__chunk(air_block);
+    // if the ground surface chunk
+    } else if (chunk_position.p_y == world_center.p_y + ESS__calculate__chunk_side_size_in_world_coordinates()) {
+        // make a grass chunk
+        output = CHUNK__create__chunk(grass_block);
+    // otherwise, it is an underground chunk
+    } else {
+        // make dungeon
+        if (chunk_position.p_y == (world_center.p_y + (ESS__calculate__chunk_side_size_in_world_coordinates() * 2)) && chunk_position.p_x == world_center.p_x && chunk_position.p_z == world_center.p_z) {
+            output = CONF2__generate_chunk__structure__dungeon();
+        // solid stone
+        } else {
+            output = CHUNK__create__chunk(stone_block);
+        }
+    }
+
+    return output;
+}
+
 // setup game
 void CONF2__setup__game(GAME__information* game_information, GENERATION__seed seed) {
-    ESS__world_vertex camera_position = ESS__calculate__world_center();//ESS__create__world_vertex(ESS__calculate__chunk_side_size_in_world_coordinates() * 10, ESS__calculate__chunk_side_size_in_world_coordinates() * 10, ESS__calculate__chunk_side_size_in_world_coordinates() * 10);
+    ESS__world_vertex camera_position = ESS__calculate__world_center();
 
     // setup textures
     (*game_information).p_game_textures = TEX__open__game_textures(CONF2__open__block_faces(&((*game_information).p_random_pixel_context)), (*game_information).p_chunks_shader_program);
@@ -511,7 +575,7 @@ void CONF2__setup__game(GAME__information* game_information, GENERATION__seed se
     (*game_information).p_skins = CONF2__open__skins();
 
     // open world manager
-    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__bars, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed, GENERATION__create__terrain(ESS__calculate__world_center().p_y, 0 /* TEMP VALUE */, 0 /* TEMP VALUE */)));
+    (*game_information).p_world_manager = MANAGER__open__world_manager(&CONF2__generate_chunks__advanced_flat_world, ESS__create__dimensions(5, 5, 5), camera_position, GENERATION__open__blueprint(seed, GENERATION__create__terrain(ESS__calculate__world_center().p_y, 0 /* TEMP VALUE */, 0 /* TEMP VALUE */)));
 
     // generate chunks
     MANAGER__initialize__world((*game_information).p_world_manager, (*game_information).p_world_manager.p_positioning.p_camera_position, (*game_information).p_skins, (*game_information).p_temporaries);
