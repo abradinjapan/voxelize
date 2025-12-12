@@ -91,7 +91,7 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__brick_core(output, CONF2__bft__stone_brick_core, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
     TEX__generate_face__brick_side(output, CONF2__bft__mossy_stone_brick_sides, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick side face
     TEX__generate_face__brick_core(output, CONF2__bft__mossy_stone_brick_core, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
-    TEX__generate_face__box_texture(output, CONF2__bft__crate, TEX__create__pixel(150, 75, 0, 255), 3, 3, TEX__create__pixel(100, 50, 0, 255)); // crate face
+    TEX__generate_face__box_texture(output, CONF2__bft__crate, TEX__create__pixel(100, 50, 0, 255), 3, 3, TEX__create__pixel(150, 75, 0, 255)); // crate face
 
     return output;
 }
@@ -511,19 +511,21 @@ CHUNK__chunk CONF2__generate_chunk__structure__dungeon() {
     BLOCK__block mossy_stone_brick_block = BLOCK__create__block_only_solid(CONF2__bt__mossy_stone_brick);
     BLOCK__block crate_block = BLOCK__create__block_only_solid(CONF2__bt__crate);
 
-    // create blank output
-    CHUNK__chunk output = CHUNK__create__chunk(air_block);
+    // create solid structure
+    CHUNK__chunk output = CHUNK__create__chunk(stone_brick_block);
 
-    // create floor
-    for (BLOCK__block_x x = 0; x < ESS__define__chunk_side_block_count; x++) {
-        for (BLOCK__block_x z = 0; z < ESS__define__chunk_side_block_count; z++) {
-            // create floor block
-            output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, 0, z))] = stone_brick_block;
+    // create walls, ceiling and floor
+    for (BLOCK__block_x x = 1; x < ESS__define__chunk_side_block_count - 1; x++) {
+        for (BLOCK__block_y y = 1; y < ESS__define__chunk_side_block_count - 1; y++) {
+            for (BLOCK__block_x z = 1; z < ESS__define__chunk_side_block_count - 1; z++) {
+                // create floor block
+                output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(x, y, z))] = air_block;
+            }
         }
     }
 
     // place crate
-    output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(1, 1, 1))] = crate_block;
+    output.p_blocks[CHUNK__calculate__block_index(CHUNK__create__block_position(2, 1, 2))] = crate_block;
 
     return output;
 }
