@@ -77,21 +77,21 @@ TEX__faces CONF2__open__block_faces(RANDOM__context* random_context) {
     TEX__generate_face__one_color_range(output, CONF2__bft__sand, TEX__create__pixel(242, 214, 136, 255), random_context, color_intensity); // sand face
     TEX__generate_face__one_color_range(output, CONF2__bft__dirt, TEX__create__pixel(100, 50, 0, 255), random_context, color_intensity); // dirt face
     TEX__generate_face__one_color_range(output, CONF2__bft__snow, TEX__create__pixel(250, 250, 250, 255), random_context, color_intensity); // snow face
-    TEX__generate_face__box_texture(output, CONF2__bft__glass, TEX__create__pixel(245, 245, 245, 255), TEX__create__pixel(0, 0, 0, 0)); // glass face
+    TEX__generate_face__box_texture(output, CONF2__bft__glass, TEX__create__pixel(245, 245, 245, 255), 1, 1, TEX__create__pixel(0, 0, 0, 0)); // glass face
     TEX__generate_face__one_color_range(output, CONF2__bft__tar, TEX__create__pixel(20, 20, 20, 255), random_context, color_intensity); // tar face
     TEX__generate_face__checkerboard(output, CONF2__bft__red_leaves, TEX__create__pixel(255, 0, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // red leaves face
     TEX__generate_face__checkerboard(output, CONF2__bft__green_leaves, TEX__create__pixel(0, 225, 0, 255), TEX__create__pixel(0, 0, 0, 0)); // green leaves face
     TEX__generate_face__vertical_stripes(output, CONF2__bft__oak_log_bark, TEX__create__pixel(180, 50, 0, 255), TEX__create__pixel(180, 60, 0, 255)); // oak log bark face
-    TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(180, 50, 0, 255), TEX__create__pixel(255, 150, 80, 255)); // oak log core face
+    TEX__generate_face__box_texture(output, CONF2__bft__oak_log_core, TEX__create__pixel(180, 50, 0, 255), 1, 1, TEX__create__pixel(255, 150, 80, 255)); // oak log core face
     TEX__generate_face__vertical_stripes(output, CONF2__bft__cactus_sides, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus side face
-    TEX__generate_face__box_texture(output, CONF2__bft__cactus_core, TEX__create__pixel(0, 100, 0, 255), TEX__create__pixel(0, 120, 0, 255)); // cactus core face
+    TEX__generate_face__box_texture(output, CONF2__bft__cactus_core, TEX__create__pixel(0, 100, 0, 255), 1, 1, TEX__create__pixel(0, 120, 0, 255)); // cactus core face
     TEX__generate_face__brick_side(output, CONF2__bft__red_brick_sides, TEX__create__pixel(200, 200, 200, 255), TEX__create__pixel(200, 0, 0, 255)); // brick side face
     TEX__generate_face__brick_core(output, CONF2__bft__red_brick_core, TEX__create__pixel(200, 200, 200, 255), TEX__create__pixel(200, 0, 0, 255)); // brick core face
     TEX__generate_face__brick_side(output, CONF2__bft__stone_brick_sides, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick side face
     TEX__generate_face__brick_core(output, CONF2__bft__stone_brick_core, TEX__create__pixel(75, 100, 100, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
     TEX__generate_face__brick_side(output, CONF2__bft__mossy_stone_brick_sides, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick side face
     TEX__generate_face__brick_core(output, CONF2__bft__mossy_stone_brick_core, TEX__create__pixel(0, 75, 0, 255), TEX__create__pixel(50, 50, 50, 255)); // brick core face
-    TEX__generate_face__box_texture(output, CONF2__bft__crate, TEX__create__pixel(150, 75, 0, 255), TEX__create__pixel(100, 50, 0, 255)); // brick core face
+    TEX__generate_face__box_texture(output, CONF2__bft__crate, TEX__create__pixel(150, 75, 0, 255), 3, 3, TEX__create__pixel(100, 50, 0, 255)); // crate face
 
     return output;
 }

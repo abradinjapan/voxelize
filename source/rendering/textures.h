@@ -12,6 +12,7 @@
 // types
 typedef u8 TEX__pixel_color;
 typedef u16 TEX__dimension_length;
+typedef u16 TEX__line_thickness;
 typedef u16 TEX__face_count;
 typedef TEX__face_count TEX__face_index;
 typedef u64 TEX__pixel_index;
@@ -300,37 +301,47 @@ void TEX__generate_face__one_color_range(TEX__faces faces, TEX__face_index face_
 }
 
 // create a box shaped texture
-void TEX__generate_face__box_texture(TEX__faces faces, TEX__face_index face_index, TEX__pixel border, TEX__pixel center) {
+void TEX__generate_face__box_texture(TEX__faces faces, TEX__face_index face_index, TEX__pixel border_pixel, TEX__line_thickness border_horizontal_thickness, TEX__line_thickness border_vertical_thickness, TEX__pixel center_pixel) {
     BASIC__address write_to;
 
     // get write to pointer
     write_to = TEX__calculate__faces_pointer(faces, face_index);
 
     // write top row
-    for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
-        // write pixel
-        write_to = TEX__write__pixel(write_to, border);
+    for (TEX__pixel_index height = 0; height < border_vertical_thickness; height++) {
+        // write one row
+        for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
+            // write pixel
+            write_to = TEX__write__pixel(write_to, border_pixel);
+        }
     }
 
     // write body
-    for (TEX__pixel_index height = 1; height < (u64)faces.p_height - 1; height++) {
+    for (TEX__pixel_index height = border_vertical_thickness; height < (u64)faces.p_height - border_horizontal_thickness; height++) {
         // write left wall
-        write_to = TEX__write__pixel(write_to, border);
+        for (TEX__pixel_index width = 0; width < border_horizontal_thickness; width++) {
+            // write pixel
+            write_to = TEX__write__pixel(write_to, border_pixel);
+        }
 
         // write center
-        for (TEX__pixel_index width = 1; width < (u64)faces.p_width - 1; width++) {
+        for (TEX__pixel_index width = border_horizontal_thickness; width < (u64)faces.p_width - border_horizontal_thickness; width++) {
             // write center
-            write_to = TEX__write__pixel(write_to, center);
+            write_to = TEX__write__pixel(write_to, center_pixel);
         }
 
         // write right wall
-        write_to = TEX__write__pixel(write_to, border);
+        for (TEX__pixel_index width = faces.p_width - border_horizontal_thickness; width < faces.p_width; width++) {
+            write_to = TEX__write__pixel(write_to, border_pixel);
+        }
     }
 
     // write bottom row
-    for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
-        // write pixel
-        write_to = TEX__write__pixel(write_to, border);
+    for (TEX__line_thickness height = faces.p_height - border_vertical_thickness; height < faces.p_height; height++) {
+        for (TEX__pixel_index width = 0; width < faces.p_width; width++) {
+            // write pixel
+            write_to = TEX__write__pixel(write_to, border_pixel);
+        }
     }
 
     return;
